@@ -59,7 +59,15 @@ android {
 
     // call regular ndk-build(.cmd) script from app directory
     task ndkBuild(type: Exec) {
-        commandLine getNdkBuildCmd(), '-C', file('src/main').absolutePath
+        def ndkBuildParallel = Runtime.runtime.availableProcessors()
+        if (System.env.NDK_BUILD_PARALLEL != null) {
+            ndkBuildParallel = System.env.NDK_BUILD_PARALLEL
+        }
+        def ndkBuildAbi = "all"
+        if (System.env.NDK_BUILD_ABI != null) {
+           ndkBuildAbi = System.env.NDK_BUILD_ABI
+        }
+        commandLine getNdkBuildCmd(), '-C', file('src/main').absolutePath, '-j', ndkBuildParallel, "APP_ABI=" + ndkBuildAbi
     }
 
     tasks.withType(JavaCompile) {
@@ -74,22 +82,25 @@ android {
 }
 
 def getNdkBuildCmd() {
-    if (System.env.ANDROID_NDK_ROOT != null)
-        return System.env.ANDROID_NDK_ROOT
-
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    String ndk_dir = properties.getProperty('ndk.dir', null)
-    if (ndk_dir == null) {
-        throw new GradleException("NDK location not found. Define location with ndk.dir in the local.properties file or with an ANDROID_NDK_ROOT environment variable.")
-    }
-
-    String ndk_build = ndk_dir + "/ndk-build"
+    def ndk_build = getNdkDir() + "/ndk-build"
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         ndk_build += ".cmd"
     }
 
     return ndk_build
+}
+
+def getNdkDir() {
+    if (System.env.ANDROID_NDK_ROOT != null)
+        return System.env.ANDROID_NDK_ROOT
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def ndk_dir = properties.getProperty('ndk.dir', null)
+    if (ndk_dir == null) {
+        throw new GradleException("NDK location not found. Define location with ndk.dir in the local.properties file or with an ANDROID_NDK_ROOT environment variable.")
+    }
+    return ndk_dir
 }
 
 dependencies {

@@ -1,0 +1,33 @@
+language: android
+android:
+  components:
+    - platform-tools
+    - build-tools-21.1.2
+    - android-19
+    - android-21
+    - extra-android-support
+    - extra-android-m2repository
+    - extra-google-m2repository
+    # - tools
+    # - extra
+    # - extra-google-google_play_services
+    # - addon-google_apis-google-19
+    # - sys-img-armeabi-v7a-android-19
+jdk:
+  - openjdk7
+notifications:
+  email:
+    on_success: always
+    on_failure: always
+env:
+ - NDK_BUILD_ABI=arm64-v8a
+ - NDK_BUILD_ABI=armeabi
+ - NDK_BUILD_ABI=armeabi-v7a
+ - NDK_BUILD_ABI=mips
+ - NDK_BUILD_ABI=x86
+ - NDK_BUILD_ABI=x86_64
+before_install:
+  - travis_retry sudo apt-get install -y build-essential unzip wget p7zip-full
+  - travis_retry .jenkins.d/10-get-ndk.sh
+script:
+  - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m" NDK_BUILD_PARALLEL=1 gradle assembleRelease

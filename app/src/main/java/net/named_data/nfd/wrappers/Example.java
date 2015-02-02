@@ -6,7 +6,7 @@ package net.named_data.nfd.wrappers;
 public class Example
 {
   static {
-    System.loadLibrary("nfd-example");
+    System.loadLibrary("nfd-wrapper");
   }
 
   public native static void main();
