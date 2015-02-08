@@ -27,7 +27,7 @@ env:
  - NDK_BUILD_ABI=x86
  - NDK_BUILD_ABI=x86_64
 before_install:
-  - travis_retry sudo apt-get install -y build-essential unzip wget p7zip-full
+  - travis_retry sudo apt-get install -y build-essential unzip wget pv
   - travis_retry .jenkins.d/10-get-ndk.sh
 script:
   - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m" NDK_BUILD_PARALLEL=1 gradle assembleRelease

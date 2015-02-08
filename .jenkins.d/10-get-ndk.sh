@@ -2,18 +2,23 @@
 set -e
 set -x
 
-if [ ! -f downloads/crystax-ndk-10.1.0-linux-x86_64.7z ]; then
+URL=https://www.crystax.net/download/
+NDK=crystax-ndk-10.1.0
+
+NDK_FILE="$NDK-linux-x86_64.tar.bz2"
+
+if [ ! -f downloads/$NDK_FILE ]; then
     mkdir downloads || true
     cd downloads
-    wget --no-check-certificate https://www.crystax.net/download/crystax-ndk-10.1.0-linux-x86_64.7z
+    wget --no-check-certificate $URL$NDK_FILE
     cd ..
 fi
 
-if [ ! -d crystax-ndk-10.1.0 ]; then
-  echo -en 'travis_fold:start:NDK\r'
-  7z x downloads/crystax-ndk-10.1.0-linux-x86_64.7z > /dev/null
-  find crystax-ndk-10.1.0 -name byteswap.h -exec sed -i -e 's/ swap/ bswap/g' {} \;
-  echo -en 'travis_fold:end:NDK\r'
+if [ ! -d $NDK ]; then
+    echo -en 'travis_fold:start:NDK\r'
+    pv -f downloads/$NDK_FILE | tar xjf -
+    find $NDK -name byteswap.h -exec sed -i -e 's/ swap/ bswap/g' {} \;
+    echo -en 'travis_fold:end:NDK\r'
 fi
 
-echo ndk.dir=`pwd`/crystax-ndk-10.1.0 >> local.properties
+echo ndk.dir=`pwd`/$NDK >> local.properties
