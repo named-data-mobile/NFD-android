@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2015 Regents of the University of California
+ *
+ * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
+ * See AUTHORS.md for complete list of NFD Android authors and contributors.
+ *
+ * NFD Android is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.named_data.nfd;
 
 import android.annotation.TargetApi;
@@ -108,8 +126,8 @@ public class NfdSettingsActivity extends PreferenceActivity
    */
   private static boolean isXLargeTablet(Context context)
   {
-    return (context.getResources().getConfiguration().screenLayout
-      & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    return (context.getResources().getConfiguration().screenLayout &
+      Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
   }
 
   /**
@@ -121,9 +139,9 @@ public class NfdSettingsActivity extends PreferenceActivity
    */
   private static boolean isSimplePreferences(Context context)
   {
-    return ALWAYS_SIMPLE_PREFS
-      || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-      || !isXLargeTablet(context);
+    return ALWAYS_SIMPLE_PREFS ||
+      Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ||
+      !isXLargeTablet(context);
   }
 
   /**
@@ -157,9 +175,9 @@ public class NfdSettingsActivity extends PreferenceActivity
 
         // Set the summary to reflect the new value.
         preference.setSummary(
-          index >= 0
-            ? listPreference.getEntries()[index]
-            : null);
+          index >= 0 ?
+            listPreference.getEntries()[index] :
+            null);
 
       } else if (preference instanceof RingtonePreference) {
         // For ringtone preferences, look up the correct display value
@@ -209,9 +227,9 @@ public class NfdSettingsActivity extends PreferenceActivity
     // Trigger the listener immediately with the preference's
     // current value.
     sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                                                             PreferenceManager
-                                                               .getDefaultSharedPreferences(preference.getContext())
-                                                               .getString(preference.getKey(), ""));
+      PreferenceManager
+        .getDefaultSharedPreferences(preference.getContext())
+        .getString(preference.getKey(), ""));
   }
 
   /**

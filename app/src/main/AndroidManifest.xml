@@ -2,22 +2,44 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.named_data.nfd" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <activity
-            android:name=".NfdSettingsActivity"
+            android:name=".NfdMainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
+        <activity
+            android:name=".NfdSettingsActivity"
+            android:label="@string/app_name" >
+        </activity>
+
+        <service
+            android:name=".NfdService"
+            android:process="net.named_data.nfd.NfdService"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/service_name"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="net.named_data.nfd.NfdService" />
+            </intent-filter>
+        </service>
+
+    </application>
 
 </manifest>
