@@ -8,5 +8,6 @@
 #define HAVE_LIBRESOLV
 /*#undef HAVE_UNIX_SOCKETS*/
 #define DEFAULT_CONFIG_FILE "./nfd.conf"
+#define HAVE_CUSTOM_LOGGER 1
 
 #endif /* W_CONFIG_HPP_WAF */

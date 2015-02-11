@@ -23,35 +23,14 @@
  * NFD, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NFD_ANDROID_JNI_ANDROID_LOG_HPP
-#define NFD_ANDROID_JNI_ANDROID_LOG_HPP
+#include "custom-logger.hpp"
 
-#include <streambuf>
+namespace nfd {
 
-namespace nfd_android {
-
-/**
- * @brief Streambuf implementation to redirect to streams to Android logging facility
- *
- * Based on code from http://stackoverflow.com/a/8870278/2150331
- */
-class AndroidLoggerStreambuf : public std::streambuf
+Logger::Logger(const std::string& name, LogLevel level)
+  : m_moduleName(name)
+  , m_enabledLogLevel(level)
 {
-public:
-  AndroidLoggerStreambuf();
+}
 
-protected:
-  virtual int
-  overflow(int c);
-
-  virtual int
-  sync();
-
-private:
-  enum { MAX_BUF_SIZE = 1024 };
-  char buffer[MAX_BUF_SIZE];
-};
-
-} // namespace nfd_android
-
-#endif // NFD_ANDROID_JNI_ANDROID_LOG_HPP
+} // namespace nfd

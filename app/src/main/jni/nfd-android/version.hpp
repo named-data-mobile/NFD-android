@@ -38,13 +38,13 @@ namespace nfd {
  *
  *  MAJOR*1000000 + MINOR*1000 + PATCH
  */
-#define NFD_VERSION 2000
+#define NFD_VERSION 3000
 
 /** \brief NFD version represented as a string
  *
  *  MAJOR.MINOR.PATCH
  */
-#define NFD_VERSION_STRING "0.2.0"
+#define NFD_VERSION_STRING "0.3.0"
 
 /** \brief NFD version string, including git commit information, if NFD is build from
  *         specific git commit
@@ -60,12 +60,12 @@ namespace nfd {
  *
  * Example, 0.1.0-rc1-1-g5c86570
  */
-#define NFD_VERSION_BUILD_STRING "0.2.0-134-gde88b46"
+#define NFD_VERSION_BUILD_STRING "0.3.0-8-g6f570de"
 
 /// MAJOR version
 #define NFD_VERSION_MAJOR 0
 /// MINOR version
-#define NFD_VERSION_MINOR 2
+#define NFD_VERSION_MINOR 3
 /// PATCH version
 #define NFD_VERSION_PATCH 0
 
