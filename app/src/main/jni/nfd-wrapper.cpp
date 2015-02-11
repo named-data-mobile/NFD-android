@@ -189,7 +189,7 @@ static boost::thread g_thread;
 } // namespace nfd
 
 JNIEXPORT void JNICALL
-Java_net_named_1data_nfd_wrappers_NfdWrapper_startNfd(JNIEnv* env, jclass, jstring homePathJ)
+Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jstring homePathJ)
 {
   if (nfd::g_runner.get() == nullptr) {
     // set/update HOME environment variable
@@ -223,7 +223,7 @@ Java_net_named_1data_nfd_wrappers_NfdWrapper_startNfd(JNIEnv* env, jclass, jstri
 }
 
 JNIEXPORT void JNICALL
-Java_net_named_1data_nfd_wrappers_NfdWrapper_stopNfd(JNIEnv*, jclass)
+Java_net_named_1data_nfd_service_NfdService_stopNfd(JNIEnv*, jclass)
 {
   if (nfd::g_runner.get() != nullptr) {
     NFD_LOG_INFO("Stopping NFD...");
