@@ -12,6 +12,7 @@
 bin/
 gen/
 out/
+obj/
 build/
 app/src/*/libs/
 app/src/*/obj/

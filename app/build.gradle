@@ -18,6 +18,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            debuggable true
+            jniDebuggable true
+        }
     }
     sourceSets {
         main {
@@ -59,15 +63,23 @@ android {
 
     // call regular ndk-build(.cmd) script from app directory
     task ndkBuild(type: Exec) {
-        def ndkBuildParallel = Runtime.runtime.availableProcessors()
+        def args = [getNdkBuildCmd(), '-C', file('src/main').absolutePath]
+
         if (System.env.NDK_BUILD_PARALLEL != null) {
-            ndkBuildParallel = System.env.NDK_BUILD_PARALLEL
+           args.add("-j" + System.env.NDK_BUILD_PARALLEL)
         }
-        def ndkBuildAbi = "all"
+        else {
+           args.add("-j" + Runtime.runtime.availableProcessors())
+        }
+
         if (System.env.NDK_BUILD_ABI != null) {
-           ndkBuildAbi = System.env.NDK_BUILD_ABI
+           args.add("APP_ABI=" + System.env.NDK_BUILD_ABI)
         }
-        commandLine getNdkBuildCmd(), '-C', file('src/main').absolutePath, '-j', ndkBuildParallel, "APP_ABI=" + ndkBuildAbi
+
+        if (System.env.NDK_DEBUG != null) {
+           args.add("NDK_DEBUG=1")
+        }
+        commandLine args
     }
 
     tasks.withType(JavaCompile) {
