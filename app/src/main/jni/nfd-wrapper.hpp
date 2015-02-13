@@ -31,16 +31,16 @@ extern "C" {
  * Method:    startNfd
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_named_1data_nfd_wrappers_NfdWrapper_startNfd
-  (JNIEnv *, jclass);
+JNIEXPORT void JNICALL
+Java_net_named_1data_nfd_wrappers_NfdWrapper_startNfd(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     net_named_data_nfd_wrappers_NfdWrapper
  * Method:    stopNfd
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_named_1data_nfd_wrappers_NfdWrapper_stopNfd
-  (JNIEnv *, jclass);
+JNIEXPORT void JNICALL
+Java_net_named_1data_nfd_wrappers_NfdWrapper_stopNfd(JNIEnv*, jclass);
 
 #ifdef __cplusplus
 }

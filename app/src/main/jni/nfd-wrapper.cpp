@@ -25,17 +25,35 @@
 #include "core/global-io.hpp"
 #include "core/config-file.hpp"
 #include "core/logger.hpp"
+#include "core/privilege-helper.hpp"
 
+#include <stdlib.h>
 #include <boost/property_tree/info_parser.hpp>
+#include <boost/thread.hpp>
+#include <mutex>
 
 NFD_LOG_INIT("NfdWrapper");
 
 namespace nfd {
 
+
+// A little bit of cheating to make sure NFD can be properly restarted
+
+namespace scheduler {
+// defined in scheduler.cpp
+void
+resetGlobalScheduler();
+} // namespace scheduler
+
+void
+resetGlobalIoService();
+
+
 class Runner
 {
 public:
   Runner()
+    : m_io(nullptr)
   {
     std::string initialConfig =
       "general\n"
@@ -44,7 +62,13 @@ public:
       "\n"
       "log\n"
       "{\n"
-      "  default_level INFO\n"
+      "  default_level ALL\n"
+      "  NameTree INFO\n"
+      "  BestRouteStrategy2 INFO\n"
+      "  InternalFace INFO\n"
+      "  Forwarder INFO\n"
+      "  ContentStore INFO\n"
+      "  DeadNonceList INFO\n"
       "}\n"
       "tables\n"
       "{\n"
@@ -98,7 +122,7 @@ public:
       "      type any\n"
       "    }\n"
       "  }\n"
-      "}\n"
+      "\n"
       "  remote_register\n"
       "  {\n"
       "    cost 15\n"
@@ -106,29 +130,52 @@ public:
       "    retry 0\n"
       "    refresh_interval 300\n"
       "  }\n"
+      "}\n"
       "\n";
 
     std::istringstream input(initialConfig);
     boost::property_tree::read_info(input, m_config);
 
-    m_nfd.reset(new Nfd(initialConfig, m_keyChain));
-    m_nrd.reset(new rib::Nrd(initialConfig, m_keyChain));
+    std::unique_lock<std::mutex> lock(m_pointerMutex);
+    m_nfd.reset(new Nfd(m_config, m_keyChain));
+    m_nrd.reset(new rib::Nrd(m_config, m_keyChain));
 
     m_nfd->initialize();
     m_nrd->initialize();
   }
 
-  void
-  run()
+  ~Runner()
   {
+    stop();
+    m_io->reset();
+  }
+
+  void
+  start()
+  {
+    {
+      std::unique_lock<std::mutex> lock(m_pointerMutex);
+      m_io = &getGlobalIoService();
+    }
+    m_io->run();
+    m_io->reset();
   }
 
   void
   stop()
   {
+    std::unique_lock<std::mutex> lock(m_pointerMutex);
+
+    m_io->post([this] {
+        m_io->stop();
+        this->m_nrd.reset();
+        this->m_nfd.reset();
+      });
   }
 
 private:
+  std::mutex m_pointerMutex;
+  boost::asio::io_service* m_io;
   ndn::KeyChain m_keyChain;
   unique_ptr<Nfd> m_nfd; // will use globalIoService
   unique_ptr<rib::Nrd> m_nrd; // will use globalIoService
@@ -137,35 +184,50 @@ private:
 };
 
 static unique_ptr<Runner> g_runner;
+static boost::thread g_thread;
 
 } // namespace nfd
 
 JNIEXPORT void JNICALL
-Java_net_named_1data_nfd_wrappers_NfdWrapper_startNfd(JNIEnv *, jclass)
+Java_net_named_1data_nfd_wrappers_NfdWrapper_startNfd(JNIEnv* env, jclass, jstring homePathJ)
 {
   if (nfd::g_runner.get() == nullptr) {
-    try {
-      nfd::g_runner.reset(new nfd::Runner());
-      nfd::g_runner.reset();
-    }
-    catch (const std::exception& e) {
-      NFD_LOG_FATAL(e.what());
-    }
-  }
+    // set/update HOME environment variable
+    const char* homePath = env->GetStringUTFChars(homePathJ, nullptr);
+    ::setenv("HOME", homePath, true);
+    env->ReleaseStringUTFChars(homePathJ, homePath);
+    NFD_LOG_INFO("Use [" << homePath << "] as a security storage");
 
-  if (nfd::g_runner.get() == nullptr) {
-    return;
-  }
+    nfd::g_thread = boost::thread([] {
+        NFD_LOG_INFO("Starting NFD...");
+        try {
+          nfd::g_runner.reset(new nfd::Runner());
+          nfd::g_runner->start();
+        }
+        catch (const std::exception& e) {
+          NFD_LOG_FATAL(e.what());
+        }
+        catch (const nfd::PrivilegeHelper::Error& e) {
+          NFD_LOG_FATAL("PrivilegeHelper: " << e.what());
+        }
+        catch (...) {
+          NFD_LOG_FATAL("Unknown fatal error");
+        }
 
-  nfd::g_runner->run();
+        nfd::g_runner.reset();
+        nfd::scheduler::resetGlobalScheduler();
+        nfd::resetGlobalIoService();
+        NFD_LOG_INFO("NFD stopped");
+      });
+  }
 }
 
 JNIEXPORT void JNICALL
-Java_net_named_1data_nfd_wrappers_NfdWrapper_stopNfd(JNIEnv *, jclass)
+Java_net_named_1data_nfd_wrappers_NfdWrapper_stopNfd(JNIEnv*, jclass)
 {
-  if (nfd::g_runner.get() == nullptr) {
-    return;
+  if (nfd::g_runner.get() != nullptr) {
+    NFD_LOG_INFO("Stopping NFD...");
+    nfd::g_runner->stop();
+    // do not block anything
   }
-  nfd::g_runner->stop();
-  nfd::g_runner.reset();
 }

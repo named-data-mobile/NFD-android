@@ -4,7 +4,7 @@ LOCAL_PATH_SAVED := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 LOCAL_MODULE := nfd-wrapper
 LOCAL_SRC_FILES := nfd-wrapper.cpp
-LOCAL_SHARED_LIBRARIES := nfd-daemon ndn-cxx boost_system_shared
+LOCAL_SHARED_LIBRARIES := nfd-daemon ndn-cxx boost_system_shared boost_thread_shared
 LOCAL_LDLIBS := -llog
 include $(BUILD_SHARED_LIBRARY)
 

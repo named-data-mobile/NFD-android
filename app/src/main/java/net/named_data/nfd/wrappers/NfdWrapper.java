@@ -24,7 +24,7 @@ public class NfdWrapper {
     }
 
     public native static void
-    startNfd();
+    startNfd(String homePath);
 
     public native static void
     stopNfd();

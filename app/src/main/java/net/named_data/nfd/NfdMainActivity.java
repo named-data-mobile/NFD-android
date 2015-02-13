@@ -83,7 +83,7 @@ public class NfdMainActivity extends ActionBarActivity {
   public void startNfd(View view) {
     G.Log("Starting NFD through JNI ...");
 
-    NfdWrapper.startNfd();
+    NfdWrapper.startNfd(getFilesDir().getAbsolutePath());
   }
 
   public void stopNfd(View view) {

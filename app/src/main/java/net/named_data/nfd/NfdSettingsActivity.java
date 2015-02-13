@@ -35,10 +35,7 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 
-
 import java.util.List;
-
-import net.named_data.nfd.wrappers.Example;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -66,9 +63,6 @@ public class NfdSettingsActivity extends PreferenceActivity
   protected void onPostCreate(Bundle savedInstanceState)
   {
     super.onPostCreate(savedInstanceState);
-
-    /// @todo Remove after the example no longer needed
-    Example.main();
 
     setupSimplePreferencesScreen();
   }

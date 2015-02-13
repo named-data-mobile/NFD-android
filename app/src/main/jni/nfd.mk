@@ -1,7 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 LOCAL_PATH_SAVED := $(LOCAL_PATH)
 
-NFD_BOOST_LIBS = system filesystem chrono program_options random
+NFD_BOOST_LIBS = system filesystem chrono program_options random thread
 
 # core
 include $(CLEAR_VARS)

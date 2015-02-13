@@ -60,7 +60,7 @@ namespace nfd {
  *
  * Example, 0.1.0-rc1-1-g5c86570
  */
-#define NFD_VERSION_BUILD_STRING "0.3.0-8-g6f570de"
+#define NFD_VERSION_BUILD_STRING "0.3.0-18-g9a36c76"
 
 /// MAJOR version
 #define NFD_VERSION_MAJOR 0
