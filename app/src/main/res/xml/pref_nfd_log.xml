@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="@string/pref_tags_log_level_title_key"
+        android:title="@string/pref_tags_log_level_title">
+
+        <ListPreference
+            android:key="@string/pref_tags_log_level_key"
+            android:title="@string/pref_tags_log_level"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/pref_category_title_tags_key"
+        android:title="@string/pref_category_title_tags">
+
+        <ListPreference
+            android:key="@string/pref_tag_commandvalidator_key"
+            android:title="@string/pref_tag_commandvalidator"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_facemanager_key"
+            android:title="@string/pref_tag_facemanager"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_facetable_key"
+            android:title="@string/pref_tag_facetable"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_fibmanager_key"
+            android:title="@string/pref_tag_fibmanager"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_generalconfigsection_key"
+            android:title="@string/pref_tag_generalconfigsection"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_internalface_key"
+            android:title="@string/pref_tag_internalface"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_managerbase_key"
+            android:title="@string/pref_tag_managerbase"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_privilegehelper_key"
+            android:title="@string/pref_tag_privilegehelper"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_remoteregistrator_key"
+            android:title="@string/pref_tag_remoteregistrator"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_ribmanager_key"
+            android:title="@string/pref_tag_ribmanager"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_strategy_key"
+            android:title="@string/pref_tag_strategy"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_strategychoice_key"
+            android:title="@string/pref_tag_strategychoice"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_tablesconfigsection_key"
+            android:title="@string/pref_tag_tablesconfigsection"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_tcpchannel_key"
+            android:title="@string/pref_tag_tcpchannel"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_tcpfactory_key"
+            android:title="@string/pref_tag_tcpfactory"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_tcplocalface_key"
+            android:title="@string/pref_tag_tcplocalface"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_tag_udpfactory_key"
+            android:title="@string/pref_tag_udpfactory"
+            android:entries="@array/pref_log_levels"
+            android:entryValues="@array/pref_log_level_values"
+            android:defaultValue="I"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

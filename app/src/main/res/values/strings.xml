@@ -8,4 +8,18 @@
     <string name="stopping_nfd">Stopping NFD ...</string>
     <string name="starting_nfd">Starting NFD ...</string>
     <string name="reconnect_to_nfd">Reconnecting to NFD Service</string>
+    <string name="loading_logger">Loading logger ...</string>
+    <string name="log_level_verbose">Verbose</string>
+    <string name="log_level_debug">Debug</string>
+    <string name="log_level_info">Info</string>
+    <string name="log_level_warn">Warn</string>
+    <string name="log_level_error">Error</string>
+    <string name="log_level_assert">Assert</string>
+    <string name="log_level_fatal">Fatal</string>
+    <string name="log_level_silent">Silent</string>
+    <string name="nfd_logger">NFD Logger</string>
+    <string name="log_settings">Log Settings</string>
+    <string name="nfd_log_settings">NFD Log Settings</string>
+    <string name="checking_on_nfd">Checking on NFD Service ...</string>
+    <string name="launch_logger">Launch Logger!</string>
 </resources>

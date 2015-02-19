@@ -1,60 +1,79 @@
 <resources>
 
-    <!-- Strings related to Settings -->
+    <!-- Strings related to NFD Log Settings -->
 
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
+    <!-- General -->
+    <string name="pref_category_title_general">General</string>
+    <string name="pref_category_title_general_key">General_Key</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
+    <!-- Set all tags log level -->
+    <string name="pref_tags_log_level_title_key">All_Log_Levels_Key</string>
+    <string name="pref_tags_log_level_title">All Log Levels</string>
+    <string name="pref_tags_log_level_key">Reset_All_Tags_Log_Level_Key</string>
+    <string name="pref_tags_log_level">Reset</string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
+    <!-- Tags -->
+    <string name="pref_category_title_tags">NFD Tags &amp; Log Levels</string>
+    <string name="pref_category_title_tags_key">NFD_Tags_Key</string>
 
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
+    <!-- Tag Display Names -->
+    <string name="pref_tag_commandvalidator">CommandValidator</string>
+    <string name="pref_tag_facemanager">FaceManager</string>
+    <string name="pref_tag_facetable">FaceTable</string>
+    <string name="pref_tag_fibmanager">FibManager</string>
+    <string name="pref_tag_generalconfigsection">GeneralConfigSection</string>
+    <string name="pref_tag_internalface">InternalFace</string>
+    <string name="pref_tag_managerbase">ManagerBase</string>
+    <string name="pref_tag_privilegehelper">PrivilegeHelper</string>
+    <string name="pref_tag_remoteregistrator">RemoteRegistrator</string>
+    <string name="pref_tag_ribmanager">RibManager</string>
+    <string name="pref_tag_strategy">Strategy</string>
+    <string name="pref_tag_strategychoice">StrategyChoice</string>
+    <string name="pref_tag_tablesconfigsection">TablesConfigSection</string>
+    <string name="pref_tag_tcpchannel">TcpChannel</string>
+    <string name="pref_tag_tcpfactory">TcpFactory</string>
+    <string name="pref_tag_tcplocalface">TcpLocalFace</string>
+    <string name="pref_tag_udpfactory">UdpFactory</string>
+
+    <!-- Tag Keys -->
+    <string name="pref_tag_commandvalidator_key">CommandValidator</string>
+    <string name="pref_tag_facemanager_key">FaceManager</string>
+    <string name="pref_tag_facetable_key">FaceTable</string>
+    <string name="pref_tag_fibmanager_key">FibManager</string>
+    <string name="pref_tag_generalconfigsection_key">GeneralConfigSection</string>
+    <string name="pref_tag_internalface_key">InternalFace</string>
+    <string name="pref_tag_managerbase_key">ManagerBase</string>
+    <string name="pref_tag_privilegehelper_key">PrivilegeHelper</string>
+    <string name="pref_tag_remoteregistrator_key">RemoteRegistrator</string>
+    <string name="pref_tag_ribmanager_key">RibManager</string>
+    <string name="pref_tag_strategy_key">Strategy</string>
+    <string name="pref_tag_strategychoice_key">StrategyChoice</string>
+    <string name="pref_tag_tablesconfigsection_key">TablesConfigSection</string>
+    <string name="pref_tag_tcpchannel_key">TcpChannel</string>
+    <string name="pref_tag_tcpfactory_key">TcpFactory</string>
+    <string name="pref_tag_tcplocalface_key">TcpLocalFace</string>
+    <string name="pref_tag_udpfactory_key">UdpFactory</string>
+
+    <!-- Log Levels -->
+    <string-array name="pref_log_levels">
+        <item>Verbose</item>
+        <item>Debug</item>
+        <item>Info</item>
+        <item>Warn</item>
+        <item>Error</item>
+        <item>Fatal</item>
+        <item>Silent</item>
     </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
+
+    <!-- Log Level Command Tag-->
+    <string-array name="pref_log_level_values">
+        <item>V</item>
+        <item>D</item>
+        <item>I</item>
+        <item>W</item>
+        <item>E</item>
+        <item>F</item>
+        <item>S</item>
     </string-array>
 
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
 </resources>

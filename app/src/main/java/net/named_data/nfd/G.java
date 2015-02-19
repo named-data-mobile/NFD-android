@@ -38,7 +38,7 @@ public class G {
   private static final String TAG = "NFDService";
 
   /**
-   * Designated log message method that provides flexibility in message logging.
+   * @brief Designated log message method that provides flexibility in message logging.
    *
    * @param tag Tag to identify log message.
    * @param format Format qualifiers as used in String.format()
@@ -51,7 +51,7 @@ public class G {
   }
 
   /**
-   * Convenience method to log a message with a specified tag.
+   * @brief Convenience method to log a message with a specified tag.
    *
    * @param tag Tag to identify log message.
    * @param message Output log message.
@@ -61,7 +61,7 @@ public class G {
   }
 
   /**
-   * Convenience method to log messages with the default tag.
+   * @brief Convenience method to log messages with the default tag.
    *
    * @param message Output log message.
    */
@@ -69,4 +69,11 @@ public class G {
     Log(TAG, message);
   }
 
+  /**
+   * @brief Gets the tag in which logs are posted with.
+   * @return TAG that is used by this log class.
+   */
+  public static String getLogTag() {
+    return TAG;
+  }
 }

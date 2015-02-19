@@ -95,6 +95,10 @@ public class NfdMainActivity extends ActionBarActivity {
     toggleNfdState();
   }
 
+  public void launchLogActivity(View view) {
+    startActivity(new Intent(this, NfdLogActivity.class));
+  }
+
   /**
    * Thread safe way to start and stop the NFD through
    * the UI Button.
