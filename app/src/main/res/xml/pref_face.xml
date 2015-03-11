@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory
+      android:key="faces"
+      android:title="Faces">
+
+    <Preference android:title="Create face" android:key="create_face" />
+
+    <PreferenceScreen android:title="List faces" android:key="list">
+        <intent android:action="android.intent.action.VIEW"
+                android:targetPackage="net.named_data.nfd"
+                android:targetClass="net.named_data.nfd.FaceListActivity" />
+    </PreferenceScreen>
+
+  </PreferenceCategory>
+</PreferenceScreen>

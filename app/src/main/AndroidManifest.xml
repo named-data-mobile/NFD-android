@@ -28,6 +28,10 @@
             android:name=".LogcatActivity"
             android:label="@string/nfd_logger" />
 
+        <activity
+            android:name=".FaceListActivity"
+            android:label="Faces" />
+
         <service
             android:name=".service.NfdService"
             android:process="net.named_data.nfd.service.NfdService"

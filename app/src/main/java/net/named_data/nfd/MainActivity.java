@@ -19,6 +19,7 @@
 
 package net.named_data.nfd;
 
+import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -52,29 +53,41 @@ public class MainActivity
         public void onCreate(Bundle savedInstanceState)
         {
           super.onCreate(savedInstanceState);
+
+          ///////////////////////////////////////////////////////////////////////////
+          // General settings
+          ///////////////////////////////////////////////////////////////////////////
           addPreferencesFromResource(R.xml.pref_general);
 
           m_startStopPref = findPreference("start_stop");
+          m_startStopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+          {
+            @Override
+            public boolean onPreferenceClick(Preference preference)
+            {
+              toggleNfdState();
+              return true;
+            }
+          });
+
+          ///////////////////////////////////////////////////////////////////////////
+          // Face settings
+          ///////////////////////////////////////////////////////////////////////////
+          addPreferencesFromResource(R.xml.pref_face);
+
+          findPreference("create_face")
+            .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+              @Override
+              public boolean onPreferenceClick(Preference preference)
+              {
+                DialogFragment dialog = new FaceCreateDialog();
+                dialog.show(getFragmentManager(), "FaceCreateFragment");
+                return true;
+              }
+            });
         }
       })
       .commit();
-  }
-
-  @Override
-  protected void
-  onPostCreate(Bundle savedInstanceState)
-  {
-    super.onPostCreate(savedInstanceState);
-
-    m_startStopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
-    {
-      @Override
-      public boolean onPreferenceClick(Preference preference)
-      {
-        toggleNfdState();
-        return true;
-      }
-    });
   }
 
   @Override
