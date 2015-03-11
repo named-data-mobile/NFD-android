@@ -1,3 +1,4 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015 Regents of the University of California
  *
@@ -26,10 +27,10 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-import net.named_data.nfd.G;
+import net.named_data.nfd.utils.G;
 
 /**
- * @brief NfdService that runs the native NFD.
+ * NfdService that runs the native NFD.
  *
  * NfdSevice runs as an independent process within the Android OS that provides
  * service level features to start and stop the NFD native code through the
@@ -39,14 +40,14 @@ import net.named_data.nfd.G;
 public class NfdService extends Service {
 
   /**
-   * @brief Loading of NFD Native libraries.
+   * Loading of NFD Native libraries.
    */
   static {
     System.loadLibrary("nfd-wrapper");
   }
 
   /**
-   * @brief Native API for starting the NFD.
+   * Native API for starting the NFD.
    *
    * @param homePath Absolute path of the home directory for the service;
    *                 Usually achieved by calling ContextWrapper.getFilesDir().getAbsolutePath()
@@ -55,7 +56,7 @@ public class NfdService extends Service {
   startNfd(String homePath);
 
   /**
-   * @brief Native API for stopping the NFD.
+   * Native API for stopping the NFD.
    */
   public native static void
   stopNfd();
@@ -119,7 +120,7 @@ public class NfdService extends Service {
   }
 
   /**
-   * @brief Thread safe way of starting the NFD and updating the
+   * Thread safe way of starting the NFD and updating the
    * started flag.
    */
   private synchronized void serviceStartNfd() {
@@ -140,7 +141,7 @@ public class NfdService extends Service {
   }
 
   /**
-   * @brief Thread safe way of stopping the NFD and updating the
+   * Thread safe way of stopping the NFD and updating the
    * started flag.
    */
   private synchronized void serviceStopNfd() {
@@ -156,7 +157,7 @@ public class NfdService extends Service {
   }
 
   /**
-   * @brief Thread safe way of checking if the the NFD is running.
+   * Thread safe way of checking if the the NFD is running.
    *
    * @return true if NFD is running; false otherwise.
    */
@@ -165,7 +166,7 @@ public class NfdService extends Service {
   }
 
   /**
-   * @brief Message handler for the the NFD Service.
+   * Message handler for the the NFD Service.
    */
   class NfdServiceMessageHandler extends Handler {
 

@@ -1,3 +1,4 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015 Regents of the University of California
  *
@@ -16,14 +17,12 @@
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.named_data.nfd;
+package net.named_data.nfd.utils;
 
 import android.util.Log;
 
 /**
  * Global convenience class used for NFD Service wide constants and logs.
- *
- * <br><br>
  *
  * If log messages need to be written to persistent storage, this is the
  * place to implement it.
@@ -38,7 +37,7 @@ public class G {
   private static final String TAG = "NFDService";
 
   /**
-   * @brief Designated log message method that provides flexibility in message logging.
+   * Designated log message method that provides flexibility in message logging.
    *
    * @param tag Tag to identify log message.
    * @param format Format qualifiers as used in String.format()
@@ -51,7 +50,7 @@ public class G {
   }
 
   /**
-   * @brief Convenience method to log a message with a specified tag.
+   * Convenience method to log a message with a specified tag.
    *
    * @param tag Tag to identify log message.
    * @param message Output log message.
@@ -61,7 +60,7 @@ public class G {
   }
 
   /**
-   * @brief Convenience method to log messages with the default tag.
+   * Convenience method to log messages with the default tag.
    *
    * @param message Output log message.
    */
@@ -70,7 +69,8 @@ public class G {
   }
 
   /**
-   * @brief Gets the tag in which logs are posted with.
+   * Gets the tag in which logs are posted with.
+   *
    * @return TAG that is used by this log class.
    */
   public static String getLogTag() {

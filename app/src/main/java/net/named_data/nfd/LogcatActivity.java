@@ -1,3 +1,4 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015 Regents of the University of California
  *
@@ -30,15 +31,18 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import net.named_data.nfd.utils.G;
+import net.named_data.nfd.utils.LogcatTags;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * @brief Display of NfdService's logcat output for easy debugging
+ * Display of NfdService's logcat output for easy debugging
  */
-public class NfdLogActivity extends ActionBarActivity {
+public class LogcatActivity extends ActionBarActivity {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,7 +54,7 @@ public class NfdLogActivity extends ActionBarActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
     case R.id.action_log_settings:
-      startActivity(new Intent(this, NfdLogSettingsActivity.class));
+      startActivity(new Intent(this, LogcatSettingsActivity.class));
       return true;
     default:
       return super.onOptionsItemSelected(item);
@@ -87,13 +91,13 @@ public class NfdLogActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Starts logging by spawning a new thread to capture logs.
+   * Starts logging by spawning a new thread to capture logs.
    */
   private void startLogging() {
     // Clear output, update UI and get tag arguments
     clearLogOutput();
     appendLogText(getString(R.string.loading_logger));
-    m_tagArguments = NfdLogTagUtil.getTags(this);
+    m_tagArguments = LogcatTags.getTags(this);
 
     new Thread(){
       @Override
@@ -105,7 +109,7 @@ public class NfdLogActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Stops the logging by killing the process running logcat.
+   * Stops the logging by killing the process running logcat.
    */
   private void stopLogging() {
     // Kill process
@@ -113,14 +117,14 @@ public class NfdLogActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Clear log adapter and update UI.
+   * Clear log adapter and update UI.
    */
   private void clearLogOutput() {
     m_logListAdapter.clearMessages();
   }
 
   /**
-   * @brief Convenience method to append a message to the log output
+   * Convenience method to append a message to the log output
    * and scroll to the bottom of the log.
    *
    * @param message String message to be posted to the text view.
@@ -131,7 +135,7 @@ public class NfdLogActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Convenience method to capture the output from logcat.
+   * Convenience method to capture the output from logcat.
    */
   private void captureLog() {
     try {
@@ -175,13 +179,13 @@ public class NfdLogActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Custom LogListAdapter to limit the number of log lines that
+   * Custom LogListAdapter to limit the number of log lines that
    * is being stored and displayed.
    */
   private static class LogListAdapter extends BaseAdapter {
 
     /**
-     * @brief Create a ListView compatible adapter with an
+     * Create a ListView compatible adapter with an
      * upper bound on the maximum number of entries that will
      * be displayed in the ListView.
      *
@@ -195,7 +199,7 @@ public class NfdLogActivity extends ActionBarActivity {
     }
 
     /**
-     * @brief Add a message to be displayed in the log's list view.
+     * Add a message to be displayed in the log's list view.
      *
      * @param message Message to be added to the underlying data store
      *                and displayed on thi UI.
@@ -210,7 +214,7 @@ public class NfdLogActivity extends ActionBarActivity {
     }
 
     /**
-     * @brief Convenience method to clear all messages from the underlying
+     * Convenience method to clear all messages from the underlying
      * data store and update the UI.
      */
     public void clearMessages() {
@@ -263,24 +267,24 @@ public class NfdLogActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Log entry view holder object for holding the output.
+   * Log entry view holder object for holding the output.
    */
   private static class LogEntryViewHolder {
     public TextView logLineTextView;
   }
 
-  /** @brief Maximum number of log lines to be displayed */
+  /** Maximum number of log lines to be displayed */
   private static final int s_logMaxLines = 380;
 
-  /** @brief Process in which logcat is running in */
+  /** Process in which logcat is running in */
   private Process m_logProcess;
 
-  /** @brief ListView for displaying log output in */
+  /** ListView for displaying log output in */
   private ListView m_logListView;
 
-  /** @brief Customized ListAdapter for controlling log output */
+  /** Customized ListAdapter for controlling log output */
   private LogListAdapter m_logListAdapter;
 
-  /** @brief Tag argument to logcat */
+  /** Tag argument to logcat */
   private String m_tagArguments;
 }

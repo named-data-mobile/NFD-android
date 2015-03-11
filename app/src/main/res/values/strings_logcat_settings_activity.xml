@@ -2,10 +2,6 @@
 
     <!-- Strings related to NFD Log Settings -->
 
-    <!-- General -->
-    <string name="pref_category_title_general">General</string>
-    <string name="pref_category_title_general_key">General_Key</string>
-
     <!-- Set all tags log level -->
     <string name="pref_tags_log_level_title_key">All_Log_Levels_Key</string>
     <string name="pref_tags_log_level_title">All Log Levels</string>

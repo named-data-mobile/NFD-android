@@ -1,3 +1,4 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015 Regents of the University of California
  *
@@ -28,23 +29,52 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 
 import net.named_data.nfd.service.NfdService;
+import net.named_data.nfd.utils.G;
 
-public class NfdMainActivity extends ActionBarActivity {
+public class MainActivity
+  extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  public void
+  onCreate(Bundle savedInstanceState)
+  {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
 
-    // Get UI Elements
-    m_nfdButton = (Button) findViewById(R.id.nfd_button);
+    getFragmentManager()
+      .beginTransaction()
+      .replace(android.R.id.content, new PreferenceFragment() {
+        @Override
+        public void onCreate(Bundle savedInstanceState)
+        {
+          super.onCreate(savedInstanceState);
+          addPreferencesFromResource(R.xml.pref_general);
+
+          m_startStopPref = findPreference("start_stop");
+        }
+      })
+      .commit();
+  }
+
+  @Override
+  protected void
+  onPostCreate(Bundle savedInstanceState)
+  {
+    super.onPostCreate(savedInstanceState);
+
+    m_startStopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+    {
+      @Override
+      public boolean onPreferenceClick(Preference preference)
+      {
+        toggleNfdState();
+        return true;
+      }
+    });
   }
 
   @Override
@@ -63,54 +93,16 @@ public class NfdMainActivity extends ActionBarActivity {
     unbindNfdService();
   }
 
-  @Override
-  protected void onDestroy() {
-    G.Log("MainActivity::onDestroy()");
-    super.onDestroy();
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.menu_main, menu);
-    return true;
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-      return true;
-    }
-
-    return super.onOptionsItemSelected(item);
-  }
-
-  public void toggleNfdState(View view) {
-    toggleNfdState();
-  }
-
-  public void launchLogActivity(View view) {
-    startActivity(new Intent(this, NfdLogActivity.class));
-  }
-
   /**
    * Thread safe way to start and stop the NFD through
    * the UI Button.
    */
   private synchronized void toggleNfdState() {
-    disableNfdButton();
-
     if (m_isNfdRunning) {
-      m_nfdButton.setText(R.string.stopping_nfd);
+      m_startStopPref.setTitle(R.string.stopping_nfd);
       sendNfdServiceMessage(NfdService.MESSAGE_STOP_NFD_SERVICE);
     } else {
-      m_nfdButton.setText(R.string.starting_nfd);
+      m_startStopPref.setTitle(R.string.starting_nfd);
       sendNfdServiceMessage(NfdService.MESSAGE_START_NFD_SERVICE);
     }
   }
@@ -133,21 +125,21 @@ public class NfdMainActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Enable UI Button once critical operations are completed.
+   * Enable UI Button once critical operations are completed.
    */
   private void enableNfdButton() {
-    m_nfdButton.setEnabled(true);
+    m_startStopPref.setEnabled(true);
   }
 
   /**
-   * @brief Disable UI Button to ensure user is unable to hit the button mutiple times.
+   * Disable UI Button to ensure user is unable to hit the button mutiple times.
    */
   private void disableNfdButton() {
-    m_nfdButton.setEnabled(false);
+    m_startStopPref.setEnabled(false);
   }
 
   /**
-   * @brief Thread safe way of flagging that the NFD is running.
+   * Thread safe way of flagging that the NFD is running.
    *
    * @param isNfdRunning true if NFD is running; false otherwise
    */
@@ -156,18 +148,16 @@ public class NfdMainActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Toggle UI Button text to inform user of the next possible action.
+   * Toggle UI Button text to inform user of the next possible action.
    *
    * @param isNfdRunning true if NFD is currently running; false otherwise
    */
   private void setNfdButtonText(boolean isNfdRunning) {
-    m_nfdButton.setText(isNfdRunning ?
-      R.string.stop_nfd :
-      R.string.start_nfd);
+    m_startStopPref.setTitle(isNfdRunning ? R.string.stop_nfd : R.string.start_nfd);
   }
 
   /**
-   * @brief Thread safe way of flagging that application is successfully connected
+   * Thread safe way of flagging that application is successfully connected
    * to the NfdService.
    *
    * @param isNfdServiceConnected true if successfully connected to the NfdService;
@@ -178,7 +168,7 @@ public class NfdMainActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Method that binds the current activity to the NfdService.
+   * Method that binds the current activity to the NfdService.
    */
   private synchronized void bindNfdService() {
     if (m_isNfdServiceBound == false) {
@@ -192,7 +182,7 @@ public class NfdMainActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Method that unbinds the current activity from the NfdService.
+   * Method that unbinds the current activity from the NfdService.
    */
   private synchronized void unbindNfdService() {
     if (m_isNfdServiceBound == true) {
@@ -204,13 +194,20 @@ public class NfdMainActivity extends ActionBarActivity {
     }
   }
 
+  @Override
+  public boolean onPreferenceChange(Preference preference, Object newValue)
+  {
+    return false;
+  }
+
   /**
-   * @brief Client Message Handler.
+   * Client Message Handler.
    *
    * This handler is used to handle messages that are being sent back
    * from the NfdService to the current application.
    */
-  class ClientHandler extends Handler {
+  class ClientHandler extends Handler
+  {
     @Override
     public void handleMessage(Message msg) {
       switch (msg.what) {
@@ -236,7 +233,7 @@ public class NfdMainActivity extends ActionBarActivity {
   }
 
   /**
-   * @brief Client ServiceConnection to NfdService.
+   * Client ServiceConnection to NfdService.
    */
   private ServiceConnection m_ServiceConnection = new ServiceConnection() {
     @Override
@@ -268,7 +265,7 @@ public class NfdMainActivity extends ActionBarActivity {
 
       // Update UI
       disableNfdButton();
-      m_nfdButton.setText(R.string.reconnect_to_nfd);
+      m_startStopPref.setTitle(R.string.reconnect_to_nfd);
 
       // Reconnect to NfdService
       setNfdServiceConnected(false);
@@ -277,7 +274,7 @@ public class NfdMainActivity extends ActionBarActivity {
   };
 
   /**
-   * @brief Attempt to reconnect to the NfdService.
+   * Attempt to reconnect to the NfdService.
    *
    * This method attempts to reconnect the application to the NfdService
    * when the NfdService has been killed (either by the user or by the OS).
@@ -302,6 +299,11 @@ public class NfdMainActivity extends ActionBarActivity {
     }.start();
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+
+  /** Button that starts and stops the NFD */
+  private Preference m_startStopPref;
+
   /** Flag that marks that application is bound to the NfdService */
   private boolean m_isNfdServiceBound = false;
 
@@ -314,9 +316,6 @@ public class NfdMainActivity extends ActionBarActivity {
   /** Messenger connection to NfdService */
   private Messenger m_nfdServiceMessenger = null;
 
-  /** Flag that makrs if the NFD is running */
+  /** Flag that marks if the NFD is running */
   private boolean m_isNfdRunning = false;
-
-  /** Button that starts and stops the NFD */
-  private Button m_nfdButton;
 }

@@ -1,3 +1,4 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015 Regents of the University of California
  *
@@ -18,7 +19,6 @@
 
 package net.named_data.nfd;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -28,10 +28,12 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
+import net.named_data.nfd.utils.LogcatTags;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class NfdLogSettingsActivity extends Activity {
+public class LogcatSettingsActivity extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +45,7 @@ public class NfdLogSettingsActivity extends Activity {
         commit();
   }
 
-  @SuppressLint("ValidFragment")
-  private static class NfdLogSettingsFragment extends PreferenceFragment {
+  public static class NfdLogSettingsFragment extends PreferenceFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,7 +104,7 @@ public class NfdLogSettingsActivity extends Activity {
     }
 
     /**
-     * @brief Convenience method to register preference listeners.
+     * Convenience method to register preference listeners.
      */
     private void registerListeners() {
       for (Preference p : m_tagListPreferences) {
@@ -116,7 +117,7 @@ public class NfdLogSettingsActivity extends Activity {
     }
 
     /**
-     * @brief Convenience method to unregister preference listeners.
+     * Convenience method to unregister preference listeners.
      */
     private void unregisterPreferenceListeners() {
       for (Preference p : m_tagListPreferences) {
@@ -129,7 +130,7 @@ public class NfdLogSettingsActivity extends Activity {
     }
 
     /**
-     * @brief Register preference listener and fire an update.
+     * Register preference listener and fire an update.
      *
      * @param preference Preference to register listener.
      */
@@ -145,7 +146,7 @@ public class NfdLogSettingsActivity extends Activity {
     }
 
     /**
-     * @brief Unregister preference listener for the given preference.
+     * Unregister preference listener for the given preference.
      *
      * @param preference Preference to unregister listener.
      */
@@ -155,7 +156,7 @@ public class NfdLogSettingsActivity extends Activity {
     }
 
     /**
-     * @brief Convenience method that extracts all list preferences within a hierarchy
+     * Convenience method that extracts all list preferences within a hierarchy
      * recursively.
      *
      * @param list List to add preference to
@@ -174,10 +175,10 @@ public class NfdLogSettingsActivity extends Activity {
     }
 
     /**
-     * @brief Save tag arguments for quick retrieval.
+     * Save tag arguments for quick retrieval.
      */
     private void saveTagArguments() {
-      NfdLogTagUtil.TagBuilder tagBuilder = NfdLogTagUtil.TagBuilder.getTagBuilder();
+      LogcatTags.TagBuilder tagBuilder = LogcatTags.TagBuilder.getTagBuilder();
 
       for (Preference p : m_tagListPreferences) {
         if (p instanceof ListPreference) {
@@ -186,11 +187,11 @@ public class NfdLogSettingsActivity extends Activity {
         }
       }
 
-      NfdLogTagUtil.saveTags(getActivity(), tagBuilder.generateTagString());
+      LogcatTags.saveTags(getActivity(), tagBuilder.generateTagString());
     }
 
     /**
-     * @brief Convenience method to change all tags' log level to the
+     * Convenience method to change all tags' log level to the
      * given logLevel.
      *
      * @param logLevel Target log level to set to.
@@ -209,7 +210,7 @@ public class NfdLogSettingsActivity extends Activity {
     private Preference m_resetPreference;
 
     /**
-     * @brief Change listener that updates the summary text of the tag preferences.
+     * Change listener that updates the summary text of the tag preferences.
      */
     private Preference.OnPreferenceChangeListener m_tagPreferenceChangeListener
         = new Preference.OnPreferenceChangeListener() {
@@ -235,7 +236,7 @@ public class NfdLogSettingsActivity extends Activity {
     };
 
     /**
-     * @bried Change listener that resets all preference tags' log levels.
+     * Change listener that resets all preference tags' log levels.
      */
     private Preference.OnPreferenceChangeListener m_setAllPreferenceChangeListener
         = new Preference.OnPreferenceChangeListener() {

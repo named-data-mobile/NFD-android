@@ -1,3 +1,4 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015 Regents of the University of California
  *
@@ -16,7 +17,7 @@
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.named_data.nfd;
+package net.named_data.nfd.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,12 +29,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @brief Utility class to generate and retrieve log tags
+ * Utility class to generate and retrieve log tags
  */
-public class NfdLogTagUtil {
+public class LogcatTags
+{
 
   /**
-   * @brief Get tags that are stored for the given application's context.
+   * Get tags that are stored for the given application's context.
    *
    * The method returns a string representation of tags that should be displayed
    * to the UI. These tags and their output levels have been saved by the settings
@@ -60,7 +62,7 @@ public class NfdLogTagUtil {
   }
 
   /**
-   * @brief Save tags as a string to the current context's preference.
+   * Save tags as a string to the current context's preference.
    *
    * An example of a tag string that should be saved is shown as follows:
    *
@@ -85,7 +87,7 @@ public class NfdLogTagUtil {
   }
 
   /**
-   * @brief Convenience class to create and generate tags for use as arguments
+   * Convenience class to create and generate tags for use as arguments
    * to logcat.
    */
   public static class TagBuilder {
@@ -95,7 +97,7 @@ public class NfdLogTagUtil {
     }
 
     /**
-     * @brief Get a new instance of a TagBuilder object.
+     * Get a new instance of a TagBuilder object.
      *
      * @return New TagBuilder ojbect for use.
      */
@@ -129,7 +131,7 @@ public class NfdLogTagUtil {
     }
 
     /**
-     * @brief Silence all tags that are not added to the current TagBuilder
+     * Silence all tags that are not added to the current TagBuilder
      * object.
      */
     public synchronized  void addSilenceNonRelatedTags() {
@@ -137,7 +139,7 @@ public class NfdLogTagUtil {
     }
 
     /**
-     * @brief Generate a string representing all the tags to be filtered and the
+     * Generate a string representing all the tags to be filtered and the
      * relevant log levels.
      *
      * An example of a string returned by this method is:
@@ -171,9 +173,9 @@ public class NfdLogTagUtil {
     private boolean m_silenceNonRelatedTags;
   }
 
-  /** @brief Preference filename */
+  /** Preference filename */
   private static final String PREFERENCE_NFD_TAGS_FILENAME = "NFD_TAGS_PREFERENCE_FILE";
 
-  /** @brief Key in SharedPreference that stores the string of tags */
+  /** Key in SharedPreference that stores the string of tags */
   private static final String PREFERENCE_NFD_TAGS_KEY = "NFD_TAGS";
 }

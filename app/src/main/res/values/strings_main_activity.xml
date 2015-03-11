@@ -1,0 +1,63 @@
+<resources>
+    <!-- General -->
+    <string name="pref_category_title_general">General</string>
+    <string name="pref_category_title_general_key">General_Key</string>
+
+    <string-array name="pref_sync_face_titles">
+        <item>localhost</item>
+    </string-array>
+
+    <string-array name="pref_sync_face_values">
+        <item>localhost</item>
+    </string-array>
+
+    <string name="pref_title_system_settings">System settings</string>
+    <string name="pref_title_rib_settings">RIB settings</string>
+    <string name="pref_title_strategy_settings">Strategy settings</string>
+    <string name="pref_title_Face_settings">Face settings</string>
+    <string name="pref_title_Face_group">Face Group</string>
+    <string name="pref_title_FIB_group">FIB Group</string>
+    <string name="pref_title_RIB_group">RIB Group</string>
+    <string name="pref_title_Strategy_group">Strategy Group</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">NFD Face</string>
+
+    <string name="pref_header_face">NFD Face</string>
+    <string name="pref_header_rib">NFD RIB</string>
+    <string name="pref_header_fib">NFD FIB</string>
+    <string name="pref_header_strategy">NFD Strategy</string>
+    <string name="pref_title_add_uri">Pick uri</string>
+
+    <string-array name="pref_uri_list_titles">
+        <item>None</item>
+    </string-array>
+    <string-array name="pref_uri_list_values">
+        <item>1</item>
+    </string-array>
+
+    <string-array name="pref_strategy_entries">
+        <item>ndn:/localhost/nfd/strategy/best-route</item>
+        <item>ndn:/localhost/nfd/strategy/broadcast</item>
+        <item>ndn:/localhost/nfd/strategy/client-control</item>
+        <item>ndn:/localhost/nfd/strategy/ncc</item>
+    </string-array>
+
+    <string name="pref_uri_display_name">URI</string>
+    <string name="pref_default_uri_name">udp4://127.0.0.1:6363</string>
+
+    <string name="pref_route_display_name">Route</string>
+    <string name="pref_default_route_name">localhost</string>
+    <string name="pref_cost_display_name">Cost</string>
+    <string name="pref_default_cost_name">0</string>
+    <string name="pref_face_display_name">Face Id</string>
+    <string name="pref_default_face_name">localhost</string>
+    <string name="pref_prefix_display_name">Prefix</string>
+    <string name="pref_default_prefix_name">localhost</string>
+    <string name="pref_strategy_display_name">Strategy</string>
+    <string name="pref_default_strategy_name">localhost</string>
+    <string name="pref_addNextHop_display_name">Next Hop</string>
+    <string name="pref_default_addNextHop_name">localhost</string>
+    <string name="pref_nfd_dialog_title">URI Selection</string>
+    <string name="pref_nfd_summary">Select an URI</string>
+</resources>

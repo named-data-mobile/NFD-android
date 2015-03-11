@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name=".NfdMainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,13 +21,12 @@
         </activity>
 
         <activity
-            android:name=".NfdLogActivity"
-            android:label="@string/nfd_logger" />
+            android:name=".LogcatSettingsActivity"
+            android:label="@string/nfd_log_settings" />
 
         <activity
-            android:name=".NfdLogSettingsActivity"
-            android:label="@string/nfd_log_settings" >
-        </activity>
+            android:name=".LogcatActivity"
+            android:label="@string/nfd_logger" />
 
         <service
             android:name=".service.NfdService"
