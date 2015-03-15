@@ -37,6 +37,10 @@ android {
         androidTest.setRoot('tests')
         androidTest.java.srcDirs = ['tests/src']
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 
     splits {
         abi {
@@ -137,4 +141,5 @@ dependencies {
     compile 'com.google.protobuf:protobuf-java:2.6.1'
 
     compile 'joda-time:joda-time:2.7'
+    compile 'commons-lang:commons-lang:2.6'
 }

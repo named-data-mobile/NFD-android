@@ -85,6 +85,22 @@ public class MainActivity
                 return true;
               }
             });
+
+          ///////////////////////////////////////////////////////////////////////////
+          // Routes settings
+          ///////////////////////////////////////////////////////////////////////////
+          addPreferencesFromResource(R.xml.pref_routes);
+
+          findPreference("create_route")
+            .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+              @Override
+              public boolean onPreferenceClick(Preference preference)
+              {
+                DialogFragment dialog = new RouteCreateDialog();
+                dialog.show(getFragmentManager(), "RouteCreateFragment");
+                return true;
+              }
+            });
         }
       })
       .commit();

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory
+      android:key="routes"
+      android:title="Routes">
+
+    <Preference android:title="Create route" android:key="create_route" />
+
+    <PreferenceScreen android:title="List routes" android:key="list_routes">
+        <intent android:action="android.intent.action.VIEW"
+                android:targetPackage="net.named_data.nfd"
+                android:targetClass="net.named_data.nfd.RouteListActivity" />
+    </PreferenceScreen>
+
+  </PreferenceCategory>
+</PreferenceScreen>

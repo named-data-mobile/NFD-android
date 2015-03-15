@@ -21,8 +21,11 @@ package net.named_data.nfd.utils;
 
 import com.intel.jndn.management.NFD;
 import com.intel.jndn.management.types.FaceStatus;
+import com.intel.jndn.management.types.RibEntry;
 
+import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Face;
+import net.named_data.jndn.ForwardingFlags;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.*;
 import net.named_data.jndn.security.identity.IdentityManager;
@@ -69,8 +72,8 @@ public class Nfdc
   }
 
   /**
-   * @brief Adds a nexthop to a FIB entry
-   *
+   * Adds a nexthop to a FIB entry
+   * <p>
    * If the FIB entry does not exist, it is inserted automatically
    */
   public void
@@ -79,36 +82,56 @@ public class Nfdc
   }
 
   /**
-   * @brief Removes a nexthop from an existing FIB entry
-   *
+   * Removes a nexthop from an existing FIB entry
+   * <p>
    * If the last nexthop record in a FIB entry is removed, the FIB entry is also deleted
    */
   public void
   fibRemoveNextHop(Name prefix, int faceId)
   {
-
   }
 
   /**
-   * @brief Registers name to the given faceId or faceUri
+   * Registers name to the given faceId or faceUri
+   */
+  public boolean
+  ribRegisterPrefix(Name prefix, int faceId, int cost, boolean isChildInherit, boolean isCapture) throws Exception
+  {
+    ForwardingFlags flags = new ForwardingFlags();
+    flags.setChildInherit(isChildInherit);
+    flags.setCapture(isCapture);
+    return NFD.register(m_face,
+                        new ControlParameters()
+                          .setName(prefix)
+                          .setFaceId(faceId)
+                          .setCost(cost)
+                          .setForwardingFlags(flags));
+  }
+
+  /**
+   * Unregisters name from the given faceId/faceUri
    */
   public void
-  ribRegisterPrefix(Name prefix, int faceId, int cost, boolean isChildInherit, boolean isCapture)
+  ribUnregisterPrefix(Name prefix, int faceId) throws Exception
   {
+    NFD.unregister(m_face,
+                   new ControlParameters()
+                     .setName(prefix)
+                     .setFaceId(faceId));
   }
 
   /**
-   * @brief Unregisters name from the given faceId/faceUri
+   * List all of routes (RIB entries)
    */
-  public void
-  ribUnregisterPrefix(Name prefix, int faceIdName)
+  public List<RibEntry>
+  ribList() throws Exception
   {
-
+    return NFD.getRouteList(m_face);
   }
 
   /**
-   * @brief Creates new face
-   *
+   * Creates new face
+   * <p>
    * This command allows creation of UDP unicast and TCP faces only
    */
   public int
@@ -118,7 +141,7 @@ public class Nfdc
   }
 
   /**
-   * @brief Destroys face
+   * Destroys face
    */
   public void
   faceDestroy(int faceId) throws Exception
@@ -127,7 +150,7 @@ public class Nfdc
   }
 
   /**
-   * @brief List all faces
+   * List all faces
    */
   public List<FaceStatus>
   faceList() throws Exception
@@ -136,16 +159,15 @@ public class Nfdc
   }
 
   /**
-   * @brief Sets the strategy for a namespace
+   * Sets the strategy for a namespace
    */
   public void
   strategyChoiceSet(Name namespace, Name strategy)
   {
-
   }
 
   /**
-   * @brief Unset the strategy for a namespace
+   * Unset the strategy for a namespace
    */
   public void
   strategyChoiceUnset(Name namespace)
