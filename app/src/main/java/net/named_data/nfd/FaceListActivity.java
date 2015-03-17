@@ -27,6 +27,7 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,17 +38,22 @@ import android.widget.TextView;
 import com.intel.jndn.management.types.FacePersistency;
 import com.intel.jndn.management.types.FaceScope;
 import com.intel.jndn.management.types.FaceStatus;
+import com.intel.jndn.management.types.LinkType;
 
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Blob;
 import net.named_data.nfd.utils.NfdcAsyncTask;
 import net.named_data.nfd.utils.Nfdc;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
+import org.w3c.dom.Text;
 
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
 import java.util.List;
 
-public class FaceListActivity extends Activity
-{
+public class FaceListActivity extends Activity {
   @Override
   public void
   onCreate(Bundle savedInstanceState)
@@ -58,14 +64,15 @@ public class FaceListActivity extends Activity
     FragmentTransaction ft = fm.beginTransaction();
     if (fm.findFragmentById(android.R.id.content) == null) {
       ft.add(android.R.id.content, m_faceListFragment);
-    }
-    else {
+    } else {
       ft.replace(android.R.id.content, m_faceListFragment);
     }
     ft.commit();
   }
 
-  public static class FaceListFragment extends ListFragment {
+  public static class FaceListFragment extends ListFragment
+    implements AdapterView.OnItemLongClickListener,
+               AdapterView.OnItemClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
@@ -74,56 +81,78 @@ public class FaceListActivity extends Activity
       setListAdapter(new FaceListAdapter(getActivity()));
       getListView().setLongClickable(true);
 
-      getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
-      {
-        @Override
-        public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id)
-        {
-          final int faceId = (int)id;
+      getListView().setOnItemLongClickListener(this);
+      getListView().setOnItemClickListener(this);
 
-          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-          alertDialogBuilder
-            .setMessage("Delete face " + String.valueOf(faceId) + "?")
-            .setCancelable(false)
-            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog,int id) {
-                new NfdcAsyncTask(getActivity(),
-                                  new NfdcAsyncTask.Task() {
-                                    public String
-                                    runTask() throws Exception
-                                    {
-                                      Nfdc nfdc = new Nfdc();
-                                      nfdc.faceDestroy(faceId);
-                                      nfdc.shutdown();
-
-                                      getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run()
-                                        {
-                                          ((FaceListAdapter) parent.getAdapter()).updateFaceList();
-                                        }
-                                      });
-                                      return null;
-                                    }
-                                  }).execute();
-              }
-            })
-            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog,int id) {
-                dialog.cancel();
-              }
-            });
-
-          AlertDialog alertDialog = alertDialogBuilder.create();
-          alertDialog.show();
-
-          return true;
-        }
-      });
     }
 
-    private class FaceListAdapter extends BaseAdapter
+    @Override
+    public boolean
+    onItemLongClick(final AdapterView<?> parent, View view, final int position, long id)
     {
+      final int faceId = (int)id;
+      if (faceId < 256) {
+        return false;
+      }
+
+      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+      alertDialogBuilder
+        .setMessage("Delete face " + String.valueOf(faceId) + "?")
+        .setCancelable(false)
+        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id)
+          {
+            new NfdcAsyncTask(getActivity(),
+                              new NfdcAsyncTask.Task() {
+                                public String
+                                runTask() throws Exception
+                                {
+                                  Nfdc nfdc = new Nfdc();
+                                  nfdc.faceDestroy(faceId);
+                                  nfdc.shutdown();
+
+                                  getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run()
+                                    {
+                                      ((FaceListAdapter) parent.getAdapter()).updateFaceList();
+                                    }
+                                  });
+                                  return null;
+                                }
+                              }).execute();
+          }
+        })
+        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id)
+          {
+            dialog.cancel();
+          }
+        });
+
+      AlertDialog alertDialog = alertDialogBuilder.create();
+      alertDialog.show();
+
+      return true;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+    {
+      FaceStatus s = (FaceStatus)getListAdapter().getItem(position);
+      FaceStatusFragment fragment = new FaceStatusFragment();
+      Bundle bundle = new Bundle();
+      bundle.putByteArray("faceStatus", s.wireEncode().getImmutableArray());
+      fragment.setArguments(bundle);
+
+      getFragmentManager()
+        .beginTransaction()
+        .addToBackStack("FaceStatus")
+        .replace(android.R.id.content, fragment)
+        .commit();
+    }
+
+    private class FaceListAdapter extends BaseAdapter {
       public FaceListAdapter(Context context)
       {
         this.m_inflater = LayoutInflater.from(context);
@@ -194,37 +223,17 @@ public class FaceListActivity extends Activity
       public View
       getView(int position, View convertView, ViewGroup parent)
       {
-        FaceListItemViewHolder holder;
         if (convertView == null) {
-          convertView = this.m_inflater.inflate(R.layout.face_list_item, parent, false);
-          holder = new FaceListItemViewHolder(convertView);
-          convertView.setTag(holder);
-        } else {
-          holder = (FaceListItemViewHolder) convertView.getTag();
+          convertView = this.m_inflater.inflate(android.R.layout.simple_list_item_2, parent, false);
         }
 
         FaceStatus s;
-        synchronized (m_facesLock) {
+        synchronized(m_facesLock) {
           s = m_faces.get(position);
         }
-        holder.localUri.setText(s.getLocalUri());
-        if (!s.getLocalUri().equals(s.getUri())) {
-          holder.remoteUri.setVisibility(View.VISIBLE);
-          holder.remoteUri.setText(s.getUri());
-        }
-        else {
-          holder.remoteUri.setVisibility(View.GONE);
-        }
-        holder.faceId.setText(String.valueOf(s.getFaceId()));
-        holder.scope.setText(getScope(s.getFaceScope()));
-        holder.persistency.setText(getPersistency(s.getFacePersistency()));
-        if (s.getExpirationPeriod() > 0) {
-          holder.expires.setVisibility(View.VISIBLE);
-          holder.expires.setText("expires in " + PeriodFormat.getDefault().print(new Period(s.getExpirationPeriod())));
-        }
-        else {
-          holder.expires.setVisibility(View.GONE);
-        }
+
+        ((TextView)convertView.findViewById(android.R.id.text2)).setText(String.valueOf(s.getFaceId()));
+        ((TextView)convertView.findViewById(android.R.id.text1)).setText(s.getUri());
 
         return convertView;
       }
@@ -234,31 +243,123 @@ public class FaceListActivity extends Activity
       private Context m_context;
       private List<FaceStatus> m_faces;
       private final Object m_facesLock = new Object();
-
-    }
-
-    private static class FaceListItemViewHolder {
-      FaceListItemViewHolder(View v)
-      {
-        localUri = (TextView)v.findViewById(R.id.localUri);
-        remoteUri = (TextView)v.findViewById(R.id.remoteUri);
-        faceId = (TextView)v.findViewById(R.id.faceId);
-        scope = (TextView)v.findViewById(R.id.scope);
-        persistency = (TextView)v.findViewById(R.id.persistency);
-        expires = (TextView)v.findViewById(R.id.expires);
-      }
-
-      /////////////////////////////////////////////////////////////////////////
-      public TextView localUri;
-      public TextView remoteUri;
-      public TextView faceId;
-      public TextView scope;
-      public TextView persistency;
-      public TextView expires;
     }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static class FaceStatusFragment extends ListFragment {
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState)
+    {
+      super.onActivityCreated(savedInstanceState);
+
+      FaceStatus s = null;
+      try {
+        s = new FaceStatus();
+        s.wireDecode(new Blob(getArguments().getByteArray("faceStatus")).buf());
+      }
+      catch (EncodingException e) {
+        assert false;
+      }
+
+      m_faceStatus.add(new Item("Face ID",          String.valueOf(s.getFaceId())));
+      m_faceStatus.add(new Item("Local FaceUri",    s.getLocalUri()));
+      m_faceStatus.add(new Item("Remote FaceUri",   s.getUri()));
+      m_faceStatus.add(new Item("Expires in",       s.getExpirationPeriod() < 0 ?
+        "never" :
+        PeriodFormat.getDefault().print(new Period(s.getExpirationPeriod()))));
+      m_faceStatus.add(new Item("Face scope",       getScope(s.getFaceScope())));
+      m_faceStatus.add(new Item("Face persistency", getPersistency(s.getFacePersistency())));
+      m_faceStatus.add(new Item("Link type",        getLinkType(s.getLinkType())));
+      m_faceStatus.add(new Item("In interests",     String.valueOf(s.getInInterests())));
+      m_faceStatus.add(new Item("In data",          String.valueOf(s.getInDatas())));
+      m_faceStatus.add(new Item("Out interests",    String.valueOf(s.getOutInterests())));
+      m_faceStatus.add(new Item("Out data",         String.valueOf(s.getOutDatas())));
+      m_faceStatus.add(new Item("In bytes",         String.valueOf(s.getInBytes())));
+      m_faceStatus.add(new Item("Out bytes",        String.valueOf(s.getOutBytes())));
+
+      setListAdapter(new FaceStatusAdapter(getActivity()));
+    }
+
+    private class FaceStatusAdapter extends BaseAdapter {
+      public FaceStatusAdapter(Context context)
+      {
+        this.m_inflater = LayoutInflater.from(context);
+      }
+
+      @Override
+      public int getCount()
+      {
+        return m_faceStatus.size();
+      }
+
+      @Override
+      public Object getItem(int position)
+      {
+        return m_faceStatus.get(position);
+      }
+
+      @Override
+      public long getItemId(int position)
+      {
+        return position;
+      }
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent)
+      {
+        if (convertView == null) {
+          convertView = m_inflater.inflate(R.layout.face_status_item, parent, false);
+        }
+
+        Item i = (Item)getItem(position);
+        ((TextView)convertView.findViewById(R.id.title)).setText(i.getTitle());
+        ((TextView)convertView.findViewById(R.id.value)).setText(i.getValue());
+
+        return convertView;
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      private LayoutInflater m_inflater;
+    }
+
+    private static class Item {
+      public Item(String title, String value)
+      {
+        m_title = title;
+        m_value = value;
+      }
+
+      public String getValue()
+      {
+        return m_value;
+      }
+
+      public void setValue(String value)
+      {
+        m_value = value;
+      }
+
+      public String getTitle()
+      {
+        return m_title;
+      }
+
+      public void setTitle(String title)
+      {
+        m_title = title;
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      private String m_title;
+      private String m_value;
+    }
+    private List<Item> m_faceStatus = new LinkedList<Item>();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
 
   private static String
   getScope(FaceScope scope)
@@ -274,9 +375,16 @@ public class FaceListActivity extends Activity
     return s_persistencies[persistency.getNumericValue()];
   }
 
+  private static String
+  getLinkType(LinkType linkType)
+  {
+    assert linkType.getNumericValue() < s_linkTypes.length;
+    return s_linkTypes[linkType.getNumericValue()];
+  }
 
   private static final String[] s_scopes = {"Local", "Non-local"};
   private static final String[] s_persistencies = {"Persistent", "On-demand", "Permanent"};
+  private static final String[] s_linkTypes = {"Point-to-point", "Multi-access"};
 
   private FaceListFragment m_faceListFragment = new FaceListFragment();
 }
