@@ -32,7 +32,7 @@ import net.named_data.nfd.utils.G;
 /**
  * NfdService that runs the native NFD.
  *
- * NfdSevice runs as an independent process within the Android OS that provides
+ * NfdService runs as an independent process within the Android OS that provides
  * service level features to start and stop the NFD native code through the
  * NFD JNI wrapper.
  *
@@ -44,7 +44,7 @@ public class NfdService extends Service {
    */
   static {
     // At least on Galaxy S3 (4.1.1), all shared library dependencies that are located
-    // in app's lib folder (not in /system/lib) need to be expliclity loaded.
+    // in app's lib folder (not in /system/lib) need to be explicitly loaded.
     // The script https://gist.github.com/cawka/11fe9c23b7a13960330b can be used to
     // calculate proper dependency load list.
     // For example:
@@ -144,7 +144,7 @@ public class NfdService extends Service {
    * started flag.
    */
   private synchronized void serviceStartNfd() {
-    if (m_isNfdStarted == false) {
+    if (!m_isNfdStarted) {
       m_isNfdStarted = true;
       startNfd(getFilesDir().getAbsolutePath());
 
@@ -165,7 +165,7 @@ public class NfdService extends Service {
    * started flag.
    */
   private synchronized void serviceStopNfd() {
-    if (m_isNfdStarted == true) {
+    if (m_isNfdStarted) {
       m_isNfdStarted = false;
 
       // TODO: Save NFD and NRD in memory data structures.
@@ -188,7 +188,7 @@ public class NfdService extends Service {
   /**
    * Message handler for the the NFD Service.
    */
-  class NfdServiceMessageHandler extends Handler {
+  private class NfdServiceMessageHandler extends Handler {
 
     @Override
     public void handleMessage(Message message) {

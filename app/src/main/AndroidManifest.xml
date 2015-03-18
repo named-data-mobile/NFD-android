@@ -20,22 +20,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".LogcatSettingsActivity"
-            android:label="@string/nfd_log_settings" />
-
-        <activity
-            android:name=".LogcatActivity"
-            android:label="@string/nfd_logger" />
-
-        <activity
-            android:name=".FaceListActivity"
-            android:label="Faces" />
-
-        <activity
-            android:name=".RouteListActivity"
-            android:label="Routes" />
-
         <service
             android:name=".service.NfdService"
             android:process="net.named_data.nfd.service.NfdService"

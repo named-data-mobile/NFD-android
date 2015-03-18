@@ -19,329 +19,173 @@
 
 package net.named_data.nfd;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import net.named_data.nfd.service.NfdService;
-import net.named_data.nfd.utils.G;
+import com.intel.jndn.management.types.FaceStatus;
 
-public class MainActivity extends Activity {
+import java.util.ArrayList;
 
-  MainFragment m_main = new MainFragment();
+/**
+ * Main activity that is loaded for the NFD app.
+ */
+public class MainActivity extends ActionBarActivity
+    implements DrawerFragment.DrawerCallbacks,
+               LogcatFragment.Callbacks,
+               FaceListFragment.Callbacks
+{
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    FragmentManager fragmentManager = getSupportFragmentManager();
+
+    if (savedInstanceState != null) {
+      m_drawerFragment = (DrawerFragment)fragmentManager.findFragmentByTag(DrawerFragment.class.toString());
+    }
+
+    if (m_drawerFragment == null) {
+      ArrayList<DrawerFragment.DrawerItem> items = new ArrayList<DrawerFragment.DrawerItem>();
+
+      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_general, 0,
+                                              DRAWER_ITEM_GENERAL));
+      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_faces, 0,
+                                              DRAWER_ITEM_FACES));
+      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_routes, 0,
+                                              DRAWER_ITEM_ROUTES));
+      //    items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_strategies, 0,
+      //                                            DRAWER_ITEM_STRATEGIES));
+      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_logcat, 0,
+                                              DRAWER_ITEM_LOGCAT));
+
+      m_drawerFragment = DrawerFragment.newInstance(items);
+
+      fragmentManager
+        .beginTransaction()
+        .replace(R.id.navigation_drawer, m_drawerFragment, DrawerFragment.class.toString())
+        .commit();
+    }
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    if (!m_drawerFragment.isDrawerOpen()) {
+      // Inflate current Activity's menu only if the drawer is not
+      // displayed; otherwise, allow the drawer to inflate its own
+      // menu in the action bar. Inflate activity wide menu here.
+      updateActionBar();
+      return true;
+    }
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    return super.onOptionsItemSelected(item);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Convenience method that updates and display the current title in the Action Bar
+   */
+  @SuppressWarnings("deprecation")
+  private void updateActionBar() {
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+    actionBar.setDisplayShowTitleEnabled(true);
+    if (m_actionBarTitleId != -1) {
+      actionBar.setTitle(m_actionBarTitleId);
+    }
+  }
+
+  /**
+   * Convenience method that replaces the main fragment container with the
+   * new fragment and adding the current transaction to the backstack.
+   *
+   * @param fragment Fragment to be displayed in the main fragment container.
+   */
+  private void replaceContentFragmentWithBackstack(Fragment fragment) {
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    fragmentManager.beginTransaction()
+        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+        .replace(R.id.main_fragment_container, fragment)
+        .addToBackStack(null)
+        .commit();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
 
   @Override
   public void
-  onCreate(Bundle savedInstanceState)
-  {
-    super.onCreate(savedInstanceState);
+  onDrawerItemSelected(int itemCode, int itemNameId) {
 
-    getFragmentManager()
-      .beginTransaction()
-      .replace(android.R.id.content, m_main)
+    String fragmentTag = "net.named-data.nfd.content-" + String.valueOf(itemCode);
+    FragmentManager fragmentManager = getSupportFragmentManager();
+
+    // Create fragment according to user's selection
+    Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
+    if (fragment == null) {
+      switch (itemCode) {
+        case DRAWER_ITEM_GENERAL:
+          fragment = MainFragment.newInstance();
+          break;
+        case DRAWER_ITEM_FACES:
+          fragment = FaceListFragment.newInstance();
+          break;
+        case DRAWER_ITEM_ROUTES:
+          fragment = RouteListFragment.newInstance();
+          break;
+        // TODO: Placeholders; Fill these in when their fragments have been created
+        //    case DRAWER_ITEM_STRATEGIES:
+        //      break;
+        case DRAWER_ITEM_LOGCAT:
+          fragment = LogcatFragment.newInstance();
+          break;
+        default:
+          // Invalid; Nothing else needs to be done
+          return;
+      }
+    }
+
+    // Update ActionBar title
+    m_actionBarTitleId = itemNameId;
+
+    fragmentManager.beginTransaction()
+      .replace(R.id.main_fragment_container, fragment, fragmentTag)
       .commit();
   }
 
-  public static class MainFragment extends PreferenceFragment {
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
-      super.onActivityCreated(savedInstanceState);
-
-      ///////////////////////////////////////////////////////////////////////////
-      // General settings
-      ///////////////////////////////////////////////////////////////////////////
-      addPreferencesFromResource(R.xml.pref_general);
-
-      m_startStopPref = findPreference("start_stop");
-      m_startStopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
-      {
-        @Override
-        public boolean onPreferenceClick(Preference preference)
-        {
-          toggleNfdState();
-          return true;
-        }
-      });
-
-      ///////////////////////////////////////////////////////////////////////////
-      // Face settings
-      ///////////////////////////////////////////////////////////////////////////
-      addPreferencesFromResource(R.xml.pref_face);
-
-      findPreference("create_face")
-        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-          @Override
-          public boolean onPreferenceClick(Preference preference)
-          {
-            DialogFragment dialog = new FaceCreateDialog();
-            dialog.show(getFragmentManager(), "FaceCreateFragment");
-            return true;
-          }
-        });
-
-      ///////////////////////////////////////////////////////////////////////////
-      // Routes settings
-      ///////////////////////////////////////////////////////////////////////////
-      addPreferencesFromResource(R.xml.pref_routes);
-
-      findPreference("create_route")
-        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-          @Override
-          public boolean onPreferenceClick(Preference preference)
-          {
-            DialogFragment dialog = new RouteCreateDialog();
-            dialog.show(getFragmentManager(), "RouteCreateFragment");
-            return true;
-          }
-        });
-    }
-
-    @Override
-    public void onResume() {
-      super.onResume();
-
-      // Bind to NfdService
-      bindNfdService();
-    }
-
-    @Override
-    public void onPause() {
-      super.onPause();
-
-      // Unbind from NfdService
-      unbindNfdService();
-    }
-
-    /**
-     * Thread safe way to start and stop the NFD through
-     * the UI Button.
-     */
-    private synchronized void toggleNfdState() {
-      if (m_isNfdRunning) {
-        m_startStopPref.setTitle(R.string.stopping_nfd);
-        sendNfdServiceMessage(NfdService.MESSAGE_STOP_NFD_SERVICE);
-      } else {
-        m_startStopPref.setTitle(R.string.starting_nfd);
-        sendNfdServiceMessage(NfdService.MESSAGE_START_NFD_SERVICE);
-      }
-    }
-
-    /**
-     * Convenience method to send a message to the NfdService
-     * through a Messenger.
-     *
-     * @param message Message from a set of predefined NfdService messages.
-     */
-    private synchronized void sendNfdServiceMessage(int message) {
-      try {
-        Message msg = Message.obtain(null, message);
-        msg.replyTo = m_clientMessenger;
-        m_nfdServiceMessenger.send(msg);
-      } catch (RemoteException e) {
-        // If Service crashes, nothing to do here
-        G.Log("Service Disconnected: " + e);
-      }
-    }
-
-    /**
-     * Enable UI Button once critical operations are completed.
-     */
-    private void enableNfdButton() {
-      m_startStopPref.setEnabled(true);
-    }
-
-    /**
-     * Disable UI Button to ensure user is unable to hit the button mutiple times.
-     */
-    private void disableNfdButton() {
-      m_startStopPref.setEnabled(false);
-    }
-
-    /**
-     * Thread safe way of flagging that the NFD is running.
-     *
-     * @param isNfdRunning true if NFD is running; false otherwise
-     */
-    private synchronized void setNfdRunningState(boolean isNfdRunning) {
-      m_isNfdRunning = isNfdRunning;
-    }
-
-    /**
-     * Toggle UI Button text to inform user of the next possible action.
-     *
-     * @param isNfdRunning true if NFD is currently running; false otherwise
-     */
-    private void setNfdButtonText(boolean isNfdRunning) {
-      m_startStopPref.setTitle(isNfdRunning ? R.string.stop_nfd : R.string.start_nfd);
-    }
-
-    /**
-     * Thread safe way of flagging that application is successfully connected
-     * to the NfdService.
-     *
-     * @param isNfdServiceConnected true if successfully connected to the NfdService;
-     *                              false otherwise
-     */
-    private synchronized void setNfdServiceConnected(boolean isNfdServiceConnected) {
-      m_isNfdServiceConnected = isNfdServiceConnected;
-    }
-
-    /**
-     * Method that binds the current activity to the NfdService.
-     */
-    private synchronized void bindNfdService() {
-      if (m_isNfdServiceBound == false) {
-        // Bind to Service
-        m_isNfdServiceBound = getActivity().bindService(
-          new Intent(getActivity(), NfdService.class),
-          m_ServiceConnection, Context.BIND_AUTO_CREATE);
-
-        G.Log("MainActivity::bindNfdService()");
-      }
-    }
-
-    /**
-     * Method that unbinds the current activity from the NfdService.
-     */
-    private synchronized void unbindNfdService() {
-      if (m_isNfdServiceBound == true) {
-        // Unbind from Service
-        getActivity().unbindService(m_ServiceConnection);
-        m_isNfdServiceBound = false;
-
-        G.Log("MainActivity::unbindNfdService()");
-      }
-    }
-
-    /**
-     * Client Message Handler.
-     *
-     * This handler is used to handle messages that are being sent back
-     * from the NfdService to the current application.
-     */
-    class ClientHandler extends Handler
-    {
-      @Override
-      public void handleMessage(Message msg) {
-        switch (msg.what) {
-          case NfdService.MESSAGE_NFD_RUNNING:
-            setNfdRunningState(true);
-            setNfdButtonText(true);
-            G.Log("ClientHandler: NFD is Running.");
-            break;
-
-          case NfdService.MESSAGE_NFD_STOPPED:
-            setNfdRunningState(false);
-            setNfdButtonText(false);
-            G.Log("ClientHandler: NFD is Stopped.");
-            break;
-
-          default:
-            super.handleMessage(msg);
-            break;
-        }
-
-        enableNfdButton();
-      }
-    }
-
-    /**
-     * Client ServiceConnection to NfdService.
-     */
-    private ServiceConnection m_ServiceConnection = new ServiceConnection() {
-      @Override
-      public void onServiceConnected(ComponentName className, IBinder service) {
-        // Establish Messenger to the Service
-        m_nfdServiceMessenger = new Messenger(service);
-
-        // Set service connected flag
-        setNfdServiceConnected(true);
-
-        // Check if NFD Service is running
-        try {
-          Message msg = Message.obtain(null,
-                                       NfdService.MESSAGE_IS_NFD_RUNNING);
-          msg.replyTo = m_clientMessenger;
-          m_nfdServiceMessenger.send(msg);
-        } catch (RemoteException e) {
-          // If Service crashes, nothing to do here
-          G.Log("onServiceConnected(): " + e);
-        }
-
-        G.Log("m_ServiceConnection::onServiceConnected()");
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName componentName) {
-        // In event of unexpected disconnection with the Service; Not expecting to get here.
-        G.Log("m_ServiceConnection::onServiceDisconnected()");
-
-        // Update UI
-        disableNfdButton();
-        m_startStopPref.setTitle(R.string.reconnect_to_nfd);
-
-        // Reconnect to NfdService
-        setNfdServiceConnected(false);
-        retryConnectionToNfdService();
-      }
-    };
-
-    /**
-     * Attempt to reconnect to the NfdService.
-     *
-     * This method attempts to reconnect the application to the NfdService
-     * when the NfdService has been killed (either by the user or by the OS).
-     */
-    private void retryConnectionToNfdService() {
-      new Thread(){
-        @Override
-        public void run() {
-          while (m_isNfdServiceConnected == false) {
-            G.Log("Retrying connection to NFD Service ...");
-            bindNfdService();
-
-            try {
-              Thread.sleep(1000);
-            } catch (InterruptedException e) {
-              // Nothing to do here; Keep going.
-            }
-          }
-
-          G.Log("Reconnection to NFD Service is successful.");
-        }
-      }.start();
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-
-    /** Button that starts and stops the NFD */
-    private Preference m_startStopPref;
-
-    /** Flag that marks that application is bound to the NfdService */
-    private boolean m_isNfdServiceBound = false;
-
-    /** Flag that marks that application is connected to the NfdService */
-    private boolean m_isNfdServiceConnected = false;
-
-    /** Client Message Handler */
-    private final Messenger m_clientMessenger = new Messenger(new ClientHandler());
-
-    /** Messenger connection to NfdService */
-    private Messenger m_nfdServiceMessenger = null;
-
-    /** Flag that marks if the NFD is running */
-    private boolean m_isNfdRunning = false;
+  @Override
+  public void onDisplayLogcatSettings() {
+    replaceContentFragmentWithBackstack(LogcatSettingsFragment.newInstance());
   }
+
+  @Override
+  public void onFaceItemSelected(FaceStatus faceStatus) {
+    replaceContentFragmentWithBackstack(FaceStatusFragment.newInstance(faceStatus));
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  /** Reference to drawer fragment */
+  private DrawerFragment m_drawerFragment;
+
+  /** Title that is to be displayed in the ActionBar */
+  private int m_actionBarTitleId = -1;
+
+  /** Item code for drawer items: For use in onDrawerItemSelected() callback */
+  public static final int DRAWER_ITEM_GENERAL = 1;
+  public static final int DRAWER_ITEM_FACES = 2;
+  public static final int DRAWER_ITEM_ROUTES = 3;
+  public static final int DRAWER_ITEM_STRATEGIES = 4;
+  public static final int DRAWER_ITEM_LOGCAT = 5;
 }

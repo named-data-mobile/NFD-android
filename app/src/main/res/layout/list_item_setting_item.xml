@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_background_activated"
+    >
+
+    <TextView
+        android:id="@+id/list_item_log_tag"
+        style="@style/two_row_item_title"
+        />
+
+    <TextView
+        android:id="@+id/list_item_setting_log_level"
+        style="@style/two_row_item_secondary"
+        />
+
+</LinearLayout>

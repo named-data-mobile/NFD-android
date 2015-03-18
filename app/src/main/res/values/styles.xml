@@ -5,11 +5,57 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="dialog_margin">
+    <style name="default_dialog_margin">
         <item name="android:layout_marginTop">16dp</item>
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="default_linear_layout_padding">
+        <item name="android:paddingLeft">@dimen/default_padding_left</item>
+        <item name="android:paddingRight">@dimen/default_padding_right</item>
+    </style>
+    
+    <style name="default_custom_white_button">
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:background">@drawable/custom_white_button</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+    </style>
+
+    <style name="item_title">
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
+
+    <style name="item_secondary">
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textColor">@android:color/secondary_text_dark</item>
+    </style>
+
+    <style name="two_row_item_title" parent="item_title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="two_row_item_secondary" parent="item_secondary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="two_column_item_title" parent="item_title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="two_column_item_secondary" parent="item_secondary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">right</item>
+        <item name="android:layout_gravity">right</item>
     </style>
 
 </resources>

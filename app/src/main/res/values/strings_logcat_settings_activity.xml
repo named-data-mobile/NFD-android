@@ -2,56 +2,8 @@
 
     <!-- Strings related to NFD Log Settings -->
 
-    <!-- Set all tags log level -->
-    <string name="pref_tags_log_level_title_key">All_Log_Levels_Key</string>
-    <string name="pref_tags_log_level_title">All Log Levels</string>
-    <string name="pref_tags_log_level_key">Reset_All_Tags_Log_Level_Key</string>
-    <string name="pref_tags_log_level">Reset</string>
-
-    <!-- Tags -->
-    <string name="pref_category_title_tags">NFD Tags &amp; Log Levels</string>
-    <string name="pref_category_title_tags_key">NFD_Tags_Key</string>
-
-    <!-- Tag Display Names -->
-    <string name="pref_tag_commandvalidator">CommandValidator</string>
-    <string name="pref_tag_facemanager">FaceManager</string>
-    <string name="pref_tag_facetable">FaceTable</string>
-    <string name="pref_tag_fibmanager">FibManager</string>
-    <string name="pref_tag_generalconfigsection">GeneralConfigSection</string>
-    <string name="pref_tag_internalface">InternalFace</string>
-    <string name="pref_tag_managerbase">ManagerBase</string>
-    <string name="pref_tag_privilegehelper">PrivilegeHelper</string>
-    <string name="pref_tag_remoteregistrator">RemoteRegistrator</string>
-    <string name="pref_tag_ribmanager">RibManager</string>
-    <string name="pref_tag_strategy">Strategy</string>
-    <string name="pref_tag_strategychoice">StrategyChoice</string>
-    <string name="pref_tag_tablesconfigsection">TablesConfigSection</string>
-    <string name="pref_tag_tcpchannel">TcpChannel</string>
-    <string name="pref_tag_tcpfactory">TcpFactory</string>
-    <string name="pref_tag_tcplocalface">TcpLocalFace</string>
-    <string name="pref_tag_udpfactory">UdpFactory</string>
-
-    <!-- Tag Keys -->
-    <string name="pref_tag_commandvalidator_key">CommandValidator</string>
-    <string name="pref_tag_facemanager_key">FaceManager</string>
-    <string name="pref_tag_facetable_key">FaceTable</string>
-    <string name="pref_tag_fibmanager_key">FibManager</string>
-    <string name="pref_tag_generalconfigsection_key">GeneralConfigSection</string>
-    <string name="pref_tag_internalface_key">InternalFace</string>
-    <string name="pref_tag_managerbase_key">ManagerBase</string>
-    <string name="pref_tag_privilegehelper_key">PrivilegeHelper</string>
-    <string name="pref_tag_remoteregistrator_key">RemoteRegistrator</string>
-    <string name="pref_tag_ribmanager_key">RibManager</string>
-    <string name="pref_tag_strategy_key">Strategy</string>
-    <string name="pref_tag_strategychoice_key">StrategyChoice</string>
-    <string name="pref_tag_tablesconfigsection_key">TablesConfigSection</string>
-    <string name="pref_tag_tcpchannel_key">TcpChannel</string>
-    <string name="pref_tag_tcpfactory_key">TcpFactory</string>
-    <string name="pref_tag_tcplocalface_key">TcpLocalFace</string>
-    <string name="pref_tag_udpfactory_key">UdpFactory</string>
-
     <!-- Log Levels -->
-    <string-array name="pref_log_levels">
+    <string-array name="reset_log_level_values">
         <item>Verbose</item>
         <item>Debug</item>
         <item>Info</item>
@@ -61,15 +13,40 @@
         <item>Silent</item>
     </string-array>
 
-    <!-- Log Level Command Tag-->
-    <string-array name="pref_log_level_values">
-        <item>V</item>
-        <item>D</item>
-        <item>I</item>
-        <item>W</item>
-        <item>E</item>
-        <item>F</item>
-        <item>S</item>
+    <!-- Log Level Mapping -->
+    <!--
+     This mapping is used for Logcat arguments and should be in the format of:
+        <display description>:<logcat priority value>
+    -->
+    <string-array name="logcat_log_level_map">
+        <item>Verbose:V</item>
+        <item>Debug:D</item>
+        <item>Info:I</item>
+        <item>Warn:W</item>
+        <item>Error:E</item>
+        <item>Fatal:F</item>
+        <item>Silent:S</item>
+    </string-array>
+
+    <!-- Default lag tags and log levels when no previous settings are found -->
+    <string-array name="default_log_tags_and_levels">
+        <item>CommandValidator:V</item>
+        <item>FaceManager:V</item>
+        <item>FaceTable:V</item>
+        <item>FibManager:V</item>
+        <item>GeneralConfigSection:V</item>
+        <item>InternalFace:V</item>
+        <item>ManagerBase:V</item>
+        <item>PrivilegeHelper:V</item>
+        <item>RemoteRegistrator:V</item>
+        <item>RibManager:V</item>
+        <item>Strategy:V</item>
+        <item>StrategyChoice:V</item>
+        <item>TablesConfigSection:V</item>
+        <item>TcpChannel:V</item>
+        <item>TcpFactory:V</item>
+        <item>TcpLocalFace:V</item>
+        <item>UdpFactory:V</item>
     </string-array>
 
 </resources>

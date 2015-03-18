@@ -21,70 +21,51 @@ package net.named_data.nfd;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.EditText;
 
 import net.named_data.jndn.Name;
-import net.named_data.jndn_xx.util.FaceUri;
-import net.named_data.nfd.utils.Nfdc;
-import net.named_data.nfd.utils.NfdcAsyncTask;
 
-public class RouteCreateDialog extends DialogFragment
+public class RouteCreateDialogFragment extends DialogFragment
 {
-  @Override
+  public static interface OnRouteCreateRequested {
+    public void
+    createRoute(Name prefix, String faceUri);
+  }
+
+  public static RouteCreateDialogFragment
+  newInstance() {
+    return new RouteCreateDialogFragment();
+  }
+
+  @NonNull @Override
   public Dialog
   onCreateDialog(Bundle savedInstanceState) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     LayoutInflater inflater = getActivity().getLayoutInflater();
     builder
       .setView(inflater.inflate(R.layout.create_route, null))
-      .setPositiveButton("Create route", new DialogInterface.OnClickListener()
-      {
+      .setPositiveButton(R.string.route_add_dialog_create_route, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int id)
         {
-          EditText prefixBox = (EditText)getDialog().findViewById(R.id.prefix);
-          EditText uriBox = (EditText)getDialog().findViewById(R.id.faceUri);
+          EditText prefixBox = (EditText) getDialog().findViewById(R.id.prefix);
+          EditText uriBox = (EditText) getDialog().findViewById(R.id.faceUri);
           final String prefix = prefixBox.getText().toString();
           final String uri = uriBox.getText().toString();
-          new NfdcAsyncTask(getActivity(),
-                            new NfdcAsyncTask.Task()
-                            {
-                              public String
-                              runTask() throws Exception
-                              {
-                                try {
-                                  Nfdc nfdc = new Nfdc();
-                                  int faceId = nfdc.faceCreate(m_uri);
-                                  boolean ok = nfdc.ribRegisterPrefix(new Name(prefix), faceId, 10, true, false);
-                                  nfdc.shutdown();
-                                  if (ok) {
-                                    return "OK";
-                                  }
-                                  else {
-                                    return "Failed register prefix";
-                                  }
-                                } catch (FaceUri.CanonizeError e) {
-                                  return "Error creating face (" + e.getMessage() + ")";
-                                } catch (FaceUri.Error e) {
-                                  return "Error creating face (" + e.getMessage() + ")";
-                                }
-                              }
 
-                              ///////////////////////////
-                              private String m_uri = uri;
-                            }).execute();
+          ((OnRouteCreateRequested)getTargetFragment()).createRoute(new Name(prefix), uri);
         }
       })
-      .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-      {
+      .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int id)
         {
-          RouteCreateDialog.this.getDialog().cancel();
+          RouteCreateDialogFragment.this.getDialog().cancel();
         }
       })
     ;

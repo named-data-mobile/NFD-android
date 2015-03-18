@@ -7,7 +7,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/dialog_margin"
+        style="@style/default_dialog_margin"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Enter FaceUri for the remote NDN daemon"
         android:layout_gravity="center_horizontal"/>
@@ -16,7 +16,7 @@
         android:id="@+id/faceUri"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/dialog_margin"
+        style="@style/default_dialog_margin"
         android:hint="Face URI"
         android:inputType="text"
         android:focusable="true"

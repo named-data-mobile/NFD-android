@@ -21,58 +21,46 @@ package net.named_data.nfd;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-import net.named_data.jndn_xx.util.FaceUri;
-import net.named_data.nfd.utils.Nfdc;
-import net.named_data.nfd.utils.NfdcAsyncTask;
+public class FaceCreateDialogFragment extends DialogFragment {
+  public static interface OnFaceCreateRequested {
+    public void
+    createFace(String faceUri);
+  }
 
-public class FaceCreateDialog extends DialogFragment
-{
-  @Override
+  public static FaceCreateDialogFragment
+  newInstance() {
+    return new FaceCreateDialogFragment();
+  }
+
+  @NonNull @Override
   public Dialog
-  onCreateDialog(Bundle savedInstanceState) {
+  onCreateDialog(@Nullable Bundle savedInstanceState) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     LayoutInflater inflater = getActivity().getLayoutInflater();
     builder
       .setView(inflater.inflate(R.layout.create_face, null))
-      .setPositiveButton("Create face", new DialogInterface.OnClickListener() {
+      .setPositiveButton(R.string.face_add_dialog_create_face, new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int id)
           {
             EditText uriBox = (EditText) getDialog().findViewById(R.id.faceUri);
-            final String uri = uriBox.getText().toString();
-            new NfdcAsyncTask(getActivity(),
-                              new NfdcAsyncTask.Task() {
-                                public String
-                                runTask() throws Exception
-                                {
-                                  try {
-                                    Nfdc nfdc = new Nfdc();
-                                    int faceId = nfdc.faceCreate(m_uri);
-                                    nfdc.shutdown();
-                                    return "OK. Face id: " + String.valueOf(faceId);
-                                  } catch (FaceUri.CanonizeError e) {
-                                    return "Error creating face (" + e.getMessage() + ")";
-                                  } catch (FaceUri.Error e) {
-                                    return "Error creating face (" + e.getMessage() + ")";
-                                  }
-                                }
-
-                                ///////////////////////////
-                                private String m_uri = uri;
-                              }).execute();
+            String uri = uriBox.getText().toString();
+            ((OnFaceCreateRequested)getTargetFragment()).createFace(uri);
           }
         })
-      .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+      .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int id)
           {
-            FaceCreateDialog.this.getDialog().cancel();
+            FaceCreateDialogFragment.this.getDialog().cancel();
           }
         })
     ;

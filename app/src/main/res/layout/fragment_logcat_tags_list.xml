@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/default_linear_layout_padding"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_logcat_general_operations_category"
+        style="?android:listSeparatorTextViewStyle"
+        />
+
+    <Button
+        android:id="@+id/logcat_reset_loglevel_defaults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/logcat_reset_log_level_defaults"
+        style="@style/default_custom_white_button"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_logcat_tags_n_log_levels"
+        style="?android:listSeparatorTextViewStyle"
+        />
+
+    <include
+        layout="@android:layout/list_content"
+        />
+
+</LinearLayout>

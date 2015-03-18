@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/default_linear_layout_padding"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/face_list_actions_title"
+        style="?android:listSeparatorTextViewStyle"
+        />
+
+    <Button
+        android:id="@+id/face_list_refresh_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/face_list_refresh_face_list"
+        style="@style/default_custom_white_button"
+        />
+    <Button
+        android:id="@+id/face_list_add_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/face_list_add_face"
+        style="@style/default_custom_white_button"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/face_list_list_of_faces_title"
+        style="?android:listSeparatorTextViewStyle"
+        />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+
+        <ProgressBar
+            android:id="@+id/face_list_reloading_list_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            />
+
+        <LinearLayout
+            android:id="@+id/face_list_info_unavailable"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/oops"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/error_cannot_communicate_with_nfd"
+                />
+
+        </LinearLayout>
+
+        <include
+            layout="@android:layout/list_content"
+            />
+
+    </FrameLayout>
+
+</LinearLayout>

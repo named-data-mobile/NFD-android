@@ -19,11 +19,14 @@
 
 package net.named_data.nfd;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +35,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import net.named_data.nfd.utils.G;
-import net.named_data.nfd.utils.LogcatTags;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,55 +42,91 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * Display of NfdService's logcat output for easy debugging
+ * Logcat fragment that houses the output of LogCat in a ListView for viewing.
+ *
+ * The ListView is backed by a {@link net.named_data.nfd.LogcatFragment.LogListAdapter}
+ * that that limits the number of logs that are being displayed to the user. This
+ * prevents the ListView from growing indeterminately. This maximum number of
+ * log lines that is allowed to be displayed is set by
+ * {@link net.named_data.nfd.LogcatFragment#s_logMaxLines}.
+ *
  */
-public class LogcatActivity extends ActionBarActivity {
+public class LogcatFragment extends Fragment {
+
+  public static Fragment newInstance() {
+    return new LogcatFragment();
+  }
 
   @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu_log, menu);
-    return true;
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater,
+                           @Nullable ViewGroup container,
+                           @Nullable Bundle savedInstanceState) {
+    @SuppressLint("InflateParams")
+    View v = inflater.inflate(R.layout.fragment_logcat_output, null);
+
+    // Get UI Elements
+    m_logListView = (ListView) v.findViewById(R.id.log_output);
+    m_logListAdapter = new LogListAdapter(inflater, s_logMaxLines);
+    m_logListView.setAdapter(m_logListAdapter);
+
+    return v;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    startLogging();
+    G.Log("LogcatFragment(): onResume()");
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    stopLogging();
+    G.Log("LogcatFragment(): onPause()");
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    inflater.inflate(R.menu.menu_log, menu);
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-    case R.id.action_log_settings:
-      startActivity(new Intent(this, LogcatSettingsActivity.class));
-      return true;
-    default:
-      return super.onOptionsItemSelected(item);
+      case R.id.action_log_settings:
+        m_callbacks.onDisplayLogcatSettings();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
     }
   }
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_log);
-
-    // Get UI Elements
-    m_logListView = (ListView) findViewById(R.id.log_output);
-    m_logListAdapter = new LogListAdapter(getLayoutInflater(), s_logMaxLines);
-    m_logListView.setAdapter(m_logListAdapter);
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    try {
+      m_callbacks = (Callbacks) activity;
+    } catch (ClassCastException e) {
+      G.Log("Hosting activity must implement callback.");
+      throw e;
+    }
   }
 
   @Override
-  protected void onResume() {
-    super.onResume();
-    startLogging();
+  public void onDetach() {
+    super.onDetach();
+    m_callbacks = null;
   }
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-    stopLogging();
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    G.Log("LogActivity::onDestroy()");
-  }
+  //////////////////////////////////////////////////////////////////////////////
 
   /**
    * Starts logging by spawning a new thread to capture logs.
@@ -97,7 +135,7 @@ public class LogcatActivity extends ActionBarActivity {
     // Clear output, update UI and get tag arguments
     clearLogOutput();
     appendLogText(getString(R.string.loading_logger));
-    m_tagArguments = LogcatTags.getTags(this);
+    m_tagArguments = LogcatSettingsManager.get(getActivity()).getTags();
 
     new Thread(){
       @Override
@@ -149,19 +187,19 @@ public class LogcatActivity extends ActionBarActivity {
        */
       // Build command for execution
       String cmd = String.format("%s -v time %s *:S",
-        "logcat",
-        m_tagArguments);
+          "logcat",
+          m_tagArguments);
 
       G.Log("LogCat Command: " + cmd);
 
       m_logProcess =  Runtime.getRuntime().exec(cmd);
       BufferedReader in = new BufferedReader(
-        new InputStreamReader(m_logProcess.getInputStream()));
+          new InputStreamReader(m_logProcess.getInputStream()));
 
       String line;
       while ((line = in.readLine()) != null) {
         final String message = line;
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
           @Override
           public void run() {
             appendLogText(message);
@@ -171,12 +209,12 @@ public class LogcatActivity extends ActionBarActivity {
 
       // Wait for process to join this thread
       m_logProcess.waitFor();
-    } catch (IOException e) {
-      G.Log("captureLog(): " + e);
-    } catch (InterruptedException e) {
+    } catch (IOException | InterruptedException e) {
       G.Log("captureLog(): " + e);
     }
   }
+
+  //////////////////////////////////////////////////////////////////////////////
 
   /**
    * Custom LogListAdapter to limit the number of log lines that
@@ -193,7 +231,7 @@ public class LogcatActivity extends ActionBarActivity {
      *                 the ListView for this adapter.
      */
     public LogListAdapter(LayoutInflater layoutInflater, int maxLines) {
-      m_data = new ArrayList<String>();
+      m_data = new ArrayList<>();
       m_layoutInflater = layoutInflater;
       m_maxLines = maxLines;
     }
@@ -237,6 +275,7 @@ public class LogcatActivity extends ActionBarActivity {
       return position;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
       LogEntryViewHolder holder;
@@ -244,7 +283,7 @@ public class LogcatActivity extends ActionBarActivity {
       if (convertView == null) {
         holder = new LogEntryViewHolder();
 
-        convertView = m_layoutInflater.inflate(R.layout.log_item, null);
+        convertView = m_layoutInflater.inflate(R.layout.list_item_log, null);
         convertView.setTag(holder);
 
         holder.logLineTextView = (TextView) convertView.findViewById(R.id.log_line);
@@ -257,13 +296,13 @@ public class LogcatActivity extends ActionBarActivity {
     }
 
     /** Underlying message data store for log messages*/
-    private ArrayList<String> m_data;
+    private final ArrayList<String> m_data;
 
     /** Layout inflater for inflating views */
-    private LayoutInflater m_layoutInflater;
+    private final LayoutInflater m_layoutInflater;
 
     /** Maximum number of log lines to display */
-    private int m_maxLines;
+    private final int m_maxLines;
   }
 
   /**
@@ -273,7 +312,15 @@ public class LogcatActivity extends ActionBarActivity {
     public TextView logLineTextView;
   }
 
-  /** Maximum number of log lines to be displayed */
+  //////////////////////////////////////////////////////////////////////////////
+
+  public interface Callbacks {
+    void onDisplayLogcatSettings();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  /** Maximum number of log lines to be displayed by the backing adapter of the ListView */
   private static final int s_logMaxLines = 380;
 
   /** Process in which logcat is running in */
@@ -287,4 +334,7 @@ public class LogcatActivity extends ActionBarActivity {
 
   /** Tag argument to logcat */
   private String m_tagArguments;
+
+  /** Callback reference to hosting activity */
+  private Callbacks m_callbacks;
 }
