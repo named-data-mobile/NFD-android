@@ -54,4 +54,6 @@
 
     <string name="face_add_dialog_create_face">Create face</string>
     <string name="route_add_dialog_create_route">Create route</string>
+    <string name="fragment_route_details_title">Route Details</string>
+    <string name="fragment_route_details_next_hops">List of next hops</string>
 </resources>

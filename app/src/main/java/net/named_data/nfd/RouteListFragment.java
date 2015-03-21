@@ -19,6 +19,7 @@
 
 package net.named_data.nfd;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,15 +31,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 import com.intel.jndn.management.types.Route;
 
 import net.named_data.jndn.Name;
 import net.named_data.jndn_xx.util.FaceUri;
+import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.Nfdc;
 
 import java.util.ArrayList;
@@ -49,6 +53,27 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   public static RouteListFragment
   newInstance() {
     return new RouteListFragment();
+  }
+
+  public interface Callbacks {
+    /**
+     * This method is called when a route is selected and more
+     * information about it should be presented to the user.
+     *
+     * @param ribEntry RibEntry instance with information about the selected route
+     */
+    public void onRouteItemSelected(RibEntry ribEntry);
+  }
+
+  @Override
+  public void onAttach(Activity activity)
+  {
+    super.onAttach(activity);
+    try {
+      m_callbacks = (Callbacks)activity;
+    } catch (Exception e) {
+      G.Log("Hosting activity must implement this fragment's callbacks: " + e);
+    }
   }
 
   @Override
@@ -110,6 +135,15 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     if (m_routeCreateAsyncTask != null) {
       m_routeCreateAsyncTask.cancel(false);
       m_routeCreateAsyncTask = null;
+    }
+  }
+
+  @Override
+  public void onListItemClick(ListView l, View v, int position, long id)
+  {
+    if (m_callbacks != null) {
+      RibEntry ribEntry = ((RouteListAdapter)l.getAdapter()).getItem(position);
+      m_callbacks.onRouteItemSelected(ribEntry);
     }
   }
 
@@ -360,6 +394,9 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
   /////////////////////////////////////////////////////////////////////////////
+
+  /** Callback handler of the hosting activity */
+  private Callbacks m_callbacks;
 
   /** Reference to the most recent AsyncTask that was created for listing routes */
   private RouteListAsyncTask m_routeListAsyncTask;

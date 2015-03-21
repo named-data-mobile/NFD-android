@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.intel.jndn.management.types.FaceStatus;
+import com.intel.jndn.management.types.RibEntry;
 
 import java.util.ArrayList;
 
@@ -38,7 +39,8 @@ import java.util.ArrayList;
 public class MainActivity extends ActionBarActivity
     implements DrawerFragment.DrawerCallbacks,
                LogcatFragment.Callbacks,
-               FaceListFragment.Callbacks
+               FaceListFragment.Callbacks,
+               RouteListFragment.Callbacks
 {
 
   @Override
@@ -172,6 +174,12 @@ public class MainActivity extends ActionBarActivity
   @Override
   public void onFaceItemSelected(FaceStatus faceStatus) {
     replaceContentFragmentWithBackstack(FaceStatusFragment.newInstance(faceStatus));
+  }
+
+  @Override
+  public void onRouteItemSelected(RibEntry ribEntry)
+  {
+    replaceContentFragmentWithBackstack(RouteInfoFragment.newInstance(ribEntry));
   }
 
   //////////////////////////////////////////////////////////////////////////////

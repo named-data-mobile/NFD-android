@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/default_linear_layout_padding"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_route_details_title"
+        style="?android:listSeparatorTextViewStyle"
+        />
+
+    <TextView style="@style/default_custom_white_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:id="@+id/route_detail_prefix"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_route_details_next_hops"
+        style="?android:listSeparatorTextViewStyle"
+        />
+
+    <include
+        layout="@android:layout/list_content"
+        />
+
+</LinearLayout>
