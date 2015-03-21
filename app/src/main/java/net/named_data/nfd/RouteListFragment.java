@@ -305,24 +305,24 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     protected String
     doInBackground(Void... params)
     {
+      Nfdc nfdc = new Nfdc();
       try {
-        Nfdc nfdc = new Nfdc();
         int faceId = nfdc.faceCreate(m_faceUri);
-        boolean ok = nfdc.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
+        nfdc.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
         nfdc.shutdown();
-        if (ok) {
-          return "OK";
-        }
-        else {
-          return "Failed register prefix";
-        }
-      } catch (FaceUri.CanonizeError e) {
+        return "OK";
+      }
+      catch (FaceUri.CanonizeError e) {
         return "Error creating face (" + e.getMessage() + ")";
-      } catch (FaceUri.Error e) {
+      }
+      catch (FaceUri.Error e) {
         return "Error creating face (" + e.getMessage() + ")";
       }
       catch (Exception e) {
         return "Error communicating with NFD (" + e.getMessage() + ")";
+      }
+      finally {
+        nfdc.shutdown();
       }
     }
 

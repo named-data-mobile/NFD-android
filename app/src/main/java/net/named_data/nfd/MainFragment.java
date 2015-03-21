@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -39,9 +40,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
+
+import com.intel.jndn.management.types.ForwarderStatus;
 
 import net.named_data.nfd.service.NfdService;
 import net.named_data.nfd.utils.G;
+import net.named_data.nfd.utils.Nfdc;
+
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 public class MainFragment extends Fragment {
 
@@ -84,6 +92,20 @@ public class MainFragment extends Fragment {
       }
     });
 
+    m_nfdStatusView = (ViewGroup)v.findViewById(R.id.status_view);
+    m_nfdStatusView.setVisibility(View.GONE);
+    m_versionView = (TextView)v.findViewById(R.id.version);
+    m_uptimeView = (TextView)v.findViewById(R.id.uptime);
+    m_nameTreeEntriesView = (TextView)v.findViewById(R.id.name_tree_entries);
+    m_fibEntriesView = (TextView)v.findViewById(R.id.fib_entries);
+    m_pitEntriesView = (TextView)v.findViewById(R.id.pit_entries);
+    m_measurementEntriesView = (TextView)v.findViewById(R.id.measurement_entries);
+    m_csEntriesView = (TextView)v.findViewById(R.id.cs_entries);
+    m_inInterestsView = (TextView)v.findViewById(R.id.in_interests);
+    m_outInterestsView = (TextView)v.findViewById(R.id.out_interests);
+    m_inDataView = (TextView)v.findViewById(R.id.in_data);
+    m_outDataView = (TextView)v.findViewById(R.id.out_data);
+
     return v;
   }
 
@@ -101,6 +123,7 @@ public class MainFragment extends Fragment {
     super.onPause();
 
     unbindNfdService();
+    m_handler.removeCallbacks(m_statusUpdateRunnable);
     m_handler.removeCallbacks(m_retryConnectionToNfdService);
   }
 
@@ -145,6 +168,10 @@ public class MainFragment extends Fragment {
 
     m_nfdStartStopSwitch.setText(R.string.stopping_nfd);
     sendNfdServiceMessage(NfdService.STOP_NFD_SERVICE);
+
+    // disable status block
+    m_nfdStatusView.setVisibility(View.GONE);
+    m_handler.removeCallbacks(m_statusUpdateRunnable);
   }
 
   /**
@@ -204,6 +231,8 @@ public class MainFragment extends Fragment {
         case NfdService.NFD_SERVICE_RUNNING:
           setNfdServiceRunning();
           G.Log("ClientHandler: NFD is Running.");
+
+          m_handler.post(m_statusUpdateRunnable);
           break;
 
         case NfdService.NFD_SERVICE_STOPPED:
@@ -275,6 +304,59 @@ public class MainFragment extends Fragment {
     }
   };
 
+  private class StatusUpdateTask extends AsyncTask<Void, Void, ForwarderStatus> {
+    /**
+     * @param voids
+     * @return ForwarderStatus if operation succeeded, null if operation failed
+     */
+    @Override
+    protected ForwarderStatus
+    doInBackground(Void... voids)
+    {
+      try {
+        Nfdc nfdc = new Nfdc();
+        ForwarderStatus fs = nfdc.generalStatus();
+        nfdc.shutdown();
+        return fs;
+      }
+      catch (Exception e) {
+        G.Log("Error communicating with NFD (" + e.getMessage() + ")");
+        return null;
+      }
+    }
+
+    @Override
+    protected void
+    onPostExecute(ForwarderStatus fs)
+    {
+      if (fs == null) {
+        // Maybe display error message from result.second
+      }
+      else {
+        m_versionView.setText(fs.getNfdVersion());
+        m_uptimeView.setText(PeriodFormat.getDefault().print(new Period(
+          fs.getCurrentTimestamp() - fs.getStartTimestamp())));
+        m_nameTreeEntriesView.setText(String.valueOf(
+          fs.getNumNameTreeEntries()));
+        m_fibEntriesView.setText(String.valueOf(fs.getNumFibEntries()));
+        m_pitEntriesView.setText(String.valueOf(fs.getNumPitEntries()));
+        m_measurementEntriesView.setText(String.valueOf(
+          fs.getNumMeasurementEntries()));
+        m_csEntriesView.setText(String.valueOf(fs.getNumCsEntries()));
+
+        m_inInterestsView.setText(String.valueOf(fs.getNumInInterests()));
+        m_outInterestsView.setText(String.valueOf(
+          fs.getNumOutInterests()));
+        m_inDataView.setText(String.valueOf(fs.getNumInDatas()));
+        m_outDataView.setText(String.valueOf(fs.getNumOutDatas()));
+
+        m_nfdStatusView.setVisibility(View.VISIBLE);
+      }
+
+      m_handler.postDelayed(m_statusUpdateRunnable, 5000);
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////
 
   /** Button that starts and stops the NFD */
@@ -289,7 +371,29 @@ public class MainFragment extends Fragment {
   /** Messenger connection to NfdService */
   private Messenger m_nfdServiceMessenger = null;
 
+  /** ListView holding NFD status information */
+  private ViewGroup m_nfdStatusView;
+
+  private TextView m_versionView;
+  private TextView m_uptimeView;
+  private TextView m_nameTreeEntriesView;
+  private TextView m_fibEntriesView;
+  private TextView m_pitEntriesView;
+  private TextView m_measurementEntriesView;
+  private TextView m_csEntriesView;
+  private TextView m_inInterestsView;
+  private TextView m_outInterestsView;
+  private TextView m_inDataView;
+  private TextView m_outDataView;
+
   private Handler m_handler;
+  private Runnable m_statusUpdateRunnable = new Runnable() {
+    @Override
+    public void run()
+    {
+      new StatusUpdateTask().execute();
+    }
+  };
 
   private static final String PREF_NFD_SERVICE_STATUS = "NFD_SERVICE_STATUS";
 }

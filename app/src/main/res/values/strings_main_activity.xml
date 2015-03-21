@@ -1,7 +1,19 @@
 <resources>
     <!-- General -->
     <string name="pref_category_title_general">General</string>
-    <string name="pref_category_title_general_key">General_Key</string>
+    <string name="pref_category_title_status">NFD Status</string>
+
+    <string name="version">Version</string>
+    <string name="uptime">Uptime</string>
+    <string name="name_tree_entries">NameTree entries</string>
+    <string name="fib_entries">FIB entries</string>
+    <string name="pit_entries">PIT Entries</string>
+    <string name="measurement_entries">Measurement entries</string>
+    <string name="cs_entries">CS entries</string>
+    <string name="in_interests">In interests</string>
+    <string name="out_interests">Out interests</string>
+    <string name="in_data">In data</string>
+    <string name="out_data">Out data</string>
 
     <string-array name="pref_sync_face_titles">
         <item>localhost</item>

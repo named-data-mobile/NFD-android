@@ -136,8 +136,8 @@ dependencies {
     compile 'net.named-data:jndn:0.4'
     compile 'net.named-data.jndn-xx:jndn-xx-util:0.0.1'
 
-    compile 'com.intel.jndn.utils:jndn-utils:0.9.5'
-    compile 'com.intel.jndn.management:jndn-management:0.9.5'
+    compile 'com.intel.jndn.utils:jndn-utils:0.9.7'
+    compile 'com.intel.jndn.management:jndn-management:0.9.7'
     compile 'com.google.protobuf:protobuf-java:2.6.1'
 
     compile 'joda-time:joda-time:2.7'

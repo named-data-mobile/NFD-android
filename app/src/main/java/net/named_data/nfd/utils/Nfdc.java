@@ -21,6 +21,7 @@ package net.named_data.nfd.utils;
 
 import com.intel.jndn.management.NFD;
 import com.intel.jndn.management.types.FaceStatus;
+import com.intel.jndn.management.types.ForwarderStatus;
 import com.intel.jndn.management.types.RibEntry;
 
 import net.named_data.jndn.ControlParameters;
@@ -72,6 +73,16 @@ public class Nfdc
   }
 
   /**
+   * Get general NFD status
+   */
+  public ForwarderStatus
+  generalStatus() throws Exception
+  {
+    return NFD.getForwarderStatus(m_face);
+  }
+
+
+  /**
    * Adds a nexthop to a FIB entry
    * <p>
    * If the FIB entry does not exist, it is inserted automatically
@@ -94,18 +105,18 @@ public class Nfdc
   /**
    * Registers name to the given faceId or faceUri
    */
-  public boolean
+  public void
   ribRegisterPrefix(Name prefix, int faceId, int cost, boolean isChildInherit, boolean isCapture) throws Exception
   {
     ForwardingFlags flags = new ForwardingFlags();
     flags.setChildInherit(isChildInherit);
     flags.setCapture(isCapture);
-    return NFD.register(m_face,
-                        new ControlParameters()
-                          .setName(prefix)
-                          .setFaceId(faceId)
-                          .setCost(cost)
-                          .setForwardingFlags(flags));
+    NFD.register(m_face,
+                 new ControlParameters()
+                   .setName(prefix)
+                   .setFaceId(faceId)
+                   .setCost(cost)
+                   .setForwardingFlags(flags));
   }
 
   /**
