@@ -38,7 +38,6 @@ import net.named_data.nfd.utils.G;
  *
  */
 public class NfdService extends Service {
-
   /**
    * Loading of NFD Native libraries.
    */
@@ -82,33 +81,29 @@ public class NfdService extends Service {
   stopNfd();
 
   /** Message to start NFD Service */
-  public static final int MESSAGE_START_NFD_SERVICE = 1;
+  public static final int START_NFD_SERVICE = 1;
 
   /** Message to stop NFD Service */
-  public static final int MESSAGE_STOP_NFD_SERVICE = 2;
+  public static final int STOP_NFD_SERVICE = 2;
 
-  /** Message to query if NFD is running */
-  public static final int MESSAGE_IS_NFD_RUNNING = 3;
+  /** Message to indicate that NFD Service is running */
+  public static final int NFD_SERVICE_RUNNING = 3;
 
-  /** Message to indicate NFD is running */
-  public static final int MESSAGE_NFD_RUNNING = 4;
+  /** Message to indicate that NFD Service is not running */
+  public static final int NFD_SERVICE_STOPPED = 4;
 
-  /** Message to indicate NFD is stopped */
-  public static final int MESSAGE_NFD_STOPPED = 5;
 
   @Override
   public void onCreate() {
     G.Log("NFDService::onCreate()");
+    m_nfdServiceMessenger = new Messenger(new NfdServiceMessageHandler());
   }
 
   @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
+  public int
+  onStartCommand(Intent intent, int flags, int startId) {
     G.Log("NFDService::onStartCommand()");
 
-    // If we need to handle per-client start invocations, they are to be
-    // handled here.
-
-    // Start NFD
     serviceStartNfd();
 
     // Service is restarted when killed.
@@ -125,25 +120,28 @@ public class NfdService extends Service {
    * @return IBinder interface to send messages to the NFD Service.
    */
   @Override
-  public IBinder onBind(Intent intent) {
+  public IBinder
+  onBind(Intent intent) {
     return m_nfdServiceMessenger.getBinder();
   }
 
   @Override
-  public void onDestroy() {
+  public void
+  onDestroy() {
     G.Log("NFDService::onDestroy()");
 
-    if (m_isNfdStarted) {
-      G.Log("Stopping NFD ...");
-      serviceStopNfd();
-    }
+    serviceStopNfd();
+    m_nfdServiceMessenger = null;
   }
+
+  /////////////////////////////////////////////////////////////////////////////
 
   /**
    * Thread safe way of starting the NFD and updating the
    * started flag.
    */
-  private synchronized void serviceStartNfd() {
+  private synchronized void
+  serviceStartNfd() {
     if (!m_isNfdStarted) {
       m_isNfdStarted = true;
       startNfd(getFilesDir().getAbsolutePath());
@@ -164,7 +162,8 @@ public class NfdService extends Service {
    * Thread safe way of stopping the NFD and updating the
    * started flag.
    */
-  private synchronized void serviceStopNfd() {
+  private synchronized void
+  serviceStopNfd() {
     if (m_isNfdStarted) {
       m_isNfdStarted = false;
 
@@ -177,15 +176,6 @@ public class NfdService extends Service {
   }
 
   /**
-   * Thread safe way of checking if the the NFD is running.
-   *
-   * @return true if NFD is running; false otherwise.
-   */
-  private synchronized boolean isNfdRunning() {
-    return m_isNfdStarted;
-  }
-
-  /**
    * Message handler for the the NFD Service.
    */
   private class NfdServiceMessageHandler extends Handler {
@@ -193,22 +183,14 @@ public class NfdService extends Service {
     @Override
     public void handleMessage(Message message) {
       switch (message.what) {
-      case NfdService.MESSAGE_START_NFD_SERVICE:
+      case NfdService.START_NFD_SERVICE:
         serviceStartNfd();
-        replyToClient(message, NfdService.MESSAGE_NFD_RUNNING);
+        replyToClient(message, NfdService.NFD_SERVICE_RUNNING);
         break;
 
-      case NfdService.MESSAGE_STOP_NFD_SERVICE:
+      case NfdService.STOP_NFD_SERVICE:
         serviceStopNfd();
-        replyToClient(message, NfdService.MESSAGE_NFD_STOPPED);
-        break;
-
-      case NfdService.MESSAGE_IS_NFD_RUNNING:
-        int replyMessage = isNfdRunning() ?
-          NfdService.MESSAGE_NFD_RUNNING :
-          NfdService.MESSAGE_NFD_STOPPED;
-
-        replyToClient(message, replyMessage);
+        replyToClient(message, NfdService.NFD_SERVICE_STOPPED);
         break;
 
       default:
@@ -217,7 +199,8 @@ public class NfdService extends Service {
       }
     }
 
-    private void replyToClient(Message message, int replyMessage) {
+    private void
+    replyToClient(Message message, int replyMessage) {
       try {
         message.replyTo.send(Message.obtain(null, replyMessage));
       } catch (RemoteException e) {
@@ -227,10 +210,8 @@ public class NfdService extends Service {
   }
 
   /** Messenger to handle messages that are passed to the NfdService */
-  private final Messenger m_nfdServiceMessenger
-    = new Messenger(new NfdServiceMessageHandler());
+  private Messenger m_nfdServiceMessenger = null;
 
   /** Flag that denotes if the NFD has been started */
   private boolean m_isNfdStarted = false;
-
 }

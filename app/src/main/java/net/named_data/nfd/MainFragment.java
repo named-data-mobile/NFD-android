@@ -24,17 +24,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import net.named_data.nfd.service.NfdService;
@@ -48,6 +51,13 @@ public class MainFragment extends Fragment {
   }
 
   @Override
+  public void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    m_handler = new Handler();
+  }
+
+  @Override
   public View onCreateView(LayoutInflater inflater,
                            @Nullable ViewGroup container,
                            @Nullable Bundle savedInstanceState)
@@ -55,11 +65,22 @@ public class MainFragment extends Fragment {
     @SuppressLint("InflateParams")
     View v =  inflater.inflate(R.layout.fragment_main, null);
 
-    m_nfdStartStopSwitch = (Switch) v.findViewById(R.id.nfd_start_stop_switch);
-    m_nfdStartStopSwitch.setOnClickListener(new View.OnClickListener() {
+    m_nfdStartStopSwitch = (Switch)v.findViewById(R.id.nfd_start_stop_switch);
+    m_nfdStartStopSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
       @Override
-      public void onClick(View v) {
-        toggleNfdState();
+      public void onCheckedChanged(CompoundButton compoundButton, boolean isOn)
+      {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.edit()
+          .putBoolean(PREF_NFD_SERVICE_STATUS, isOn)
+          .apply();
+
+        if (isOn) {
+          startNfdService();
+        }
+        else {
+          stopNfdService();
+        }
       }
     });
 
@@ -67,33 +88,63 @@ public class MainFragment extends Fragment {
   }
 
   @Override
-  public void onResume () {
+  public void
+  onResume() {
     super.onResume();
 
-    // Bind to NfdService
     bindNfdService();
   }
 
   @Override
-  public void onPause () {
+  public void
+  onPause() {
     super.onPause();
 
-    // Unbind from NfdService
     unbindNfdService();
+    m_handler.removeCallbacks(m_retryConnectionToNfdService);
   }
 
   /**
-   * Thread safe way to start and stop the NFD through
-   * the UI Button.
+   * Method that binds the current activity to the NfdService.
    */
-  private synchronized void toggleNfdState() {
-    if (m_isNfdRunning) {
-      m_nfdStartStopSwitch.setText(R.string.stopping_nfd);
-      sendNfdServiceMessage(NfdService.MESSAGE_STOP_NFD_SERVICE);
-    } else {
-      m_nfdStartStopSwitch.setText(R.string.starting_nfd);
-      sendNfdServiceMessage(NfdService.MESSAGE_START_NFD_SERVICE);
+  private void
+  bindNfdService() {
+    if (!m_isNfdServiceConnected) {
+      // Bind to Service
+      getActivity().bindService(new Intent(getActivity(), NfdService.class),
+                                           m_ServiceConnection, Context.BIND_AUTO_CREATE);
+      G.Log("MainFragment::bindNfdService()");
     }
+  }
+
+  /**
+   * Method that unbinds the current activity from the NfdService.
+   */
+  private void
+  unbindNfdService() {
+    if (m_isNfdServiceConnected) {
+      // Unbind from Service
+      getActivity().unbindService(m_ServiceConnection);
+      m_isNfdServiceConnected = false;
+
+      G.Log("MainFragment::unbindNfdService()");
+    }
+  }
+
+  private void
+  startNfdService() {
+    assert m_isNfdServiceConnected;
+
+    m_nfdStartStopSwitch.setText(R.string.starting_nfd);
+    sendNfdServiceMessage(NfdService.START_NFD_SERVICE);
+  }
+
+  private void
+  stopNfdService() {
+    assert m_isNfdServiceConnected;
+
+    m_nfdStartStopSwitch.setText(R.string.stopping_nfd);
+    sendNfdServiceMessage(NfdService.STOP_NFD_SERVICE);
   }
 
   /**
@@ -102,7 +153,12 @@ public class MainFragment extends Fragment {
    *
    * @param message Message from a set of predefined NfdService messages.
    */
-  private synchronized void sendNfdServiceMessage(int message) {
+  private void
+  sendNfdServiceMessage(int message) {
+    if (m_nfdServiceMessenger == null) {
+      G.Log("NfdService not yet connected");
+      return;
+    }
     try {
       Message msg = Message.obtain(null, message);
       msg.replyTo = m_clientMessenger;
@@ -113,85 +169,26 @@ public class MainFragment extends Fragment {
     }
   }
 
-  /**
-   * Enable UI Switch once critical operations are completed.
-   */
-  private void enableNfdSwitch() {
+  private void
+  setNfdServiceRunning() {
     m_nfdStartStopSwitch.setEnabled(true);
+    m_nfdStartStopSwitch.setText(R.string.nfd_started);
+    m_nfdStartStopSwitch.setChecked(true);
   }
 
-  /**
-   * Disable UI Switch to ensure user is unable to hit the switch multiple times.
-   */
-  private void disableNfdSwitch() {
+  private void
+  setNfdServiceStopped() {
+    m_nfdStartStopSwitch.setEnabled(true);
+    m_nfdStartStopSwitch.setText(R.string.nfd_stopped);
+    m_nfdStartStopSwitch.setChecked(false);
+
+  }
+
+  private void
+  setNfdServiceDisconnected() {
     m_nfdStartStopSwitch.setEnabled(false);
-  }
-
-  /**
-   * Thread safe way of flagging that the NFD is running.
-   *
-   * @param isNfdRunning true if NFD is running; false otherwise
-   */
-  private synchronized void setNfdRunningState(boolean isNfdRunning) {
-    m_isNfdRunning = isNfdRunning;
-  }
-
-  /**
-   * Toggle UI Switch to inform user of the next possible action.
-   *
-   * @param isNfdRunning true if NFD is currently running; false otherwise
-   */
-  private void setNfdSwitchState(boolean isNfdRunning) {
-    m_nfdStartStopSwitch.setText(isNfdRunning ? R.string.nfd_started : R.string.nfd_stopped);
-    m_nfdStartStopSwitch.setChecked(isNfdRunning);
-  }
-
-  /**
-   * Update UI Switch to inform user that the NFD Service has been disconnected
-   * and an attempt is made to reconnect with the NFD Service.
-   */
-  private void setNfdDisconnectedSwitchState() {
-    disableNfdSwitch();
     m_nfdStartStopSwitch.setText(R.string.reconnect_to_nfd);
     m_nfdStartStopSwitch.setChecked(false);
-  }
-
-  /**
-   * Thread safe way of flagging that application is successfully connected
-   * to the NfdService.
-   *
-   * @param isNfdServiceConnected true if successfully connected to the NfdService;
-   *                              false otherwise
-   */
-  private synchronized void setNfdServiceConnected(boolean isNfdServiceConnected) {
-    m_isNfdServiceConnected = isNfdServiceConnected;
-  }
-
-  /**
-   * Method that binds the current activity to the NfdService.
-   */
-  private synchronized void bindNfdService() {
-    if (!m_isNfdServiceBound) {
-      // Bind to Service
-      m_isNfdServiceBound = getActivity().bindService(
-          new Intent(getActivity(), NfdService.class),
-          m_ServiceConnection, Context.BIND_AUTO_CREATE);
-
-      G.Log("MainFragment::bindNfdService()");
-    }
-  }
-
-  /**
-   * Method that unbinds the current activity from the NfdService.
-   */
-  private synchronized void unbindNfdService() {
-    if (m_isNfdServiceBound) {
-      // Unbind from Service
-      getActivity().unbindService(m_ServiceConnection);
-      m_isNfdServiceBound = false;
-
-      G.Log("MainFragment::unbindNfdService()");
-    }
   }
 
   /**
@@ -204,15 +201,13 @@ public class MainFragment extends Fragment {
     @Override
     public void handleMessage(Message msg) {
       switch (msg.what) {
-        case NfdService.MESSAGE_NFD_RUNNING:
-          setNfdRunningState(true);
-          setNfdSwitchState(true);
+        case NfdService.NFD_SERVICE_RUNNING:
+          setNfdServiceRunning();
           G.Log("ClientHandler: NFD is Running.");
           break;
 
-        case NfdService.MESSAGE_NFD_STOPPED:
-          setNfdRunningState(false);
-          setNfdSwitchState(false);
+        case NfdService.NFD_SERVICE_STOPPED:
+          setNfdServiceStopped();
           G.Log("ClientHandler: NFD is Stopped.");
           break;
 
@@ -220,8 +215,6 @@ public class MainFragment extends Fragment {
           super.handleMessage(msg);
           break;
       }
-
-      enableNfdSwitch();
     }
   }
 
@@ -230,17 +223,18 @@ public class MainFragment extends Fragment {
    */
   private final ServiceConnection m_ServiceConnection = new ServiceConnection() {
     @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
+    public void
+    onServiceConnected(ComponentName className, IBinder service) {
       // Establish Messenger to the Service
       m_nfdServiceMessenger = new Messenger(service);
-
-      // Set service connected flag
-      setNfdServiceConnected(true);
+      m_isNfdServiceConnected = true; // onServiceConnected runs on the main thread
 
       // Check if NFD Service is running
       try {
-        Message msg = Message.obtain(null,
-            NfdService.MESSAGE_IS_NFD_RUNNING);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean shouldServiceBeOn = sp.getBoolean(PREF_NFD_SERVICE_STATUS, true);
+
+        Message msg = Message.obtain(null, shouldServiceBeOn ? NfdService.START_NFD_SERVICE : NfdService.STOP_NFD_SERVICE);
         msg.replyTo = m_clientMessenger;
         m_nfdServiceMessenger.send(msg);
       } catch (RemoteException e) {
@@ -252,16 +246,16 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public void onServiceDisconnected(ComponentName componentName) {
+    public void
+    onServiceDisconnected(ComponentName componentName) {
       // In event of unexpected disconnection with the Service; Not expecting to get here.
       G.Log("m_ServiceConnection::onServiceDisconnected()");
 
       // Update UI
-      setNfdDisconnectedSwitchState();
+      setNfdServiceDisconnected();
 
-      // Reconnect to NfdService
-      setNfdServiceConnected(false);
-      retryConnectionToNfdService();
+      m_isNfdServiceConnected = false; // onServiceDisconnected runs on the main thread
+      m_handler.postDelayed(m_retryConnectionToNfdService, 1000);
     }
   };
 
@@ -271,38 +265,20 @@ public class MainFragment extends Fragment {
    * This method attempts to reconnect the application to the NfdService
    * when the NfdService has been killed (either by the user or by the OS).
    */
-  private void retryConnectionToNfdService() {
-    new Thread(){
-      @Override
-      public void run() {
-        // TODO: Trying infinitely doesn't make sense.
-        // Convert this to an AsyncTask that:
-        //    - has a fixed number of retries
-        //    - update UI to inform user of the progress
-        //    - set switch to appropriate state when service fails to come online
-        while (!m_isNfdServiceConnected) {
-          G.Log("Retrying connection to NFD Service ...");
-          bindNfdService();
-
-          try {
-            Thread.sleep(1000);
-          } catch (InterruptedException e) {
-            // Nothing to do here; Keep going.
-          }
-        }
-
-        G.Log("Reconnection to NFD Service is successful.");
-      }
-    }.start();
-  }
+  private Runnable m_retryConnectionToNfdService = new Runnable() {
+    @Override
+    public void
+    run()
+    {
+      G.Log("Retrying connection to NFD Service ...");
+      bindNfdService();
+    }
+  };
 
   //////////////////////////////////////////////////////////////////////////////
 
   /** Button that starts and stops the NFD */
   private Switch m_nfdStartStopSwitch;
-
-  /** Flag that marks that application is bound to the NfdService */
-  private boolean m_isNfdServiceBound = false;
 
   /** Flag that marks that application is connected to the NfdService */
   private boolean m_isNfdServiceConnected = false;
@@ -313,6 +289,7 @@ public class MainFragment extends Fragment {
   /** Messenger connection to NfdService */
   private Messenger m_nfdServiceMessenger = null;
 
-  /** Flag that marks if the NFD is running */
-  private boolean m_isNfdRunning = false;
+  private Handler m_handler;
+
+  private static final String PREF_NFD_SERVICE_STATUS = "NFD_SERVICE_STATUS";
 }
