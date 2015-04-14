@@ -28,19 +28,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -56,79 +54,106 @@ public class LogcatSettingsFragment extends ListFragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    m_logcatSettingsManager = LogcatSettingsManager.get(getActivity());
-    m_logcatSettingItems = m_logcatSettingsManager.getLogcatSettingItems();
-
-    ArrayAdapter<LogcatSettingItem> adapter
-        = new LogcatSettingsAdapter(getActivity(), m_logcatSettingItems);
-
-    setListAdapter(adapter);
-    setRetainInstance(true);
+    setHasOptionsMenu(true);
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater,
-                           ViewGroup container,
-                           Bundle savedInstanceState) {
-    @SuppressLint("InflateParams")
-    View v = inflater.inflate(R.layout.fragment_logcat_tags_list, null);
+  public void onViewCreated(View view, Bundle savedInstanceState)
+  {
+    super.onViewCreated(view, savedInstanceState);
 
-    // Set resetLogLevelButton listener
-    Button resetLogLevelButton = (Button) v.findViewById(R.id.logcat_reset_loglevel_defaults);
-    resetLogLevelButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
+    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_logcat_tags_list_header, null);
+    getListView().addHeaderView(v, null, false);
+    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+
+    // @TODO implement log item removal
+    //    ListView listView = (ListView) v.findViewById(android.R.id.list);
+    //    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+    //    listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+    //      @Override
+    //      public void onItemCheckedStateChanged(ActionMode mode,
+    //                                            int position,
+    //                                            long id,
+    //                                            boolean checked)
+    //      {
+    //        // Nothing to do here
+    //      }
+    //
+    //      @Override
+    //      public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+    //        MenuInflater inflater = mode.getMenuInflater();
+    //        inflater.inflate(R.menu.menu_logcat_settings_multiple_modal_menu, menu);
+    //        return true;
+    //      }
+    //
+    //      @Override
+    //      public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+    //        return false;
+    //      }
+    //
+    //      @Override
+    //      public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+    //        switch (item.getItemId()) {
+    //          case R.id.menu_item_delete_setting_item:
+    //            // TODO: Delete log item tag
+    //            return true;
+    //          default:
+    //            return false;
+    //        }
+    //      }
+    //
+    //      @Override
+    //      public void onDestroyActionMode(ActionMode mode) {
+    //        // Nothing to do here
+    //      }
+    //    });
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
+
+    if (m_adapter == null) {
+      m_logcatSettingsManager = LogcatSettingsManager.get(getActivity());
+      m_logcatSettingItems = m_logcatSettingsManager.getLogcatSettingItems();
+
+      m_adapter = new LogcatSettingsAdapter(getActivity(), m_logcatSettingItems);
+    }
+    // setListAdapter must be called after addHeaderView.  Otherwise, there is an exception on some platforms.
+    // http://stackoverflow.com/a/8141537/2150331
+    setListAdapter(m_adapter);
+  }
+
+  @Override
+  public void onDestroyView()
+  {
+    super.onDestroyView();
+    setListAdapter(null);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+  {
+    super.onCreateOptionsMenu(menu, inflater);
+    inflater.inflate(R.menu.menu_logcat_settings, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId()) {
+      case R.id.action_log_settings:
         FragmentManager fm = getActivity().getSupportFragmentManager();
         ResetLogLevelDialog dialog
-            = ResetLogLevelDialog.newInstance(getString(R.string.reset_log_level_dialog_title));
+          = ResetLogLevelDialog.newInstance(getString(R.string.reset_log_level_dialog_title));
         dialog.setTargetFragment(LogcatSettingsFragment.this, REQUEST_CODE_DIALOG_RESET_ALL_LOG_LEVELS);
         dialog.show(fm, DIALOG_RESET_ALL_LOG_LEVELS_TAG);
-      }
-    });
 
-    // Register context listener
-    ListView listView = (ListView) v.findViewById(android.R.id.list);
-    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-    listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-      @Override
-      public void onItemCheckedStateChanged(ActionMode mode,
-                                            int position,
-                                            long id,
-                                            boolean checked)
-      {
-        // Nothing to do here
-      }
-
-      @Override
-      public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.menu_logcat_settings_multiple_modal_menu, menu);
         return true;
-      }
-
-      @Override
-      public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
-      }
-
-      @Override
-      public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        switch (item.getItemId()) {
-          case R.id.menu_item_delete_setting_item:
-            // TODO: Delete log item tag
-            return true;
-          default:
-            return false;
-        }
-      }
-
-      @Override
-      public void onDestroyActionMode(ActionMode mode) {
-        // Nothing to do here
-      }
-    });
-
-    return v;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
   }
 
   @Override
@@ -338,4 +363,6 @@ public class LogcatSettingsFragment extends ListFragment {
 
   /** Unique tag that identifies dialog fragment in the fragment manager */
   private static final String DIALOG_SET_LOG_LEVEL_TAG = "SetLogLevelDialog";
+
+  private ArrayAdapter<LogcatSettingItem> m_adapter;
 }

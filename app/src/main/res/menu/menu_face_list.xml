@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/face_list_refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:title="@string/face_list_refresh_face_list"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/face_list_add"
+        android:icon="@drawable/ic_action_new"
+        android:title="@string/face_list_add_face"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        />
+
+</menu>

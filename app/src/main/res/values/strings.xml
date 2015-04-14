@@ -35,6 +35,19 @@
     <string name="fragment_face_details_title">Face Details</string>
     <string name="menu_item_delete_face_item">Delete</string>
     <string name="expire_never">Never</string>
+    <string name="face_id">Face ID</string>
+    <string name="local_face_uri">Local FaceURI</string>
+    <string name="remote_face_uri">Remote FaceURI</string>
+    <string name="expires_in">Expires in</string>
+    <string name="face_scope">Face scope</string>
+    <string name="face_persistency">Face persistency</string>
+    <string name="link_type">Link type</string>
+    <string name="in_interests">In interests</string>
+    <string name="out_interests">Out interests</string>
+    <string name="in_data">In data</string>
+    <string name="out_data">Out data</string>
+    <string name="in_bytes">In bytes</string>
+    <string name="out_bytes">Out bytes</string>
 
     <string-array name="face_scopes">
         <item>Local</item>
@@ -56,4 +69,5 @@
     <string name="route_add_dialog_create_route">Create route</string>
     <string name="fragment_route_details_title">Route Details</string>
     <string name="fragment_route_details_next_hops">List of next hops</string>
+    <string name="fragment_route_route_name_title">Route Name</string>
 </resources>

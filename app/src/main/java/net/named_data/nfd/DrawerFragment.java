@@ -163,22 +163,16 @@ public class DrawerFragment extends Fragment {
       @Override
       public void onDrawerClosed(View drawerView) {
         super.onDrawerClosed(drawerView);
-        if (!isAdded()) {
-          return;
-        }
 
         // Allow update calls to onCreateOptionsMenu() and
         // onPrepareOptionsMenu() to update Menu UI.
+        m_shouldHideOptionsMenu = false;
         getActivity().supportInvalidateOptionsMenu();
       }
 
       @Override
       public void onDrawerOpened(View drawerView) {
         super.onDrawerOpened(drawerView);
-        if (!isAdded()) {
-          // Drawer has not been added; Nothing to de here
-          return;
-        }
 
         // Flag that user has seen drawer for the first time
         if (!m_hasUserSeenDrawer) {
@@ -193,31 +187,17 @@ public class DrawerFragment extends Fragment {
 
         // Allow update calls to onCreateOptionsMenu() and
         // onPrepareOptionsMenu() to update Menu UI
+        m_shouldHideOptionsMenu = true;
         getActivity().supportInvalidateOptionsMenu();
       }
 
       @Override
       public void onDrawerStateChanged(int newState) {
         super.onDrawerStateChanged(newState);
-        switch (newState) {
-          case ViewDragHelper.STATE_DRAGGING:
-            // Fall through; Same condition.
-          case ViewDragHelper.STATE_SETTLING:
-            if (m_drawerCurrentState == DRAWER_CLOSED) {
-                m_shouldHideOptionsMenu = true;
-                m_drawerCurrentState = DRAWER_SLIDING;
-                getActivity().supportInvalidateOptionsMenu();
-            }
-            break;
-          case ViewDragHelper.STATE_IDLE:
-            if (m_drawerCurrentState == DRAWER_SLIDING) {
-              m_drawerCurrentState = DRAWER_OPENED;
-              m_shouldHideOptionsMenu = false;
-              getActivity().supportInvalidateOptionsMenu();
-            } else if (m_drawerCurrentState == DRAWER_OPENED) {
-              m_drawerCurrentState = DRAWER_CLOSED;
-            }
-            break;
+        if (newState != ViewDragHelper.STATE_IDLE) {
+          // opened/closed is handled by onDrawerOpened and onDrawerClosed callbacks
+          m_shouldHideOptionsMenu = true;
+          getActivity().supportInvalidateOptionsMenu();
         }
       }
     };
@@ -225,7 +205,6 @@ public class DrawerFragment extends Fragment {
     // Open drawer for the first time
     if (!m_hasUserSeenDrawer && !m_restoredFromSavedInstanceState) {
       m_shouldHideOptionsMenu = true;
-      m_drawerCurrentState = DRAWER_OPENED;
       m_drawerLayout.openDrawer(m_drawerFragmentViewContainer);
     }
 
@@ -258,7 +237,7 @@ public class DrawerFragment extends Fragment {
     super.onCreateOptionsMenu(menu, inflater);
     // Update menu UI when the drawer is open. This gives the user a better
     // contextual perception of the application.
-    if (m_drawerLayout != null && isDrawerOpen()) {
+    if (isDrawerOpen()) {
       // Inflate drawer specific menu here (if any)
       showGlobalContextActionBar();
     }
@@ -292,6 +271,11 @@ public class DrawerFragment extends Fragment {
     }
   }
 
+  public boolean
+  shouldHideOptionsMenu() {
+    return m_shouldHideOptionsMenu;
+  }
+
   /**
    * Convenience method that updates the UI and callbacks the host activity.
    *
@@ -323,7 +307,8 @@ public class DrawerFragment extends Fragment {
    *
    * @return True if drawer is present and in an open state; false otherwise
    */
-  public boolean isDrawerOpen() {
+  private boolean
+  isDrawerOpen() {
     return m_drawerLayout != null && m_drawerLayout.isDrawerOpen(m_drawerFragmentViewContainer);
   }
 
@@ -515,13 +500,5 @@ public class DrawerFragment extends Fragment {
   private ArrayList<DrawerItem> m_drawerItems;
 
   /** Flag that marks if drawer is sliding outwards and being displayed */
-  private boolean m_shouldHideOptionsMenu;
-
-  /** Keeping track of the drawer state */
-  private int m_drawerCurrentState = DRAWER_CLOSED;
-
-  /** Drawer State Values that are used by m_drawerCurrentState */
-  private static final int DRAWER_SLIDING = 1;
-  private static final int DRAWER_CLOSED  = 2;
-  private static final int DRAWER_OPENED  = 3;
+  private boolean m_shouldHideOptionsMenu = false;
 }

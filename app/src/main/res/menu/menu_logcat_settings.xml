@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/action_log_settings"
-        android:icon="@drawable/ic_action_settings"
-        android:title="@string/log_settings"
+        android:icon="@drawable/ic_action_edit"
+        android:title="@string/logcat_reset_log_level_defaults"
         android:orderInCategory="100"
         app:showAsAction="always"
         />

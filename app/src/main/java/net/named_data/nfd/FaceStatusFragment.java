@@ -76,54 +76,70 @@ public class FaceStatusFragment extends ListFragment {
   }
 
   @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    m_listItems = new ArrayList<>();
+  public void onViewCreated(View view, Bundle savedInstanceState)
+  {
+    super.onViewCreated(view, savedInstanceState);
 
-    Resources res = getResources();
-    m_scopes = res.getStringArray(R.array.face_scopes);
-    m_linkTypes = res.getStringArray(R.array.face_link_types);
-    m_persistencies = res.getStringArray(R.array.face_persistency);
+    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_face_detail_list_header, null);
+    getListView().addHeaderView(v, null, false);
+    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+  }
 
-    // Get face status information
-    FaceStatus faceStatus = new FaceStatus();
-    try {
-      byte [] args = getArguments().getByteArray(EXTRA_FACE_INFORMATION);
-      faceStatus.wireDecode(new Blob(args).buf());
-    } catch (EncodingException e) {
-      G.Log("EXTRA_FACE_INFORMATION: EncodingException: " + e);
-    }
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
 
-    // Creating list of items to be displayed
-    m_listItems.add(new ListItem("Face ID",          String.valueOf(faceStatus.getFaceId())));
-    m_listItems.add(new ListItem("Local FaceUri",    faceStatus.getLocalUri()));
-    m_listItems.add(new ListItem("Remote FaceUri",   faceStatus.getUri()));
-    m_listItems.add(new ListItem("Expires in",       faceStatus.getExpirationPeriod() < 0 ?
-        getString(R.string.expire_never):
+    if (m_faceStatusAdapter == null) {
+      m_listItems = new ArrayList<>();
+
+      Resources res = getResources();
+      m_scopes = res.getStringArray(R.array.face_scopes);
+      m_linkTypes = res.getStringArray(R.array.face_link_types);
+      m_persistencies = res.getStringArray(R.array.face_persistency);
+
+      // Get face status information
+      FaceStatus faceStatus = new FaceStatus();
+      try {
+        byte[] args = getArguments().getByteArray(EXTRA_FACE_INFORMATION);
+        faceStatus.wireDecode(new Blob(args).buf());
+      } catch (EncodingException e) {
+        G.Log("EXTRA_FACE_INFORMATION: EncodingException: " + e);
+      }
+
+      // Creating list of items to be displayed
+      m_listItems.add(new ListItem(R.string.face_id, String.valueOf(faceStatus.getFaceId())));
+      m_listItems.add(new ListItem(R.string.local_face_uri, faceStatus.getLocalUri()));
+      m_listItems.add(new ListItem(R.string.remote_face_uri, faceStatus.getUri()));
+      m_listItems.add(new ListItem(R.string.expires_in, faceStatus.getExpirationPeriod() < 0 ?
+        getString(R.string.expire_never) :
         PeriodFormat.getDefault().print(new Period(faceStatus.getExpirationPeriod()))));
-    m_listItems.add(new ListItem("Face scope",       getScope(faceStatus.getFaceScope())));
-    m_listItems.add(new ListItem("Face persistency", getPersistency(faceStatus.getFacePersistency())));
-    m_listItems.add(new ListItem("Link type",        getLinkType(faceStatus.getLinkType())));
-    m_listItems.add(new ListItem("In interests",     String.valueOf(faceStatus.getInInterests())));
-    m_listItems.add(new ListItem("In data",          String.valueOf(faceStatus.getInDatas())));
-    m_listItems.add(new ListItem("Out interests",    String.valueOf(faceStatus.getOutInterests())));
-    m_listItems.add(new ListItem("Out data",         String.valueOf(faceStatus.getOutDatas())));
-    m_listItems.add(new ListItem("In bytes",         String.valueOf(faceStatus.getInBytes())));
-    m_listItems.add(new ListItem("Out bytes",        String.valueOf(faceStatus.getOutBytes())));
+      m_listItems.add(new ListItem(R.string.face_scope, getScope(faceStatus.getFaceScope())));
+      m_listItems.add(new ListItem(R.string.face_persistency, getPersistency(
+        faceStatus.getFacePersistency())));
+      m_listItems.add(new ListItem(R.string.link_type, getLinkType(faceStatus.getLinkType())));
+      m_listItems.add(new ListItem(R.string.in_interests, String.valueOf(
+        faceStatus.getInInterests())));
+      m_listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getInDatas())));
+      m_listItems.add(new ListItem(R.string.out_interests, String.valueOf(
+        faceStatus.getOutInterests())));
+      m_listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getOutDatas())));
+      m_listItems.add(new ListItem(R.string.in_bytes, String.valueOf(faceStatus.getInBytes())));
+      m_listItems.add(new ListItem(R.string.out_bytes, String.valueOf(faceStatus.getOutBytes())));
 
-    m_faceStatusAdapter = new FaceStatusAdapter(getActivity(), m_listItems);
+      m_faceStatusAdapter = new FaceStatusAdapter(getActivity(), m_listItems);
+    }
+    // setListAdapter must be called after addHeaderView.  Otherwise, there is an exception on some platforms.
+    // http://stackoverflow.com/a/8141537/2150331
     setListAdapter(m_faceStatusAdapter);
   }
 
-  @SuppressLint("InflateParams")
   @Override
-  public View onCreateView(LayoutInflater inflater,
-                           @Nullable ViewGroup container,
-                           @Nullable Bundle savedInstanceState)
+  public void onDestroyView()
   {
-    return inflater.inflate(R.layout.fragment_face_detail, null);
+    super.onDestroyView();
+    setListAdapter(null);
   }
-
   /////////////////////////////////////////////////////////////////////////
 
   private String
@@ -149,7 +165,7 @@ public class FaceStatusFragment extends ListFragment {
    * {@link net.named_data.nfd.FaceStatusFragment.FaceStatusAdapter}.
    */
   private static class ListItem {
-    public ListItem(String title, String value) {
+    public ListItem(int title, String value) {
       m_title = title;
       m_value = value;
     }
@@ -162,15 +178,15 @@ public class FaceStatusFragment extends ListFragment {
       m_value = value;
     }
 
-    public String getTitle() {
+    public int getTitle() {
       return m_title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(int title) {
       m_title = title;
     }
 
-    private String m_title;
+    private int m_title;
     private String m_value;
   }
 

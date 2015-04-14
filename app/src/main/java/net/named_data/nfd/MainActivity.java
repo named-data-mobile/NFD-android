@@ -31,6 +31,8 @@ import android.view.MenuItem;
 import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 
+import net.named_data.nfd.utils.G;
+
 import java.util.ArrayList;
 
 /**
@@ -79,14 +81,13 @@ public class MainActivity extends ActionBarActivity
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    if (!m_drawerFragment.isDrawerOpen()) {
-      // Inflate current Activity's menu only if the drawer is not
-      // displayed; otherwise, allow the drawer to inflate its own
-      // menu in the action bar. Inflate activity wide menu here.
+    G.Log("onCreateOptionsMenu" + String.valueOf(m_drawerFragment.shouldHideOptionsMenu()));
+    if (!m_drawerFragment.shouldHideOptionsMenu()) {
       updateActionBar();
-      return true;
+      return super.onCreateOptionsMenu(menu);
     }
-    return super.onCreateOptionsMenu(menu);
+    else
+      return true;
   }
 
   @Override

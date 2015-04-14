@@ -4,18 +4,14 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_item_background_activated"
     style="@style/default_linear_layout_padding"
     >
 
     <TextView
-        android:id="@+id/list_item_log_tag"
-        style="@style/two_row_item_title"
-        />
-
-    <TextView
-        android:id="@+id/list_item_setting_log_level"
-        style="@style/two_row_item_secondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_logcat_tags_n_log_levels"
+        style="?android:listSeparatorTextViewStyle"
         />
 
 </LinearLayout>

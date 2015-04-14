@@ -49,7 +49,7 @@ public class RouteCreateDialogFragment extends DialogFragment
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     LayoutInflater inflater = getActivity().getLayoutInflater();
     builder
-      .setView(inflater.inflate(R.layout.create_route, null))
+      .setView(inflater.inflate(R.layout.dialog_create_route, null))
       .setPositiveButton(R.string.route_add_dialog_create_route, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int id)

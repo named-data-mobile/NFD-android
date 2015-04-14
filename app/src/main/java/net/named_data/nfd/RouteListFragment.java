@@ -23,20 +23,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 import com.intel.jndn.management.types.Route;
 
@@ -81,42 +83,56 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setListAdapter(new RouteListAdapter(getActivity()));
+    setHasOptionsMenu(true);
   }
 
   @Override
-  public View
-  onCreateView(LayoutInflater inflater,
-                           ViewGroup container,
-                           Bundle savedInstanceState)
+  public void onViewCreated(View view, Bundle savedInstanceState)
   {
-    View v = inflater.inflate(R.layout.fragment_route_list, null);
+    super.onViewCreated(view, savedInstanceState);
+    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_route_list_list_header, null);
+    getListView().addHeaderView(v, null, false);
+    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+
     m_routeListInfoUnavailableView = v.findViewById(R.id.route_list_info_unavailable);
 
     // Get progress bar spinner view
-    m_reloadingListProgressBar
-      = (ProgressBar)v.findViewById(R.id.route_list_reloading_list_progress_bar);
+    m_reloadingListProgressBar = (ProgressBar)v.findViewById(R.id.route_list_reloading_list_progress_bar);
+  }
 
-    Button refreshRouteListButton = (Button) v.findViewById(R.id.route_list_refresh_button);
-    refreshRouteListButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
+    if (m_routeListAdapter == null) {
+      m_routeListAdapter = new RouteListAdapter(getActivity());
+    }
+    // setListAdapter must be called after addHeaderView.  Otherwise, there is an exception on some platforms.
+    // http://stackoverflow.com/a/8141537/2150331
+    setListAdapter(m_routeListAdapter);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+  {
+    super.onCreateOptionsMenu(menu, inflater);
+    inflater.inflate(R.menu.menu_route_list, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId()) {
+      case R.id.route_list_refresh:
         retrieveRouteList();
-      }
-    });
-
-    Button addRouteButton = (Button)v.findViewById(R.id.route_list_add_button);
-    addRouteButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view)
-      {
+        return true;
+      case R.id.route_list_add:
         RouteCreateDialogFragment dialog = RouteCreateDialogFragment.newInstance();
         dialog.setTargetFragment(RouteListFragment.this, 0);
         dialog.show(getFragmentManager(), "RouteCreateFragment");
-      }
-    });
-
-    return v;
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
   }
 
   @Override
@@ -139,10 +155,17 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
   @Override
+  public void onDestroyView()
+  {
+    super.onDestroyView();
+    setListAdapter(null);
+  }
+
+  @Override
   public void onListItemClick(ListView l, View v, int position, long id)
   {
     if (m_callbacks != null) {
-      RibEntry ribEntry = ((RouteListAdapter)l.getAdapter()).getItem(position);
+      RibEntry ribEntry = (RibEntry)l.getAdapter().getItem(position);
       m_callbacks.onRouteItemSelected(ribEntry);
     }
   }
@@ -409,4 +432,6 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
   /** Reference to the most recent AsyncTask that was created for creating a route */
   private RouteCreateAsyncTask m_routeCreateAsyncTask;
+
+  private RouteListAdapter m_routeListAdapter;
 }

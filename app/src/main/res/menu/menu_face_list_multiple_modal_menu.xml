@@ -4,9 +4,9 @@
 
     <item
         android:id="@+id/menu_item_delete_face_item"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@drawable/ic_action_discard"
         android:title="@string/menu_item_delete_face_item"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="always"
         />
 
 </menu>

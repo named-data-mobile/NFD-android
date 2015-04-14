@@ -3,31 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     style="@style/default_linear_layout_padding"
     >
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/face_list_actions_title"
-        style="?android:listSeparatorTextViewStyle"
-        />
-
-    <Button
-        android:id="@+id/face_list_refresh_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/face_list_refresh_face_list"
-        style="@style/default_custom_white_button"
-        />
-    <Button
-        android:id="@+id/face_list_add_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/face_list_add_face"
-        style="@style/default_custom_white_button"
-        />
 
     <TextView
         android:layout_width="match_parent"
@@ -70,10 +48,6 @@
                 />
 
         </LinearLayout>
-
-        <include
-            layout="@android:layout/list_content"
-            />
 
     </FrameLayout>
 

@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.util.Pair;
 import android.view.ActionMode;
@@ -35,7 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -47,8 +47,9 @@ import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.Nfdc;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FaceListFragment extends ListFragment implements FaceCreateDialogFragment.OnFaceCreateRequested {
 
@@ -61,46 +62,28 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setListAdapter(new FaceListAdapter(getActivity()));
+    setHasOptionsMenu(true);
   }
 
   @Override
-  public View onCreateView(final LayoutInflater inflater,
-                           ViewGroup container,
-                           Bundle savedInstanceState)
+  public void onViewCreated(View view, Bundle savedInstanceState)
   {
+    super.onViewCreated(view, savedInstanceState);
+
     @SuppressLint("InflateParams")
-    View v = inflater.inflate(R.layout.fragment_face_list, null);
+    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_face_list_list_header, null);
+    getListView().addHeaderView(v, null, false);
+    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
 
     // Get info unavailable view
     m_faceListInfoUnavailableView = v.findViewById(R.id.face_list_info_unavailable);
 
     // Get progress bar spinner view
     m_reloadingListProgressBar
-        = (ProgressBar)v.findViewById(R.id.face_list_reloading_list_progress_bar);
-
-    // Set refresh button click listener
-    Button refreshFaceListButton = (Button)v.findViewById(R.id.face_list_refresh_button);
-    refreshFaceListButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        retrieveFaceList();
-      }
-    });
-
-    Button addFaceButton = (Button)v.findViewById(R.id.face_list_add_button);
-    addFaceButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view)
-      {
-        FaceCreateDialogFragment dialog = FaceCreateDialogFragment.newInstance();
-        dialog.setTargetFragment(FaceListFragment.this, 0);
-        dialog.show(getFragmentManager(), "FaceCreateFragment");
-      }
-    });
+      = (ProgressBar)v.findViewById(R.id.face_list_reloading_list_progress_bar);
 
     // Setup list view for deletion
-    ListView listView = (ListView)v.findViewById(android.R.id.list);
+    ListView listView = getListView();
     listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
     listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
       @Override
@@ -108,7 +91,12 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
       onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
         if (checked && id < 256) {
           getListView().setItemChecked(position, false);
+          return;
         }
+        if (checked)
+          m_facesToDelete.add((int)id);
+        else
+          m_facesToDelete.remove((int)id);
       }
 
       @Override
@@ -129,22 +117,13 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
       public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
           case R.id.menu_item_delete_face_item:
-            FaceListAdapter faceListAdapter = (FaceListAdapter)getListAdapter();
-            List<Integer> deleteFaceInfoList = new ArrayList<Integer>();
-
-            for (int i = faceListAdapter.getCount() - 1; i >= 0; i--) {
-              if (getListView().isItemChecked(i)) {
-                int faceId = faceListAdapter.getItem(i).getFaceId();
-                if (faceId < 256)
-                  continue;
-                deleteFaceInfoList.add(faceListAdapter.getItem(i).getFaceId());
-              }
-            }
+            G.Log("Requesting to delete " + String.valueOf(m_facesToDelete));
 
             // Delete selected faceIds
             m_faceDestroyAsyncTask = new FaceDestroyAsyncTask();
-            m_faceDestroyAsyncTask.execute(deleteFaceInfoList);
+            m_faceDestroyAsyncTask.execute(m_facesToDelete);
 
+            m_facesToDelete = new HashSet<>();
             mode.finish();
             return true;
           default:
@@ -155,9 +134,52 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
       @Override
       public void onDestroyActionMode(ActionMode mode) {
       }
-    });
 
-    return v;
+      private HashSet<Integer> m_facesToDelete = new HashSet<>();
+    });
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
+
+    if (m_faceListAdapter == null) {
+      m_faceListAdapter = new FaceListAdapter(getActivity());
+    }
+    // setListAdapter must be called after addHeaderView.  Otherwise, there is an exception on some platforms.
+    // http://stackoverflow.com/a/8141537/2150331
+    setListAdapter(m_faceListAdapter);
+  }
+
+  @Override
+  public void onDestroyView()
+  {
+    super.onDestroyView();
+    setListAdapter(null);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+  {
+    super.onCreateOptionsMenu(menu, inflater);
+    inflater.inflate(R.menu.menu_face_list, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId()) {
+      case R.id.face_list_refresh:
+        retrieveFaceList();
+        return true;
+      case R.id.face_list_add:
+        FaceCreateDialogFragment dialog = FaceCreateDialogFragment.newInstance();
+        dialog.setTargetFragment(FaceListFragment.this, 0);
+        dialog.show(getFragmentManager(), "FaceCreateFragment");
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
   }
 
   @Override
@@ -273,8 +295,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     }
 
     private void
-    updateList(List<FaceStatus> faces)
-    {
+    updateList(List<FaceStatus> faces) {
       m_faces = faces;
       notifyDataSetChanged();
     }
@@ -386,7 +407,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
   /**
    * AsyncTask that destroys faces that are passed in as a list of FaceInfo.
    */
-  private class FaceDestroyAsyncTask extends AsyncTask<List<Integer>, Void, Exception> {
+  private class FaceDestroyAsyncTask extends AsyncTask<Set<Integer>, Void, Exception> {
     @Override
     protected void
     onPreExecute() {
@@ -397,12 +418,12 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     @SafeVarargs
     @Override
     protected final Exception
-    doInBackground(List<Integer>... params) {
+    doInBackground(Set<Integer>... params) {
       Exception retval = null;
 
       Nfdc nfdc = new Nfdc();
       try {
-        for (List<Integer> faces : params) {
+        for (Set<Integer> faces : params) {
           for (int faceId : faces) {
             nfdc.faceDestroy(faceId);
           }
@@ -525,4 +546,6 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
 
   /** Progress bar spinner to display to user when destroying faces */
   private ProgressBar m_reloadingListProgressBar;
+
+  private FaceListAdapter m_faceListAdapter;
 }

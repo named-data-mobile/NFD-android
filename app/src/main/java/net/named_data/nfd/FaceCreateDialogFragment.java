@@ -47,7 +47,7 @@ public class FaceCreateDialogFragment extends DialogFragment {
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     LayoutInflater inflater = getActivity().getLayoutInflater();
     builder
-      .setView(inflater.inflate(R.layout.create_face, null))
+      .setView(inflater.inflate(R.layout.dialog_create_face, null))
       .setPositiveButton(R.string.face_add_dialog_create_face, new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int id)

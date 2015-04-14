@@ -1,6 +1,5 @@
 package net.named_data.nfd;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -12,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,8 +24,6 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.Nfdc;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.List;
@@ -67,25 +65,37 @@ public class RouteInfoFragment extends ListFragment {
     catch (EncodingException e) {
       G.Log("ROUTE_INFORMATION: EncodingException: " + e);
     }
-
-    setListAdapter(new RouteFaceListAdapter(getActivity(), m_ribEntry));
-  }
-
-  @SuppressLint("InflateParams")
-  @Override
-  public View onCreateView(LayoutInflater inflater,
-                           @Nullable ViewGroup container,
-                           @Nullable Bundle savedInstanceState)
-  {
-    return inflater.inflate(R.layout.fragment_route_detail, null);
   }
 
   @Override
   public void onViewCreated(View view, Bundle savedInstanceState)
   {
     super.onViewCreated(view, savedInstanceState);
-    TextView prefix = (TextView)view.findViewById(R.id.route_detail_prefix);
+    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_route_detail_list_header, null);
+    getListView().addHeaderView(v, null, false);
+    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+
+    TextView prefix = (TextView)v.findViewById(R.id.route_detail_prefix);
     prefix.setText(m_ribEntry.getName().toUri());
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
+    if (m_routeFaceListAdapter == null) {
+      m_routeFaceListAdapter = new RouteFaceListAdapter(getActivity(), m_ribEntry);
+    }
+    // setListAdapter must be called after addHeaderView.  Otherwise, there is an exception on some platforms.
+    // http://stackoverflow.com/a/8141537/2150331
+    setListAdapter(m_routeFaceListAdapter);
+  }
+
+  @Override
+  public void onDestroyView()
+  {
+    super.onDestroyView();
+    setListAdapter(null);
   }
 
   @Override
@@ -111,12 +121,12 @@ public class RouteInfoFragment extends ListFragment {
   onListItemClick(ListView l, View v, int position, long id)
   {
     if (m_callbacks != null) {
-      RouteFaceListAdapter adapter = (RouteFaceListAdapter)l.getAdapter();
-      if (adapter.m_faces == null)
+      RouteFaceListAdapter ra = (RouteFaceListAdapter)((HeaderViewListAdapter)l.getAdapter()).getWrappedAdapter();
+      if (ra.m_faces == null)
         return;
 
-      Route route = adapter.getItem(position);
-      FaceStatus faceStatus = adapter.m_faces.get(route.getFaceId());
+      Route route = (Route)l.getAdapter().getItem(position);
+      FaceStatus faceStatus = ra.m_faces.get(route.getFaceId());
       m_callbacks.onFaceItemSelected(faceStatus);
     }
   }
@@ -276,4 +286,6 @@ public class RouteInfoFragment extends ListFragment {
 
   /** Reference to the most recent AsyncTask that was created for listing faces */
   private FaceListAsyncTask m_faceListAsyncTask;
+
+  private RouteFaceListAdapter m_routeFaceListAdapter;
 }

@@ -4,7 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/item_background_activated"
+    android:background="@drawable/list_item_background_activated"
+    style="@style/default_linear_layout_padding"
     >
 
     <TextView
