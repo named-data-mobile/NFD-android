@@ -198,6 +198,11 @@ public class DrawerFragment extends Fragment {
           // opened/closed is handled by onDrawerOpened and onDrawerClosed callbacks
           m_shouldHideOptionsMenu = true;
           getActivity().supportInvalidateOptionsMenu();
+        } else if (newState == ViewDragHelper.STATE_IDLE && !isDrawerOpen()) {
+          // This condition takes care of the case of displaying the option menu
+          // items when the drawer is retracted prematurely.
+          m_shouldHideOptionsMenu = false;
+          getActivity().supportInvalidateOptionsMenu();
         }
       }
     };
