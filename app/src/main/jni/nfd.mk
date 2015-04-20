@@ -32,7 +32,7 @@ NFD_DAEMON_SRC_FILES := \
     daemon/face/channel.cpp \
     daemon/face/face.cpp \
     daemon/face/multicast-udp-face.cpp \
-    daemon/face/ndnlp-parse.cpp \
+    daemon/face/ndnlp-data.cpp \
     daemon/face/ndnlp-partial-message-store.cpp \
     daemon/face/ndnlp-sequence-generator.cpp \
     daemon/face/ndnlp-slicer.cpp \
@@ -43,8 +43,10 @@ NFD_DAEMON_SRC_FILES := \
     daemon/face/udp-channel.cpp \
     daemon/face/udp-face.cpp \
     daemon/face/udp-factory.cpp \
+    daemon/face/websocket-channel.cpp \
+    daemon/face/websocket-face.cpp \
+    daemon/face/websocket-factory.cpp \
     daemon/fw/access-strategy.cpp \
-    daemon/fw/available-strategies.cpp \
     daemon/fw/best-route-strategy.cpp \
     daemon/fw/best-route-strategy2.cpp \
     daemon/fw/broadcast-strategy.cpp \
@@ -53,8 +55,11 @@ NFD_DAEMON_SRC_FILES := \
     daemon/fw/forwarder.cpp \
     daemon/fw/ncc-strategy.cpp \
     daemon/fw/retx-suppression-fixed.cpp \
+    daemon/fw/retx-suppression-exponential.cpp \
+    daemon/fw/retx-suppression.cpp \
     daemon/fw/rtt-estimator.cpp \
     daemon/fw/strategy.cpp \
+    daemon/fw/strategy-registry.cpp \
     daemon/nfd.cpp \
     daemon/mgmt/channel-status-publisher.cpp \
     daemon/mgmt/command-validator.cpp \
@@ -72,7 +77,6 @@ NFD_DAEMON_SRC_FILES := \
     daemon/mgmt/tables-config-section.cpp \
     daemon/table/cs-entry-impl.cpp \
     daemon/table/cs-entry.cpp \
-    daemon/table/cs-skip-list-entry.cpp \
     daemon/table/cs.cpp \
     daemon/table/dead-nonce-list.cpp \
     daemon/table/fib-entry.cpp \
@@ -93,13 +97,17 @@ NFD_DAEMON_SRC_FILES := \
     daemon/table/strategy-info-host.cpp \
     \
     rib/fib-update.cpp \
+    rib/fib-updater.cpp \
     rib/nrd.cpp \
     rib/remote-registrator.cpp \
     rib/rib-entry.cpp \
     rib/rib-manager.cpp \
     rib/rib-status-publisher.cpp \
-    rib/rib.cpp
+    rib/rib-update-batch.cpp \
+    rib/rib-update.cpp \
+    rib/rib.cpp \
+    rib/route.cpp
 LOCAL_SRC_FILES := $(addprefix NFD/,$(NFD_DAEMON_SRC_FILES))
-LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/NFD/daemon -I$(LOCAL_PATH)/NFD/rib
+LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/NFD/daemon -I$(LOCAL_PATH)/NFD/rib -I$(LOCAL_PATH)/NFD/websocketpp
 LOCAL_LDLIBS := -llog
 include $(BUILD_SHARED_LIBRARY)
