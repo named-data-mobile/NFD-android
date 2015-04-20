@@ -78,8 +78,7 @@ public class MainFragment extends Fragment {
       @Override
       public void onCheckedChanged(CompoundButton compoundButton, boolean isOn)
       {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        sp.edit()
+        m_sharedPreferences.edit()
           .putBoolean(PREF_NFD_SERVICE_STATUS, isOn)
           .apply();
 
@@ -107,6 +106,13 @@ public class MainFragment extends Fragment {
     m_outDataView = (TextView)v.findViewById(R.id.out_data);
 
     return v;
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
+    m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
   }
 
   @Override
@@ -232,7 +238,7 @@ public class MainFragment extends Fragment {
           setNfdServiceRunning();
           G.Log("ClientHandler: NFD is Running.");
 
-          m_handler.post(m_statusUpdateRunnable);
+          m_handler.postDelayed(m_statusUpdateRunnable, 500);
           break;
 
         case NfdService.NFD_SERVICE_STOPPED:
@@ -260,8 +266,7 @@ public class MainFragment extends Fragment {
 
       // Check if NFD Service is running
       try {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        boolean shouldServiceBeOn = sp.getBoolean(PREF_NFD_SERVICE_STATUS, true);
+        boolean shouldServiceBeOn = m_sharedPreferences.getBoolean(PREF_NFD_SERVICE_STATUS, true);
 
         Message msg = Message.obtain(null, shouldServiceBeOn ? NfdService.START_NFD_SERVICE : NfdService.STOP_NFD_SERVICE);
         msg.replyTo = m_clientMessenger;
@@ -330,7 +335,8 @@ public class MainFragment extends Fragment {
     onPostExecute(ForwarderStatus fs)
     {
       if (fs == null) {
-        // Maybe display error message from result.second
+        // when failed, try after 0.5 seconds
+        m_handler.postDelayed(m_statusUpdateRunnable, 500);
       }
       else {
         m_versionView.setText(fs.getNfdVersion());
@@ -351,9 +357,10 @@ public class MainFragment extends Fragment {
         m_outDataView.setText(String.valueOf(fs.getNumOutDatas()));
 
         m_nfdStatusView.setVisibility(View.VISIBLE);
-      }
 
-      m_handler.postDelayed(m_statusUpdateRunnable, 5000);
+        // refresh after 5 seconds
+        m_handler.postDelayed(m_statusUpdateRunnable, 5000);
+      }
     }
   }
 
@@ -394,6 +401,8 @@ public class MainFragment extends Fragment {
       new StatusUpdateTask().execute();
     }
   };
+
+  private SharedPreferences m_sharedPreferences;
 
   private static final String PREF_NFD_SERVICE_STATUS = "NFD_SERVICE_STATUS";
 }

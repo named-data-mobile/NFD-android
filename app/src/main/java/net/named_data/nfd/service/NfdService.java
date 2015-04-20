@@ -29,6 +29,12 @@ import android.os.RemoteException;
 
 import net.named_data.nfd.utils.G;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * NfdService that runs the native NFD.
  *
@@ -68,17 +74,20 @@ public class NfdService extends Service {
   /**
    * Native API for starting the NFD.
    *
-   * @param homePath Absolute path of the home directory for the service;
-   *                 Usually achieved by calling ContextWrapper.getFilesDir().getAbsolutePath()
+   * @param params NFD parameters.  Must include 'homePath' with absolute path of the home directory
+   *               for the service (ContextWrapper.getFilesDir().getAbsolutePath())
    */
   public native static void
-  startNfd(String homePath);
+  startNfd(Map<String, String> params);
 
   /**
    * Native API for stopping the NFD.
    */
   public native static void
   stopNfd();
+
+  public native static List<String>
+  getNfdLogModules();
 
   /** Message to start NFD Service */
   public static final int START_NFD_SERVICE = 1;
@@ -144,7 +153,17 @@ public class NfdService extends Service {
   serviceStartNfd() {
     if (!m_isNfdStarted) {
       m_isNfdStarted = true;
-      startNfd(getFilesDir().getAbsolutePath());
+      HashMap<String, String> params = new HashMap<>();
+      params.put("homePath", getFilesDir().getAbsolutePath());
+      Set<Map.Entry<String,String>> e = params.entrySet();
+
+      startNfd(params);
+
+      // Example how to retrieve all available NFD log modules
+      List<String> modules = getNfdLogModules();
+      for (String module : modules) {
+        G.Log(module);
+      }
 
       // TODO: Reload NFD and NRD in memory structures (if any)
 

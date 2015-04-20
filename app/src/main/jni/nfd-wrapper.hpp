@@ -26,13 +26,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*
  * Class:     net_named_data_nfd_service_NfdService
  * Method:    startNfd
- * Signature: (Ljava/lang/String;)V
+ * Signature: (Ljava/lang/Map;)V
  */
 JNIEXPORT void JNICALL
-Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv*, jclass, jstring);
+Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv*, jclass, jobject);
 
 /*
  * Class:     net_named_data_nfd_service_NfdService
@@ -41,6 +42,14 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv*, jclass, jstring);
  */
 JNIEXPORT void JNICALL
 Java_net_named_1data_nfd_service_NfdService_stopNfd(JNIEnv*, jclass);
+
+/*
+ * Class:     net_named_data_nfd_service_NfdService
+ * Method:    getNfdLogModules
+ * Signature: ()Ljava/util/List;
+ */
+JNIEXPORT jobject JNICALL
+Java_net_named_1data_nfd_service_NfdService_getNfdLogModules(JNIEnv*, jclass);
 
 #ifdef __cplusplus
 }
