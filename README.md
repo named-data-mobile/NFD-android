@@ -62,5 +62,6 @@ environment and fetch all necessary dependencies:
 
     cd .vagrant
     vagrant up
+    vagrant ssh
 
 Refer to vagrant documentation for more information.

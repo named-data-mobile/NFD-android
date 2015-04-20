@@ -4,7 +4,6 @@ NFD Android authors
 ## The primary authors are (and/or have been):
 
 * Ivan Yeo              <ivanyeo@cs.ucla.edu>
-* Sanjeev Mehrotra      <smehrotra@ucla.edu>
 * Alexander Afanasyev   <http://lasr.cs.ucla.edu/afanasyev/index.html>
 
 ## All project authors and contributors
@@ -17,3 +16,4 @@ in NFD Android:
 * Beichuan Zhang        <http://www.cs.arizona.edu/~bzhang/>
 * Junxiao Shi           <http://www.cs.arizona.edu/people/shijunxiao/>
 * Yi Huang              <ethanhuang1991@gmail.com>
+* Sanjeev Mehrotra      <smehrotra@ucla.edu>
