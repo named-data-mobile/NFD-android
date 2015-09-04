@@ -2,9 +2,6 @@
     path = app/src/main/jni/cryptopp
     url = http://github.com/cawka/cryptopp
     branch = android
-[submodule "app/src/main/jni/sqlite3"]
-    path = app/src/main/jni/sqlite3
-    url = https://github.com/cawka/sqlite3-android.git
 [submodule "app/src/main/jni/ndn-cxx"]
     path = app/src/main/jni/ndn-cxx
     url = ../ndn-cxx
