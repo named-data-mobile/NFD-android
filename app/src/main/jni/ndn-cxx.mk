@@ -9,6 +9,7 @@ LOCAL_STATIC_LIBRARIES := sqlite3_static boost_regex_static
 NDN_CXX_SRC_FILES := \
     data.cpp \
     encoding/block.cpp \
+    encoding/block-helpers.cpp \
     encoding/buffer.cpp \
     encoding/cryptopp/asn_ext.cpp \
     encoding/encoder.cpp \
@@ -20,11 +21,16 @@ NDN_CXX_SRC_FILES := \
     interest-filter.cpp \
     interest.cpp \
     key-locator.cpp \
+    link.cpp \
+    lp/cache-policy.cpp \
+    lp/detail/field-info.cpp \
+    lp/nack-header.cpp \
+    lp/nack.cpp \
+    lp/packet.cpp \
     management/nfd-channel-status.cpp \
     management/nfd-command-options.cpp \
     management/nfd-control-command.cpp \
     management/nfd-control-parameters.cpp \
-    management/nfd-control-response.cpp \
     management/nfd-controller.cpp \
     management/nfd-face-event-notification.cpp \
     management/nfd-face-query-filter.cpp \
@@ -34,16 +40,28 @@ NDN_CXX_SRC_FILES := \
     management/nfd-rib-entry.cpp \
     management/nfd-strategy-choice.cpp \
     meta-info.cpp \
+    mgmt/control-response.cpp \
+    mgmt/dispatcher.cpp \
+    mgmt/status-dataset-context.cpp \
     name-component.cpp \
     name.cpp \
+    security/additional-description.cpp \
     security/certificate-cache-ttl.cpp \
+    security/certificate-container.cpp \
     security/certificate-extension.cpp \
     security/certificate-subject-description.cpp \
     security/certificate.cpp \
     security/digest-sha256.cpp \
     security/identity-certificate.cpp \
+    security/identity-container.cpp \
+    security/identity.cpp \
     security/key-chain.cpp \
+    security/key-container.cpp \
     security/key-params.cpp \
+    security/key.cpp \
+    security/pib-memory.cpp \
+    security/pib-sqlite3.cpp \
+    security/pib.cpp \
     security/public-key.cpp \
     security/sec-public-info-sqlite3.cpp \
     security/sec-public-info.cpp \
@@ -54,9 +72,12 @@ NDN_CXX_SRC_FILES := \
     security/secured-bag.cpp \
     security/signature-sha256-with-ecdsa.cpp \
     security/signature-sha256-with-rsa.cpp \
+    security/signing-helpers.cpp \
+    security/signing-info.cpp \
     security/validator-config.cpp \
     security/validator-regex.cpp \
     security/validator.cpp \
+    security/validity-period.cpp \
     selectors.cpp \
     signature-info.cpp \
     signature.cpp \
@@ -84,6 +105,8 @@ NDN_CXX_SRC_FILES := \
     util/segment-fetcher.cpp \
     util/signal-connection.cpp \
     util/signal-scoped-connection.cpp \
+    util/sqlite3-statement.cpp \
+    util/string-helper.cpp \
     util/time-unit-test-clock.cpp \
     util/time.cpp
 LOCAL_SRC_FILES := $(addprefix ndn-cxx/src/,$(NDN_CXX_SRC_FILES))

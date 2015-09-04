@@ -53,14 +53,14 @@ NFD_DAEMON_SRC_FILES := \
     daemon/fw/client-control-strategy.cpp \
     daemon/fw/face-table.cpp \
     daemon/fw/forwarder.cpp \
+    daemon/fw/multicast-strategy.cpp \
     daemon/fw/ncc-strategy.cpp \
-    daemon/fw/retx-suppression-fixed.cpp \
     daemon/fw/retx-suppression-exponential.cpp \
+    daemon/fw/retx-suppression-fixed.cpp \
     daemon/fw/retx-suppression.cpp \
     daemon/fw/rtt-estimator.cpp \
-    daemon/fw/strategy.cpp \
     daemon/fw/strategy-registry.cpp \
-    daemon/nfd.cpp \
+    daemon/fw/strategy.cpp \
     daemon/mgmt/channel-status-publisher.cpp \
     daemon/mgmt/command-validator.cpp \
     daemon/mgmt/face-manager.cpp \
@@ -75,8 +75,12 @@ NFD_DAEMON_SRC_FILES := \
     daemon/mgmt/strategy-choice-manager.cpp \
     daemon/mgmt/strategy-choice-publisher.cpp \
     daemon/mgmt/tables-config-section.cpp \
+    daemon/nfd.cpp \
     daemon/table/cs-entry-impl.cpp \
     daemon/table/cs-entry.cpp \
+    daemon/table/cs-policy-lru.cpp  \
+    daemon/table/cs-policy-priority-fifo.cpp \
+    daemon/table/cs-policy.cpp \
     daemon/table/cs.cpp \
     daemon/table/dead-nonce-list.cpp \
     daemon/table/fib-entry.cpp \
