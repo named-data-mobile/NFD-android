@@ -31,6 +31,8 @@ LOCAL_STATIC_LIBRARIES := nfd-core
 NFD_DAEMON_SRC_FILES := \
     daemon/face/channel.cpp \
     daemon/face/face.cpp \
+    daemon/face/internal-client-face.cpp \
+    daemon/face/internal-face.cpp \
     daemon/face/multicast-udp-face.cpp \
     daemon/face/ndnlp-data.cpp \
     daemon/face/ndnlp-partial-message-store.cpp \
@@ -61,19 +63,13 @@ NFD_DAEMON_SRC_FILES := \
     daemon/fw/rtt-estimator.cpp \
     daemon/fw/strategy-registry.cpp \
     daemon/fw/strategy.cpp \
-    daemon/mgmt/channel-status-publisher.cpp \
     daemon/mgmt/command-validator.cpp \
     daemon/mgmt/face-manager.cpp \
-    daemon/mgmt/face-query-status-publisher.cpp \
-    daemon/mgmt/face-status-publisher.cpp \
-    daemon/mgmt/fib-enumeration-publisher.cpp \
     daemon/mgmt/fib-manager.cpp \
+    daemon/mgmt/forwarder-status-manager.cpp \
     daemon/mgmt/general-config-section.cpp \
-    daemon/mgmt/internal-face.cpp \
     daemon/mgmt/manager-base.cpp \
-    daemon/mgmt/status-server.cpp \
     daemon/mgmt/strategy-choice-manager.cpp \
-    daemon/mgmt/strategy-choice-publisher.cpp \
     daemon/mgmt/tables-config-section.cpp \
     daemon/nfd.cpp \
     daemon/table/cs-entry-impl.cpp \
@@ -91,6 +87,7 @@ NFD_DAEMON_SRC_FILES := \
     daemon/table/measurements.cpp \
     daemon/table/name-tree-entry.cpp \
     daemon/table/name-tree.cpp \
+    daemon/table/network-region-table.cpp \
     daemon/table/pit-entry.cpp \
     daemon/table/pit-face-record.cpp \
     daemon/table/pit-in-record.cpp \
