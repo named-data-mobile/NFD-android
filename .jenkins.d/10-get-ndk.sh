@@ -3,7 +3,7 @@ set -e
 set -x
 
 URL=https://www.crystax.net/download/
-NDK=crystax-ndk-10.2.1
+NDK=crystax-ndk-10.1.0
 
 NDK_FILE="$NDK-linux-x86_64.tar.bz2"
 

@@ -77,9 +77,10 @@ public:
       "  strategy_choice\n"
       "  {\n"
       "    /               /localhost/nfd/strategy/best-route\n"
-      "    /localhost      /localhost/nfd/strategy/broadcast\n"
+      "    /localhost      /localhost/nfd/strategy/multicast\n"
       "    /localhost/nfd  /localhost/nfd/strategy/best-route\n"
-      "    /ndn/broadcast  /localhost/nfd/strategy/broadcast\n"
+      "    /ndn/broadcast  /localhost/nfd/strategy/multicast\n"
+      "    /ndn/multicast  /localhost/nfd/strategy/multicast\n"
       "  }\n"
       "}\n"
       "\n"
@@ -164,6 +165,7 @@ public:
       std::unique_lock<std::mutex> lock(m_pointerMutex);
       m_io = &getGlobalIoService();
     }
+
     m_io->run();
     m_io->reset();
   }
@@ -249,6 +251,9 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
     NFD_LOG_INFO("Use [" << nfd::g_params["homePath"] << "] as a security storage");
 
     nfd::g_thread = boost::thread([] {
+        nfd::scheduler::resetGlobalScheduler();
+        nfd::resetGlobalIoService();
+
         NFD_LOG_INFO("Starting NFD...");
         try {
           nfd::g_runner.reset(new nfd::Runner());

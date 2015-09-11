@@ -8,13 +8,18 @@ NFD on Android
 To compile code, the following is necessary
 
 - Appropriate [Android SDK](http://developer.android.com/sdk/index.html)
-- [CrystalX Android NDK](https://www.crystax.net/en/download) version 10.2.1 or later
+- [CrystalX Android NDK](https://www.crystax.net/en/download) version 10.1.0 or later
+
+If version 10.1.0 is used, then the following patch needs to be applied:
+
+    find crystax-ndk-10.1.0 -name byteswap.h -exec sed -i -e 's/ swap/ bswap/g' {} \;
 
 Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
 
     sudo apt-get install -y build-essential git openjdk-7-jdk unzip
-    wget -q https://www.crystax.net/download/crystax-ndk-10.2.1-linux-x86_64.tar.bz2
-    tar jxf crystax-ndk-10.2.1-linux-x86_64.tar.bz2
+    wget -q https://www.crystax.net/download/crystax-ndk-10.1.0-linux-x86_64.tar.bz2
+    tar jxf crystax-ndk-10.1.0-linux-x86_64.tar.bz2
+    find crystax-ndk-10.1.0 -name byteswap.h -exec sed -i -e 's/ swap/ bswap/g' {} \;
 
     wget -q http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
     tar zxf android-sdk_r24.0.2-linux.tgz
@@ -43,7 +48,7 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
 
     git clone --recursive http://gerrit.named-data.net/NFD-android
     echo sdk.dir=`pwd`/android-sdk-linux > NFD-android/local.properties
-    echo ndk.dir=`pwd`/crystax-ndk-10.2.1 >> NFD-android/local.properties
+    echo ndk.dir=`pwd`/crystax-ndk-10.1.0 >> NFD-android/local.properties
     cd NFD-android
 
     ../gradle/gradle-2.6/bin/gradle assembleRelease
