@@ -133,16 +133,18 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:21.0.3'
 
-    compile('com.intel.jndn.utils:jndn-utils:0.9.7') {
-      exclude group: 'com.intel.jndn.mock', module: 'jndn-mock'
-      exclude group: 'net.named-data', module: 'jndn'
-    }
+    /// Temporarily, the modified code is embedded within NFD app
+    //
+    // compile('com.intel.jndn.utils:jndn-utils:0.9.7') {
+    //   exclude group: 'com.intel.jndn.mock', module: 'jndn-mock'
+    //   exclude group: 'net.named-data', module: 'jndn'
+    // }
 
-    compile('com.intel.jndn.management:jndn-management:0.9.7') {
-      exclude group: 'net.named-data', module: 'jndn'
-      exclude group: 'com.intel.jndn.utils', module: 'jndn-utils'
-      exclude group: 'com.intel.jndn.mock', module: 'jndn-mock'
-    }
+    // compile('com.intel.jndn.management:jndn-management:0.9.7') {
+    //   exclude group: 'net.named-data', module: 'jndn'
+    //   exclude group: 'com.intel.jndn.utils', module: 'jndn-utils'
+    //   exclude group: 'com.intel.jndn.mock', module: 'jndn-mock'
+    // }
 
     // compile('net.named-data:jndn-android:0.7') {
     compile('net.named-data:jndn:0.4') {
