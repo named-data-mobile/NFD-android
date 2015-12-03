@@ -8,7 +8,7 @@ COMPILE_SDK_VERSION=21
 
 export ANDROID_HOME=`pwd`/android-sdk-linux
 export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-export PATH=$PATH:`pwd`/gradle-2.2.1/bin
+export PATH=$PATH:`pwd`/gradle-2.9/bin
 
 if [ ! -d android-sdk-linux ]; then
     wget -q http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
@@ -19,8 +19,8 @@ if [ ! -d android-sdk-linux ]; then
     echo "y" | android update sdk --filter "android-19" --no-ui --all --force
 fi
 
-wget -q https://services.gradle.org/distributions/gradle-2.2.1-bin.zip
-unzip gradle-2.2.1-bin.zip
-rm gradle-2.2.1-bin.zip
+wget -q https://services.gradle.org/distributions/gradle-2.9-bin.zip
+unzip gradle-2.9-bin.zip
+rm gradle-2.9-bin.zip
 
 echo sdk.dir=`pwd`/android-sdk-linux >> local.properties

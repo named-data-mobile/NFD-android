@@ -3,11 +3,11 @@ LOCAL_PATH_SAVED := $(LOCAL_PATH)
 
 NFD_BOOST_LIBS = system filesystem chrono program_options random thread
 
-# core
+# nfd itself
 include $(CLEAR_VARS)
-LOCAL_MODULE := nfd-core
+LOCAL_MODULE := nfd-daemon
 LOCAL_SHARED_LIBRARIES := cryptopp ndn-cxx $(addsuffix _shared,$(addprefix boost_,$(NFD_BOOST_LIBS)))
-NFD_CORE_SRC_FILES := \
+NFD_DAEMON_SRC_FILES := \
     core/city-hash.cpp \
     core/config-file.cpp \
     core/global-io.cpp \
@@ -15,20 +15,10 @@ NFD_CORE_SRC_FILES := \
     core/network.cpp \
     core/privilege-helper.cpp \
     core/random.cpp \
-    core/scheduler.cpp
-LOCAL_SRC_FILES := $(addprefix NFD/,$(NFD_CORE_SRC_FILES)) \
-    nfd-android/custom-logger.cpp \
-    nfd-android/custom-logger-factory.cpp
-LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/nfd-android -I$(LOCAL_PATH)/NFD -I$(LOCAL_PATH)/NFD/core
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/nfd-android $(LOCAL_PATH)/NFD $(LOCAL_PATH)/NFD/core
-include $(BUILD_STATIC_LIBRARY)
-
-# nfd itself
-include $(CLEAR_VARS)
-LOCAL_MODULE := nfd-daemon
-LOCAL_SHARED_LIBRARIES := cryptopp ndn-cxx $(addsuffix _shared,$(addprefix boost_,$(NFD_BOOST_LIBS)))
-LOCAL_STATIC_LIBRARIES := nfd-core
-NFD_DAEMON_SRC_FILES := \
+    core/scheduler.cpp \
+    ../nfd-android/custom-logger.cpp \
+    ../nfd-android/custom-logger-factory.cpp \
+    \
     daemon/face/channel.cpp \
     daemon/face/face.cpp \
     daemon/face/internal-client-face.cpp \
@@ -109,6 +99,13 @@ NFD_DAEMON_SRC_FILES := \
     rib/rib.cpp \
     rib/route.cpp
 LOCAL_SRC_FILES := $(addprefix NFD/,$(NFD_DAEMON_SRC_FILES))
-LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/NFD/daemon -I$(LOCAL_PATH)/NFD/rib -I$(LOCAL_PATH)/NFD/websocketpp
+LOCAL_CPPFLAGS := \
+    -I$(LOCAL_PATH)/nfd-android \
+    -I$(LOCAL_PATH)/NFD \
+    -I$(LOCAL_PATH)/NFD/core \
+    -I$(LOCAL_PATH)/NFD/daemon \
+    -I$(LOCAL_PATH)/NFD/rib \
+    -I$(LOCAL_PATH)/NFD/websocketpp
 LOCAL_LDLIBS := -llog
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/nfd-android $(LOCAL_PATH)/NFD
 include $(BUILD_SHARED_LIBRARY)

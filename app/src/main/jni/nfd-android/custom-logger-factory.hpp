@@ -27,8 +27,8 @@
 
 #include "common.hpp"
 
-#include "config-file.hpp"
-#include "logger.hpp"
+#include "core/config-file.hpp"
+#include "core/logger.hpp"
 
 namespace nfd {
 
