@@ -1,18 +1,5 @@
-language: android
-android:
-  components:
-    - platform-tools
-    - build-tools-21.1.2
-    - android-19
-    - android-21
-    - extra-android-support
-    - extra-android-m2repository
-    - extra-google-m2repository
-    # - tools
-    # - extra
-    # - extra-google-google_play_services
-    # - addon-google_apis-google-19
-    # - sys-img-armeabi-v7a-android-19
+sudo: false
+language: generic
 jdk:
   - openjdk7
 notifications:
@@ -26,9 +13,27 @@ env:
  - NDK_BUILD_ABI=mips
  - NDK_BUILD_ABI=x86
  - NDK_BUILD_ABI=x86_64
+addons:
+  apt:
+    packages:
+     - lib32stdc++6
+     - lib32z1
+     - lib32z1-dev
+     - build-essential
+     - wget
+     - unzip
 before_install:
-  - travis_retry sudo apt-get update -qq
-  - travis_retry sudo apt-get install -y build-essential unzip wget pv
+  - wget https://www.ivarch.com/programs/sources/pv-1.6.0.tar.bz2
+  - tar xjf pv-1.6.0.tar.bz2
+  - cd pv-1.6.0
+  - ./configure --prefix=$HOME --disable-nls
+  - make install
+  - cd ..
+  - rm pv-1.6.0.tar.bz2
+  - export PATH=$HOME/bin:$PATH
+  - travis_retry .jenkins.d/10-get-sdk.sh
   - travis_retry .jenkins.d/10-get-ndk.sh
 script:
-  - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m" NDK_BUILD_PARALLEL=1 gradle assembleRelease
+  - git submodule update --init --recursive
+  - ./gradle --version
+  - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m" NDK_BUILD_PARALLEL=1 ./gradle assembleDebug --console plain

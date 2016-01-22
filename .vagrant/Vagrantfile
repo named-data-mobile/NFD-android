@@ -4,23 +4,27 @@
 VAGRANTFILE_API_VERSION = "2"
 
 $script = <<SCRIPT
+
+CRYSTAX_NDK_VERSION=10.3.1
+
+GRADLE_VERSION=2.10
+SDK_VERSION=24.4.1
+BUILD_TOOLS_VERSION=21.1.2
+COMPILE_SDK_VERSION=21
+
 sudo apt-get install -y build-essential git openjdk-7-jdk unzip
 
 # SDK binaries need i386 libraries
 sudo dpkg --add-architecture i386;
 sudo apt-get update -qq; sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386 zlib1g:i386
 
-wget -q https://www.crystax.net/download/crystax-ndk-10.2.1-linux-x86_64.tar.bz2
-tar jxf crystax-ndk-10.2.1-linux-x86_64.tar.bz2
-rm crystax-ndk-10.2.1-linux-x86_64.tar.bz2
+wget -nv https://www.crystax.net/download/crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
+tar xf crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
+rm crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
 
-wget -q http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
-tar zxf android-sdk_r24.0.2-linux.tgz
-rm android-sdk_r24.0.2-linux.tgz
-
-SDK_TOOLS_VERSION=24.0.2
-BUILD_TOOLS_VERSION=21.1.2
-COMPILE_SDK_VERSION=21
+wget -nv http://dl.google.com/android/android-sdk_r$SDK_VERSION-linux.tgz
+tar zxf android-sdk_r$SDK_VERSION-linux.tgz
+rm android-sdk_r$SDK_VERSION-linux.tgz
 
 export ANDROID_HOME=`pwd`/android-sdk-linux
 export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
@@ -28,13 +32,13 @@ export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-support,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
 echo "y" | android update sdk --filter "android-19" --no-ui --all --force
 
-wget -q https://services.gradle.org/distributions/gradle-2.9-bin.zip
-unzip gradle-2.9.bin.zip
-rm gradle-2.9-bin.zip
-export PATH=$PATH:`pwd`/gradle-2.9/bin
+wget -nv https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip
+unzip gradle-$GRADLE_VERSION-bin.zip
+rm gradle-$GRADLE_VERSION-bin.zip
+export PATH=$PATH:`pwd`/gradle-$GRADLE_VERSION/bin
 
 echo sdk.dir=`pwd`/android-sdk-linux > local.properties
-echo ndk.dir=`pwd`/crystax-ndk-10.2.1 >> local.properties
+echo ndk.dir=`pwd`/crystax-ndk-$CRYSTAX_NDK_VERSION >> local.properties
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -43,10 +47,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", privileged: false, inline: $script
 
   config.vm.provider "virtualbox" do |vb|
-    # Don't boot with headless mode
-    vb.gui = false
-
-    # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "4048", "--cpus", "4"]
+    vb.memory = 4048
+    vb.cpus = 4
   end
 end

@@ -11,4 +11,4 @@ include $(BUILD_SHARED_LIBRARY)
 include $(LOCAL_PATH_SAVED)/ndn-cxx.mk
 include $(LOCAL_PATH_SAVED)/nfd.mk
 
-$(call import-module,boost/1.57.0)
+$(call import-module,boost/1.59.0)

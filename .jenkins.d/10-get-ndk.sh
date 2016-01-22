@@ -2,10 +2,12 @@
 set -e
 set -x
 
-URL=https://www.crystax.net/download/
-NDK=crystax-ndk-10.2.1
+CRYSTAX_NDK_VERSION=10.3.1
 
-NDK_FILE="$NDK-linux-x86_64.tar.bz2"
+URL=https://www.crystax.net/download/
+NDK=crystax-ndk-$CRYSTAX_NDK_VERSION
+
+NDK_FILE="$NDK-linux-x86_64.tar.xz"
 
 if [ ! -f downloads/$NDK_FILE ]; then
     mkdir downloads || true
@@ -15,8 +17,28 @@ if [ ! -f downloads/$NDK_FILE ]; then
 fi
 
 if [ ! -d $NDK ]; then
+    export XZ_DEFAULTS=--memlimit=300MiB
     echo -en 'travis_fold:start:NDK\r'
-    pv -f downloads/$NDK_FILE | tar xjf -
+
+    # To save space
+    EXCLUDES="toolchains/*-clang3.6 toolchains/*-3.6 \
+            toolchains/*-clang3.7 \
+            toolchains/*-3.7 \
+            toolchains/*-4.9 \
+            sources/cxx-stl/gabi++ \
+            sources/cxx-stl/llvm-libc++ \
+            sources/cxx-stl/llvm-libc++abi \
+            sources/cxx-stl/stlport \
+            sources/cxx-stl/llvm-libc++ \
+            sources/cxx-stl/gnu-libstdc++/4.9 \
+            sources/icu \
+            sources/boost/*/libs/*/gnu-4.9 \
+            sources/boost/*/libs/*/llvm-3.6 \
+            sources/boost/*/libs/*/llvm-3.7 \
+            sources/objc \
+            sources/python"
+
+    pv -f downloads/$NDK_FILE | tar xJf - $(for i in $EXCLUDES; do echo "--exclude $i"; done | xargs)
     echo -en 'travis_fold:end:NDK\r'
 fi
 

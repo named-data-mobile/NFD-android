@@ -57,7 +57,7 @@ public class NfdService extends Service {
     //     bash android-shared-lib-dependencies.sh nfd-wrapper
     System.loadLibrary("crystax");
     System.loadLibrary("gnustl_shared");
-    System.loadLibrary("cryptopp");
+    System.loadLibrary("cryptopp_shared");
     System.loadLibrary("boost_system");
     System.loadLibrary("boost_filesystem");
     System.loadLibrary("boost_date_time");

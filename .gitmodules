@@ -1,6 +1,6 @@
 [submodule "app/src/main/jni/cryptopp"]
     path = app/src/main/jni/cryptopp
-    url = https://github.com/cawka/cryptopp
+    url = https://github.com/named-data-mobile/cryptopp
     branch = android
 [submodule "app/src/main/jni/ndn-cxx"]
     path = app/src/main/jni/ndn-cxx
