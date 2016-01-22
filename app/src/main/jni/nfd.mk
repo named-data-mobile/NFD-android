@@ -21,23 +21,26 @@ NFD_DAEMON_SRC_FILES := \
     \
     daemon/face/channel.cpp \
     daemon/face/face.cpp \
-    daemon/face/internal-client-face.cpp \
+    daemon/face/face-counters.cpp \
+    daemon/face/generic-link-service.cpp \
     daemon/face/internal-face.cpp \
-    daemon/face/multicast-udp-face.cpp \
-    daemon/face/ndnlp-data.cpp \
-    daemon/face/ndnlp-partial-message-store.cpp \
-    daemon/face/ndnlp-sequence-generator.cpp \
-    daemon/face/ndnlp-slicer.cpp \
+    daemon/face/internal-transport.cpp \
+    daemon/face/link-service.cpp \
+    daemon/face/lp-fragmenter.cpp \
+    daemon/face/lp-reassembler.cpp \
+    daemon/face/multicast-udp-transport.cpp \
     daemon/face/null-face.cpp \
     daemon/face/tcp-channel.cpp \
-    daemon/face/tcp-face.cpp \
     daemon/face/tcp-factory.cpp \
+    daemon/face/tcp-transport.cpp \
+    daemon/face/transport.cpp \
     daemon/face/udp-channel.cpp \
-    daemon/face/udp-face.cpp \
     daemon/face/udp-factory.cpp \
+    daemon/face/udp-protocol.cpp \
+    daemon/face/unicast-udp-transport.cpp \
     daemon/face/websocket-channel.cpp \
-    daemon/face/websocket-face.cpp \
     daemon/face/websocket-factory.cpp \
+    daemon/face/websocket-transport.cpp \
     daemon/fw/access-strategy.cpp \
     daemon/fw/best-route-strategy.cpp \
     daemon/fw/best-route-strategy2.cpp \
@@ -87,10 +90,11 @@ NFD_DAEMON_SRC_FILES := \
     daemon/table/strategy-choice.cpp \
     daemon/table/strategy-info-host.cpp \
     \
+    rib/auto-prefix-propagator.cpp \
     rib/fib-update.cpp \
     rib/fib-updater.cpp \
     rib/nrd.cpp \
-    rib/remote-registrator.cpp \
+    rib/propagated-entry.cpp \
     rib/rib-entry.cpp \
     rib/rib-manager.cpp \
     rib/rib-status-publisher.cpp \

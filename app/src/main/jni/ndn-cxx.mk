@@ -27,6 +27,7 @@ NDN_CXX_SRC_FILES := \
     lp/nack-header.cpp \
     lp/nack.cpp \
     lp/packet.cpp \
+    lp/tags.cpp \
     management/nfd-channel-status.cpp \
     management/nfd-command-options.cpp \
     management/nfd-control-command.cpp \
