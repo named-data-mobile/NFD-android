@@ -1,7 +1,7 @@
 NFD on Android
 ==============
 
-[![Build Status](https://travis-ci.org/named-data/NFD-android.svg?branch=master)](https://travis-ci.org/named-data/NFD-android)
+[![Build Status](https://travis-ci.org/named-data-mobile/NFD-android.svg?branch=master)](https://travis-ci.org/named-data-mobile/NFD-android)
 
 ## Prerequisites
 
