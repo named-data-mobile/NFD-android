@@ -10,8 +10,8 @@ android {
         applicationId "net.named_data.nfd"
         minSdkVersion 15
         targetSdkVersion 19
-        versionCode 3005
-        versionName "0.3.4"
+        versionCode 4001
+        versionName "0.2.1 (NFD 0.4.0-3-g4100646)"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
