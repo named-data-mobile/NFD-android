@@ -35,5 +35,4 @@ before_install:
   - travis_retry .jenkins.d/10-get-ndk.sh
 script:
   - git submodule update --init --recursive
-  - ./gradle --version
-  - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m" NDK_BUILD_PARALLEL=1 ./gradle assembleDebug --console plain
+  - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m" NDK_BUILD_PARALLEL=1 ./gradlew assembleDebug --console rich

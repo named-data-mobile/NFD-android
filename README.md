@@ -11,12 +11,10 @@ To compile code, the following is necessary
   and 21.1.2 build tools (for build), android-19 SDK (for compatibility), and several other SDK
   components
 - [CrystalX Android NDK](https://www.crystax.net/en/download) version 10.3.1
-- [Gradle build automation system](http://gradle.org/) version 2.10
 
 Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
 
     CRYSTAX_NDK_VERSION=10.3.1
-    GRADLE_VERSION=2.10
     SDK_VERSION=24.4.1
 
     BUILD_TOOLS_VERSION=21.1.2
@@ -42,11 +40,6 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
     echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-support,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
     echo "y" | android update sdk --filter "android-19" --no-ui --all --force
 
-    wget https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip
-    unzip gradle-$GRADLE_VERSION-bin.zip
-    rm gradle-$GRADLE_VERSION-bin.zip
-    export PATH=$PATH:`pwd`/gradle-$GRADLE_VERSION/bin
-
 ## Building
 
 
@@ -55,7 +48,7 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
     echo ndk.dir=`pwd`/crystax-ndk-10.3.1 >> NFD-android/local.properties
     cd NFD-android
 
-    ../gradle/gradle-2.10/bin/gradle assembleRelease
+    ./gradlew assembleRelease
 
 
 ## Setting up environment using Vagrant

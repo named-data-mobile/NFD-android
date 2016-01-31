@@ -34,6 +34,7 @@ Thumbs.db
 # the project can be imported from settings.gradle
 .idea
 *.iml
+nb-configuration.xml
 
 # Old-style IDEA project files
 *.ipr
@@ -42,6 +43,7 @@ Thumbs.db
 # Gradle cache
 .gradle
 gradle.properties
+gradle-app.setting
 
 # Sandbox stuff
 _sandbox

@@ -99,6 +99,11 @@ android {
     }
 
     clean.dependsOn cleanNative
+
+    // TODO: remove after switching to jndn-management:1.1.0
+    lintOptions {
+        abortOnError false
+    }
 }
 
 def getNdkBuildCmd() {
