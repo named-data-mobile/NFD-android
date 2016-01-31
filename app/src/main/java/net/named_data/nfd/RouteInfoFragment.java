@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.intel.jndn.management.enums.RouteFlags;
 import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 import com.intel.jndn.management.types.Route;
@@ -23,7 +24,7 @@ import com.intel.jndn.management.types.Route;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.nfd.utils.G;
-import net.named_data.nfd.utils.Nfdc;
+import net.named_data.nfd.utils.NfdcHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -204,14 +205,14 @@ public class RouteInfoFragment extends ListFragment {
 
       if (m_faces != null) {
         FaceStatus status = m_faces.get(r.getFaceId());
-        faceInfo += " (" + status.getUri() + ")";
+        faceInfo += " (" + status.getRemoteUri() + ")";
       }
 
       holder.m_title.setText(faceInfo);
       holder.m_value.setText("origin: " + String.valueOf(r.getOrigin()) + " " +
                                "cost: " + String.valueOf(r.getCost()) + " " +
-                               (r.getFlags().getChildInherit() ? "ChildInherit " : "") +
-                               (r.getFlags().getCapture() ? "Capture " : "")
+                               ((r.getFlags() & RouteFlags.CHILD_INHERIT.toInteger()) > 0 ? "ChildInherit " : "") +
+                               ((r.getFlags() & RouteFlags.CAPTURE.toInteger()) > 0 ? "Capture " : "")
                              //            +
                              //          (r.getExpirationPeriod() > 0 ? "Expires in " + PeriodFormat.getDefault().print(new Period((int)(1000*r.getExpirationPeriod()))) : "")
       );
@@ -243,14 +244,14 @@ public class RouteInfoFragment extends ListFragment {
     protected Pair<List<FaceStatus>, Exception>
     doInBackground(Void... params) {
       Exception returnException = null;
-      Nfdc nfdc = new Nfdc();
+      NfdcHelper nfdcHelper = new NfdcHelper();
       List<FaceStatus> faceStatusList = null;
       try {
-        faceStatusList = nfdc.faceList();
+        faceStatusList = nfdcHelper.faceList();
       } catch (Exception e) {
         returnException = e;
       }
-      nfdc.shutdown();
+      nfdcHelper.shutdown();
       return new Pair<>(faceStatusList, returnException);
     }
 

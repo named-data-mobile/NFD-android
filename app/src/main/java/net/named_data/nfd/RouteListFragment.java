@@ -45,7 +45,7 @@ import com.intel.jndn.management.types.Route;
 import net.named_data.jndn.Name;
 import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
-import net.named_data.nfd.utils.Nfdc;
+import net.named_data.nfd.utils.NfdcHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
      *
      * @param ribEntry RibEntry instance with information about the selected route
      */
-    public void onRouteItemSelected(RibEntry ribEntry);
+    void onRouteItemSelected(RibEntry ribEntry);
   }
 
   @Override
@@ -315,16 +315,16 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     @Override
     protected Pair<List<RibEntry>, Exception>
     doInBackground(Void... params) {
-      Nfdc nfdc = new Nfdc();
+      NfdcHelper nfdcHelper = new NfdcHelper();
       Exception returnException = null;
       List<RibEntry> routes = null;
       try {
-        routes = nfdc.ribList();
+        routes = nfdcHelper.ribList();
       }
       catch (Exception e) {
         returnException = e;
       }
-      nfdc.shutdown();
+      nfdcHelper.shutdown();
       return new Pair<>(routes, returnException);
     }
 
@@ -362,11 +362,11 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     protected String
     doInBackground(Void... params)
     {
-      Nfdc nfdc = new Nfdc();
+      NfdcHelper nfdcHelper = new NfdcHelper();
       try {
-        int faceId = nfdc.faceCreate(m_faceUri);
-        nfdc.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
-        nfdc.shutdown();
+        int faceId = nfdcHelper.faceCreate(m_faceUri);
+        nfdcHelper.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
+        nfdcHelper.shutdown();
         return "OK";
       }
       catch (FaceUri.CanonizeError e) {
@@ -379,7 +379,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
         return "Error communicating with NFD (" + e.getMessage() + ")";
       }
       finally {
-        nfdc.shutdown();
+        nfdcHelper.shutdown();
       }
     }
 

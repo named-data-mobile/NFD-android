@@ -46,7 +46,7 @@ import com.intel.jndn.management.types.ForwarderStatus;
 
 import net.named_data.nfd.service.NfdService;
 import net.named_data.nfd.utils.G;
-import net.named_data.nfd.utils.Nfdc;
+import net.named_data.nfd.utils.NfdcHelper;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -104,6 +104,8 @@ public class MainFragment extends Fragment {
     m_outInterestsView = (TextView)v.findViewById(R.id.out_interests);
     m_inDataView = (TextView)v.findViewById(R.id.in_data);
     m_outDataView = (TextView)v.findViewById(R.id.out_data);
+    m_inNacksView = (TextView)v.findViewById(R.id.in_nacks);
+    m_outNacksView = (TextView)v.findViewById(R.id.out_nacks);
 
     return v;
   }
@@ -319,9 +321,9 @@ public class MainFragment extends Fragment {
     doInBackground(Void... voids)
     {
       try {
-        Nfdc nfdc = new Nfdc();
-        ForwarderStatus fs = nfdc.generalStatus();
-        nfdc.shutdown();
+        NfdcHelper nfdcHelper = new NfdcHelper();
+        ForwarderStatus fs = nfdcHelper.generalStatus();
+        nfdcHelper.shutdown();
         return fs;
       }
       catch (Exception e) {
@@ -343,18 +345,21 @@ public class MainFragment extends Fragment {
         m_uptimeView.setText(PeriodFormat.getDefault().print(new Period(
           fs.getCurrentTimestamp() - fs.getStartTimestamp())));
         m_nameTreeEntriesView.setText(String.valueOf(
-          fs.getNumNameTreeEntries()));
-        m_fibEntriesView.setText(String.valueOf(fs.getNumFibEntries()));
-        m_pitEntriesView.setText(String.valueOf(fs.getNumPitEntries()));
+          fs.getNNameTreeEntries()));
+        m_fibEntriesView.setText(String.valueOf(fs.getNFibEntries()));
+        m_pitEntriesView.setText(String.valueOf(fs.getNPitEntries()));
         m_measurementEntriesView.setText(String.valueOf(
-          fs.getNumMeasurementEntries()));
-        m_csEntriesView.setText(String.valueOf(fs.getNumCsEntries()));
+          fs.getNMeasurementsEntries()));
+        m_csEntriesView.setText(String.valueOf(fs.getNCsEntries()));
 
-        m_inInterestsView.setText(String.valueOf(fs.getNumInInterests()));
-        m_outInterestsView.setText(String.valueOf(
-          fs.getNumOutInterests()));
-        m_inDataView.setText(String.valueOf(fs.getNumInDatas()));
-        m_outDataView.setText(String.valueOf(fs.getNumOutDatas()));
+        m_inInterestsView.setText(String.valueOf(fs.getNInInterests()));
+        m_outInterestsView.setText(String.valueOf(fs.getNOutInterests()));
+
+        m_inDataView.setText(String.valueOf(fs.getNInDatas()));
+        m_outDataView.setText(String.valueOf(fs.getNOutDatas()));
+
+        m_inNacksView.setText(String.valueOf(fs.getNInNacks()));
+        m_outNacksView.setText(String.valueOf(fs.getNOutNacks()));
 
         m_nfdStatusView.setVisibility(View.VISIBLE);
 
@@ -392,6 +397,8 @@ public class MainFragment extends Fragment {
   private TextView m_outInterestsView;
   private TextView m_inDataView;
   private TextView m_outDataView;
+  private TextView m_inNacksView;
+  private TextView m_outNacksView;
 
   private Handler m_handler;
   private Runnable m_statusUpdateRunnable = new Runnable() {

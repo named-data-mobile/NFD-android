@@ -48,10 +48,12 @@
     <string name="out_data">Out data</string>
     <string name="in_bytes">In bytes</string>
     <string name="out_bytes">Out bytes</string>
+    <string name="in_nacks">In NACKs</string>
+    <string name="out_nacks">Out NACKs</string>
 
     <string-array name="face_scopes">
-        <item>Local</item>
         <item>Non-local</item>
+        <item>Local</item>
     </string-array>
 
     <string-array name="face_persistency">

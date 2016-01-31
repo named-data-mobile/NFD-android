@@ -31,10 +31,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.intel.jndn.management.types.FacePersistency;
-import com.intel.jndn.management.types.FaceScope;
+import com.intel.jndn.management.enums.FacePersistency;
+import com.intel.jndn.management.enums.FaceScope;
+import com.intel.jndn.management.enums.LinkType;
 import com.intel.jndn.management.types.FaceStatus;
-import com.intel.jndn.management.types.LinkType;
 
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
@@ -110,22 +110,21 @@ public class FaceStatusFragment extends ListFragment {
       // Creating list of items to be displayed
       m_listItems.add(new ListItem(R.string.face_id, String.valueOf(faceStatus.getFaceId())));
       m_listItems.add(new ListItem(R.string.local_face_uri, faceStatus.getLocalUri()));
-      m_listItems.add(new ListItem(R.string.remote_face_uri, faceStatus.getUri()));
+      m_listItems.add(new ListItem(R.string.remote_face_uri, faceStatus.getRemoteUri()));
       m_listItems.add(new ListItem(R.string.expires_in, faceStatus.getExpirationPeriod() < 0 ?
         getString(R.string.expire_never) :
         PeriodFormat.getDefault().print(new Period(faceStatus.getExpirationPeriod()))));
       m_listItems.add(new ListItem(R.string.face_scope, getScope(faceStatus.getFaceScope())));
-      m_listItems.add(new ListItem(R.string.face_persistency, getPersistency(
-        faceStatus.getFacePersistency())));
+      m_listItems.add(new ListItem(R.string.face_persistency, getPersistency(faceStatus.getFacePersistency())));
       m_listItems.add(new ListItem(R.string.link_type, getLinkType(faceStatus.getLinkType())));
       m_listItems.add(new ListItem(R.string.in_interests, String.valueOf(
-        faceStatus.getInInterests())));
-      m_listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getInDatas())));
+        faceStatus.getNInInterests())));
+      m_listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getNInDatas())));
       m_listItems.add(new ListItem(R.string.out_interests, String.valueOf(
-        faceStatus.getOutInterests())));
-      m_listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getOutDatas())));
-      m_listItems.add(new ListItem(R.string.in_bytes, String.valueOf(faceStatus.getInBytes())));
-      m_listItems.add(new ListItem(R.string.out_bytes, String.valueOf(faceStatus.getOutBytes())));
+        faceStatus.getNOutInterests())));
+      m_listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getNOutDatas())));
+      m_listItems.add(new ListItem(R.string.in_bytes, String.valueOf(faceStatus.getNInBytes())));
+      m_listItems.add(new ListItem(R.string.out_bytes, String.valueOf(faceStatus.getNOutBytes())));
 
       m_faceStatusAdapter = new FaceStatusAdapter(getActivity(), m_listItems);
     }
@@ -145,19 +144,19 @@ public class FaceStatusFragment extends ListFragment {
   private String
   getScope(FaceScope scope)
   {
-    return m_scopes[scope.getNumericValue()];
+    return m_scopes[scope.toInteger()];
   }
 
   private String
   getPersistency(FacePersistency persistency)
   {
-    return m_persistencies[persistency.getNumericValue()];
+    return m_persistencies[persistency.toInteger()];
   }
 
   private String
   getLinkType(LinkType linkType)
   {
-    return m_linkTypes[linkType.getNumericValue()];
+    return m_linkTypes[linkType.toInteger()];
   }
 
   /**

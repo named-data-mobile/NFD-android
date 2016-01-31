@@ -45,7 +45,7 @@ import com.intel.jndn.management.types.FaceStatus;
 
 import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
-import net.named_data.nfd.utils.Nfdc;
+import net.named_data.nfd.utils.NfdcHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -339,7 +339,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
       }
 
       FaceStatus info = getItem(position);
-      holder.m_faceUri.setText(info.getUri());
+      holder.m_faceUri.setText(info.getRemoteUri());
       holder.m_faceId.setText(String.valueOf(info.getFaceId()));
 
       return convertView;
@@ -369,14 +369,14 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     protected Pair<List<FaceStatus>, Exception>
     doInBackground(Void... params) {
       Exception returnException = null;
-      Nfdc nfdc = new Nfdc();
+      NfdcHelper nfdcHelper = new NfdcHelper();
       List<FaceStatus> faceStatusList = null;
       try {
-        faceStatusList = nfdc.faceList();
+        faceStatusList = nfdcHelper.faceList();
       } catch (Exception e) {
         returnException = e;
       }
-      nfdc.shutdown();
+      nfdcHelper.shutdown();
       return new Pair<>(faceStatusList, returnException);
     }
 
@@ -421,17 +421,17 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     doInBackground(Set<Integer>... params) {
       Exception retval = null;
 
-      Nfdc nfdc = new Nfdc();
+      NfdcHelper nfdcHelper = new NfdcHelper();
       try {
         for (Set<Integer> faces : params) {
           for (int faceId : faces) {
-            nfdc.faceDestroy(faceId);
+            nfdcHelper.faceDestroy(faceId);
           }
         }
       } catch (Exception e) {
         retval = e;
       }
-      nfdc.shutdown();
+      nfdcHelper.shutdown();
 
       return retval;
     }
@@ -471,9 +471,9 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     doInBackground(Void... params)
     {
       try {
-        Nfdc nfdc = new Nfdc();
-        int faceId = nfdc.faceCreate(m_faceUri);
-        nfdc.shutdown();
+        NfdcHelper nfdcHelper = new NfdcHelper();
+        int faceId = nfdcHelper.faceCreate(m_faceUri);
+        nfdcHelper.shutdown();
         return "OK. Face id: " + String.valueOf(faceId);
       }
       catch (FaceUri.CanonizeError e) {
