@@ -69,8 +69,16 @@ android {
         }
     }
 
+    task copyNdnCxxHeaders(type: Copy) {
+        from('src/main/jni/ndn-cxx/src') {
+            include '**/*.hpp'
+        }
+        into 'build/generated/source/include/ndn-cxx'
+    }
+
     // call regular ndk-build(.cmd) script from app directory
     task ndkBuild(type: Exec) {
+        dependsOn copyNdnCxxHeaders
         def args = [getNdkBuildCmd(), '-C', file('src/main').absolutePath]
 
         if (System.env.NDK_BUILD_PARALLEL != null) {

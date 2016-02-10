@@ -111,8 +111,8 @@ NDN_CXX_SRC_FILES := \
     util/time-unit-test-clock.cpp \
     util/time.cpp
 LOCAL_SRC_FILES := $(addprefix ndn-cxx/src/,$(NDN_CXX_SRC_FILES))
-LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/ndn-cxx/src -I$(LOCAL_PATH)/ndn-cxx-android
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/ndn-cxx-android
+LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/ndn-cxx/src -I$(LOCAL_PATH)/ndn-cxx-android -I$(LOCAL_PATH)/../../../build/generated/source/ndn-cxx
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/ndn-cxx-android $(LOCAL_PATH)/../../../build/generated/source/include
 include $(BUILD_SHARED_LIBRARY)
 
 include $(LOCAL_PATH_SAVED)/cryptopp/extras/jni/Android.mk
