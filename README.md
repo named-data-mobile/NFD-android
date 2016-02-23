@@ -7,8 +7,8 @@ NFD on Android
 
 To compile code, the following is necessary
 
-- Recent version of [Android SDK](http://developer.android.com/sdk/index.html), android-21 SDK
-  and 21.1.2 build tools (for build), android-19 SDK (for compatibility), and several other SDK
+- Recent version of [Android SDK](http://developer.android.com/sdk/index.html), android-23 SDK
+  and 23.0.2 build tools (for build), android-19 SDK (for compatibility), and several other SDK
   components
 - [CrystalX Android NDK](https://www.crystax.net/en/download) version 10.3.1
 
@@ -17,14 +17,11 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
     CRYSTAX_NDK_VERSION=10.3.1
     SDK_VERSION=24.4.1
 
-    BUILD_TOOLS_VERSION=21.1.2
-    COMPILE_SDK_VERSION=21
+    BUILD_TOOLS_VERSION=23.0.2
+    COMPILE_SDK_VERSION=23
 
     sudo apt-get install -y build-essential git openjdk-7-jdk unzip
-
-    # SDK binaries need i386 libraries
-    sudo dpkg --add-architecture i386;
-    sudo apt-get update -qq; sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386 zlib1g:i386
+    sudo apt-get install -y lib32stdc++6 lib32z1 lib32z1-dev
 
     wget https://www.crystax.net/download/crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
     tar xf crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz

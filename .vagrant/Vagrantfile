@@ -8,8 +8,8 @@ $script = <<SCRIPT
 CRYSTAX_NDK_VERSION=10.3.1
 
 SDK_VERSION=24.4.1
-BUILD_TOOLS_VERSION=21.1.2
-COMPILE_SDK_VERSION=21
+BUILD_TOOLS_VERSION=23.0.2
+COMPILE_SDK_VERSION=23
 
 sudo apt-get install -y build-essential git openjdk-7-jdk unzip
 sudo apt-get install -y lib32stdc++6 lib32z1 lib32z1-dev
