@@ -1,7 +1,7 @@
 NFD-Android version 0.2.1
 -------------------------
 
-Release date: TBD
+Release date: February 29, 2016
 
 Updates
 ~~~~~~~
