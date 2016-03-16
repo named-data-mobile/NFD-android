@@ -38,6 +38,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import com.intel.jndn.management.types.RibEntry;
 import com.intel.jndn.management.types.Route;
@@ -98,6 +102,33 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
     // Get progress bar spinner view
     m_reloadingListProgressBar = (ProgressBar)v.findViewById(R.id.route_list_reloading_list_progress_bar);
+
+    getListView().setLongClickable(true);
+    getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+      public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+        final RibEntry entry  = (RibEntry)parent.getItemAtPosition(position);;
+        new AlertDialog.Builder(v.getContext())
+          .setIcon(android.R.drawable.ic_dialog_alert)
+          .setTitle("Deleting route")
+          .setMessage("Are you sure you want to delete " + entry.getName().toUri() + "?")
+          .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              List<Integer> faceList = new ArrayList<>();
+              for (Route r : entry.getRoutes()) {
+                faceList.add(r.getFaceId());
+              }
+              removeRoute(entry.getName(), faceList);
+              Toast.makeText(getActivity(), "Route Deleted", Toast.LENGTH_LONG).show();
+            }
+          })
+          .setNegativeButton("No", null)
+          .show();
+
+
+        return true;
+      }
+    });
   }
 
   @Override
@@ -178,6 +209,12 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     m_routeCreateAsyncTask.execute();
   }
 
+  public void
+  removeRoute(Name prefix, List<Integer> faceIds)
+  {
+    m_routeRemoveAsyncTask = new RouteRemoveAsyncTask(prefix, faceIds);
+    m_routeRemoveAsyncTask.execute();
+  }
 
   /////////////////////////////////////////////////////////////////////////
 
@@ -349,7 +386,6 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     }
   }
 
-
   private class RouteCreateAsyncTask extends AsyncTask<Void, Void, String> {
     public
     RouteCreateAsyncTask(Name prefix, String faceUri)
@@ -416,6 +452,74 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     private String m_faceUri;
   }
 
+  private class RouteRemoveAsyncTask extends AsyncTask<Void, Void, String> {
+    public
+    RouteRemoveAsyncTask(Name prefix, List<Integer> faceIds)
+    {
+      m_prefix = prefix;
+      m_faceList = faceIds;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params)
+    {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        for (int faceId : m_faceList) {
+          nfdcHelper.ribUnregisterPrefix(m_prefix, faceId);
+        }
+
+        nfdcHelper.shutdown();
+        return "OK";
+      }
+      catch (FaceUri.CanonizeError e) {
+        return "Error Destroying dace (" + e.getMessage() + ")";
+      }
+      catch (FaceUri.Error e) {
+        return "Error destroying face (" + e.getMessage() + ")";
+      }
+      catch (Exception e) {
+        return "Error communicating with NFD (" + e.getMessage() + ")";
+      }
+      finally {
+        nfdcHelper.shutdown();
+      }
+    }
+
+    @Override
+    protected void
+    onPreExecute()
+    {
+      // Display progress bar
+      m_reloadingListProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void
+    onPostExecute(String status)
+    {
+      // Display progress bar
+      m_reloadingListProgressBar.setVisibility(View.VISIBLE);
+      Toast.makeText(getActivity(), status, Toast.LENGTH_LONG).show();
+
+      retrieveRouteList();
+    }
+
+    @Override
+    protected void
+    onCancelled()
+    {
+      // Remove progress bar
+      m_reloadingListProgressBar.setVisibility(View.GONE);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    private Name m_prefix;
+    private List<Integer> m_faceList;
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   /** Callback handler of the hosting activity */
@@ -432,6 +536,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
   /** Reference to the most recent AsyncTask that was created for creating a route */
   private RouteCreateAsyncTask m_routeCreateAsyncTask;
+  private RouteRemoveAsyncTask m_routeRemoveAsyncTask;
 
   private RouteListAdapter m_routeListAdapter;
 }
