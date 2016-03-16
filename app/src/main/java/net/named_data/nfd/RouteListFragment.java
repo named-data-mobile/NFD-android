@@ -38,6 +38,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 
 import com.intel.jndn.management.types.RibEntry;
 import com.intel.jndn.management.types.Route;
@@ -46,6 +51,11 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException; 
+import java.io.FileNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +108,40 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
     // Get progress bar spinner view
     m_reloadingListProgressBar = (ProgressBar)v.findViewById(R.id.route_list_reloading_list_progress_bar);
+
+    getListView().setLongClickable(true);
+    getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+        public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+
+            final RibEntry  entry  = (RibEntry)parent.getItemAtPosition(position);; 
+            new AlertDialog.Builder(v.getContext())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Closing Activity")
+                    .setMessage("Are you sure you want to delete this route?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                          //RibEntry entry = (RibEntry)parent.getItemAtPosition(position);
+                  
+                          List<Integer> faceList = new ArrayList<>();
+                          for (Route r : entry.getRoutes()) {
+                              faceList.add(r.getFaceId());
+                          }
+                          removeRoute(entry.getName(), faceList);    
+                          Toast.makeText(getActivity(),
+                             "Route Deleted",
+                          Toast.LENGTH_LONG).show();
+                      }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+            
+
+                    return true;
+        }
+    });
+
   }
 
   @Override
@@ -177,6 +221,14 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     m_routeCreateAsyncTask = new RouteCreateAsyncTask(prefix, faceUri);
     m_routeCreateAsyncTask.execute();
   }
+
+  public void
+  removeRoute(Name prefix, List<Integer>faceId)
+  {
+    m_routeRemoveAsyncTask = new RouteRemoveAsyncTask(prefix, faceId);
+    m_routeRemoveAsyncTask.execute();
+  }
+
 
 
   /////////////////////////////////////////////////////////////////////////
@@ -350,6 +402,82 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
 
+private class RouteRemoveAsyncTask extends AsyncTask<Void, Void, String> {
+    public
+    RouteRemoveAsyncTask(Name prefix, List<Integer>faceId)
+    {
+      m_prefix = prefix;
+      m_faceId = faceId;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params)
+    {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        if(m_faceId.size() < 2) {
+            nfdcHelper.ribUnregisterPrefix(m_prefix, m_faceId.remove(0));
+        } else {
+            for(int i=0; i<m_faceId.size()-1; i++) {
+                nfdcHelper.faceDestroy(m_faceId.remove(0));
+            }
+            nfdcHelper.ribUnregisterPrefix(m_prefix, m_faceId.remove(0));
+        }
+
+        nfdcHelper.shutdown();
+        return "OK";
+      }
+      catch (FaceUri.CanonizeError e) {
+        return "Error Destroying dace (" + e.getMessage() + ")";
+      }
+      catch (FaceUri.Error e) {
+        return "Error destroying face (" + e.getMessage() + ")";
+      }
+      catch (Exception e) {
+        return "Error communicating with NFD (" + e.getMessage() + ")";
+      }
+      finally {
+        nfdcHelper.shutdown();
+      }
+    }
+   
+    @Override
+    protected void
+    onPreExecute()
+    {
+      // Display progress bar
+      m_reloadingListProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void
+    onPostExecute(String status)
+    {
+      // Display progress bar
+      m_reloadingListProgressBar.setVisibility(View.VISIBLE);
+      Toast.makeText(getActivity(), status, Toast.LENGTH_LONG).show();
+
+      retrieveRouteList();
+    }
+
+    @Override
+    protected void
+    onCancelled()
+    {
+      // Remove progress bar
+      m_reloadingListProgressBar.setVisibility(View.GONE);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    private Name m_prefix;
+    private List<Integer> m_faceId;
+  }
+
+
+
+
   private class RouteCreateAsyncTask extends AsyncTask<Void, Void, String> {
     public
     RouteCreateAsyncTask(Name prefix, String faceUri)
@@ -383,6 +511,23 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
       }
     }
 
+    public void saveRoute(String faceUri,Name prefix) {
+        File root = android.os.Environment.getExternalStorageDirectory();
+        File dir = new File (root.getAbsolutePath() + "/nfd-android");
+        dir.mkdirs();
+        File file = new File(dir, "routes.txt");
+        try {
+            FileOutputStream f = new FileOutputStream(file, true);
+            String string = faceUri+"---"+prefix.toString()+'\n';
+            f.write(string.toString().getBytes());
+            f.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     protected void
     onPreExecute()
@@ -432,6 +577,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
   /** Reference to the most recent AsyncTask that was created for creating a route */
   private RouteCreateAsyncTask m_routeCreateAsyncTask;
+  private RouteRemoveAsyncTask m_routeRemoveAsyncTask;
 
   private RouteListAdapter m_routeListAdapter;
 }
