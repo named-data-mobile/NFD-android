@@ -1,4 +1,6 @@
 <resources>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
     <string name="app_name">NFD</string>
     <string name="service_name">NFD Service</string>
     <string name="action_settings">Settings</string>
@@ -15,6 +17,7 @@
     <string name="drawer_item_general">General</string>
     <string name="drawer_item_faces">Faces</string>
     <string name="drawer_item_routes">Routes</string>
+    <string name="drawer_item_ping">Ping</string>
     <string name="drawer_item_strategies">Strategies</string>
     <string name="drawer_item_logcat">Logcat</string>
     <string name="menu_item_delete_setting_item">Delete</string>
@@ -72,4 +75,5 @@
     <string name="fragment_route_details_title">Route Details</string>
     <string name="fragment_route_details_next_hops">List of next hops</string>
     <string name="fragment_route_route_name_title">Route Name</string>
+    <string name="ping_client_prefix_hint">Prefix (e.g., /ndn/edu/arizona)</string>
 </resources>

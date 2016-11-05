@@ -44,7 +44,6 @@ public class MainActivity extends ActionBarActivity
                FaceListFragment.Callbacks,
                RouteListFragment.Callbacks
 {
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -65,6 +64,8 @@ public class MainActivity extends ActionBarActivity
                                               DRAWER_ITEM_FACES));
       items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_routes, 0,
                                               DRAWER_ITEM_ROUTES));
+      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_ping, 0,
+                                              DRAWER_ITEM_PING));
       //    items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_strategies, 0,
       //                                            DRAWER_ITEM_STRATEGIES));
       items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_logcat, 0,
@@ -147,6 +148,9 @@ public class MainActivity extends ActionBarActivity
         case DRAWER_ITEM_ROUTES:
           fragment = RouteListFragment.newInstance();
           break;
+        case DRAWER_ITEM_PING:
+          fragment = PingClientFragment.newInstance();
+          break;
         // TODO: Placeholders; Fill these in when their fragments have been created
         //    case DRAWER_ITEM_STRATEGIES:
         //      break;
@@ -195,6 +199,7 @@ public class MainActivity extends ActionBarActivity
   public static final int DRAWER_ITEM_GENERAL = 1;
   public static final int DRAWER_ITEM_FACES = 2;
   public static final int DRAWER_ITEM_ROUTES = 3;
-  public static final int DRAWER_ITEM_STRATEGIES = 4;
+  public static final int DRAWER_ITEM_PING = 4;
+  //public static final int DRAWER_ITEM_STRATEGIES = 4;
   public static final int DRAWER_ITEM_LOGCAT = 5;
 }

@@ -72,11 +72,11 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
   @Override
-  public void onAttach(Activity activity)
+  public void onAttach(Context context)
   {
-    super.onAttach(activity);
+    super.onAttach(context);
     try {
-      m_callbacks = (Callbacks)activity;
+      m_callbacks = (Callbacks)context;
     } catch (Exception e) {
       G.Log("Hosting activity must implement this fragment's callbacks: " + e);
     }

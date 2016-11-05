@@ -3,8 +3,8 @@ NFD Android authors
 
 ## The primary authors are (and/or have been):
 
-* Ivan Yeo              <ivanyeo@cs.ucla.edu>
 * Alexander Afanasyev   <http://lasr.cs.ucla.edu/afanasyev/index.html>
+* Ivan Yeo              <ivanyeo@cs.ucla.edu>
 
 ## All project authors and contributors
 
@@ -13,7 +13,9 @@ people who have reported bugs, submitted patches, and implemented new features
 in NFD Android:
 
 * Lixia Zhang           <http://www.cs.ucla.edu/~lixia/>
-* Beichuan Zhang        <http://www.cs.arizona.edu/~bzhang/>
-* Junxiao Shi           <http://www.cs.arizona.edu/people/shijunxiao/>
+* Beichuan Zhang        <https://www.cs.arizona.edu/~bzhang/>
+* Junxiao Shi           <https://www.cs.arizona.edu/people/shijunxiao/>
 * Yi Huang              <ethanhuang1991@gmail.com>
 * Sanjeev Mehrotra      <smehrotra@ucla.edu>
+* Zhou Tang             <https://www.linkedin.com/in/zhoutang>
+* Eric Newberry         <https://www.cs.arizona.edu/~enewberry/>
