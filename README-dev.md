@@ -5,7 +5,7 @@ Developer Notes
 
 Configure `ndk.dir` and `sdk.dir` in `local.properties` file.  For example:
 
-    ndk.dir=/opt/crystax-ndk-10.2.1
+    ndk.dir=/opt/crystax-ndk-10.3.1
     sdk.dir=/opt/android-sdk-macosx
 
 Alternatively, you can set `ANDROID_NDK_ROOT` environment variable to point towards NDK folder.
@@ -16,14 +16,14 @@ Build process can be customized using several environment variables:
 
    If set, the native code is built in debug mode.  For example:
 
-        NDK_DEBUG=1 build assembleDebug
+        NDK_DEBUG=1 ./gradlew assembleDebug
 
 - `NDK_BUILD_ABI=<comma-separated-list-of-platforms>`
 
   If set, the native code is built only for the specified platforms.  For example, the following snippet will build NFD only for x86 platform:
 
         export NDK_BUILD_ABI=x86
-        build assembleDebug
+        ./gradlew assembleDebug
 
 - `NDK_BUILD_PARALLEL=<number>`
 

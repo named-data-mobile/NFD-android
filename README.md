@@ -11,6 +11,7 @@ To compile code, the following is necessary
   and 23.0.2 build tools (for build), android-19 SDK (for compatibility), and several other SDK
   components
 - [CrystalX Android NDK](https://www.crystax.net/en/download) version 10.3.1
+- Prebuilt version of OpenSSL library
 
 Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
 
@@ -36,6 +37,19 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
 
     echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-support,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
     echo "y" | android update sdk --filter "android-19" --no-ui --all --force
+
+To create prebuilt OpenSSL libraries:
+
+    git clone https://github.com/crystax/android-vendor-openssl.git
+    cd crystax-ndk-$CRYSTAX_NDK_VERSION
+    ./build/tools/build-target-openssl.sh ../android-vendor-openssl/
+
+Alternatively, you can use precompiled versions (currently, available for CrystaX NDK 10.3.1 only):
+
+    cd crystax-ndk-10.3.1/sources
+    curl -L -o openssl.tar.gz https://github.com/named-data-mobile/crystax-prebuilt-openssl/archive/crystax-10.3.1.tar.gz
+    tar zx --strip-components 1 -C openssl -f openssl.tar.gz
+    rm openssl.tar.gz
 
 ## Building
 

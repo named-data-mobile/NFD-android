@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014,  Regents of the University of California,
- *                      Arizona Board of Regents,
- *                      Colorado State University,
- *                      University Pierre & Marie Curie, Sorbonne University,
- *                      Washington University in St. Louis,
- *                      Beijing Institute of Technology,
- *                      The University of Memphis
+ * Copyright (c) 2014-2016,  Regents of the University of California,
+ *                           Arizona Board of Regents,
+ *                           Colorado State University,
+ *                           University Pierre & Marie Curie, Sorbonne University,
+ *                           Washington University in St. Louis,
+ *                           Beijing Institute of Technology,
+ *                           The University of Memphis.
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon).
  * See AUTHORS.md for complete list of NFD authors and contributors.
@@ -23,8 +23,8 @@
  * NFD, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NFD_VERSION_HPP
-#define NFD_VERSION_HPP
+#ifndef NFD_CORE_VERSION_HPP
+#define NFD_CORE_VERSION_HPP
 
 namespace nfd {
 
@@ -38,13 +38,13 @@ namespace nfd {
  *
  *  MAJOR*1000000 + MINOR*1000 + PATCH
  */
-#define NFD_VERSION 4000
+#define NFD_VERSION 5000
 
 /** \brief NFD version represented as a string
  *
  *  MAJOR.MINOR.PATCH
  */
-#define NFD_VERSION_STRING "0.4.0"
+#define NFD_VERSION_STRING "0.5.0"
 
 /** \brief NFD version string, including git commit information, if NFD is build from
  *         specific git commit
@@ -60,15 +60,15 @@ namespace nfd {
  *
  * Example, 0.1.0-rc1-1-g5c86570
  */
-#define NFD_VERSION_BUILD_STRING "0.4.0-3-g4100646"
+#define NFD_VERSION_BUILD_STRING "0.5.0"
 
 /// MAJOR version
 #define NFD_VERSION_MAJOR 0
 /// MINOR version
-#define NFD_VERSION_MINOR 4
+#define NFD_VERSION_MINOR 5
 /// PATCH version
 #define NFD_VERSION_PATCH 0
 
 } // namespace nfd
 
-#endif // NFD_VERSION_HPP
+#endif // NFD_CORE_VERSION_HPP

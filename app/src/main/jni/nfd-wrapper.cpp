@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015 Regents of the University of California
+ * Copyright (c) 2015-2016 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -20,7 +20,7 @@
 #include "nfd-wrapper.hpp"
 
 #include "daemon/nfd.hpp"
-#include "rib/nrd.hpp"
+#include "rib/service.hpp"
 
 #include "core/global-io.hpp"
 #include "core/config-file.hpp"
@@ -152,7 +152,7 @@ public:
 
     std::unique_lock<std::mutex> lock(m_pointerMutex);
     m_nfd.reset(new Nfd(m_config, m_keyChain));
-    m_nrd.reset(new rib::Nrd(m_config, m_keyChain));
+    m_nrd.reset(new rib::Service(m_config, m_keyChain));
 
     m_nfd->initialize();
     m_nrd->initialize();
@@ -193,7 +193,7 @@ private:
   boost::asio::io_service* m_io;
   ndn::KeyChain m_keyChain;
   unique_ptr<Nfd> m_nfd; // will use globalIoService
-  unique_ptr<rib::Nrd> m_nrd; // will use globalIoService
+  unique_ptr<rib::Service> m_nrd; // will use globalIoService
 
   nfd::ConfigSection m_config;
 };
