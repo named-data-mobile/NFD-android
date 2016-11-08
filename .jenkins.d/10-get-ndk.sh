@@ -43,3 +43,9 @@ if [ ! -d $NDK ]; then
 fi
 
 echo ndk.dir=`pwd`/$NDK >> local.properties
+
+cd crystax-ndk-$CRYSTAX_NDK_VERSION/sources
+curl -L -o openssl.tar.gz https://github.com/named-data-mobile/crystax-prebuilt-openssl/archive/crystax-$CRYSTAX_NDK_VERSION.tar.gz
+tar zx --strip-components 1 -C openssl -f openssl.tar.gz
+rm openssl.tar.gz
+cd ../..

@@ -30,6 +30,11 @@ echo "y" | android update sdk --filter "android-19" --no-ui --all --force
 
 echo sdk.dir=`pwd`/android-sdk-linux > local.properties
 echo ndk.dir=`pwd`/crystax-ndk-$CRYSTAX_NDK_VERSION >> local.properties
+
+cd crystax-ndk-$CRYSTAX_NDK_VERSION/sources
+curl -L -o openssl.tar.gz https://github.com/named-data-mobile/crystax-prebuilt-openssl/archive/crystax-$CRYSTAX_NDK_VERSION.tar.gz
+tar zx --strip-components 1 -C openssl -f openssl.tar.gz
+rm openssl.tar.gz
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
