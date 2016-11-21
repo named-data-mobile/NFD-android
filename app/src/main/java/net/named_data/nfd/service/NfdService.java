@@ -128,6 +128,7 @@ public class NfdService extends Service {
     G.Log(TAG, "NFDService::onStartCommand()");
 
     serviceStartNfd();
+    createPermanentFaceUriAndRoute();
 
     // Service is restarted when killed.
     // Pending intents delivered; null intent redelivered otherwise.
@@ -184,32 +185,24 @@ public class NfdService extends Service {
       // Keep Service alive; In event when service is started
       // from a Handler's message through binding with the service.
       startService(new Intent(this, NfdService.class));
-
-      // Restore PermanentFaceUriAndRoute once NFD is running
-      onNfdStart(new Runnable() {
-        @Override
-        public void run() {
-          createPermanentFaceUriAndRoute(getApplicationContext());
-        }
-      });
-
       G.Log(TAG, "serviceStartNfd()");
     } else {
       G.Log(TAG, "serviceStartNfd(): NFD Service already running!");
     }
   }
 
-  private void onNfdStart(final Runnable task) {
+  private void createPermanentFaceUriAndRoute() {
     final long checkInterval = 1000;
     if (isNfdRunning()) {
-      G.Log(TAG, "onNfdStart: NFD is running, start executing task.");
-      task.run();
+      G.Log(TAG, "createPermanentFaceUriAndRoute: NFD is running, start executing task.");
+      new FaceCreateAsyncTask(getApplicationContext()).execute();
+      new RouteCreateAsyncTask(getApplicationContext()).execute();
     } else {
-      G.Log(TAG, "onNfdStart: NFD is not started yet, delay " + String.valueOf(checkInterval) + " ms.");
+      G.Log(TAG, "createPermanentFaceUriAndRoute: NFD is not started yet, delay " + String.valueOf(checkInterval) + " ms.");
       m_handler.postDelayed(new Runnable() {
         @Override
         public void run() {
-          onNfdStart(task);
+          createPermanentFaceUriAndRoute();
         }
       }, checkInterval);
     }
@@ -294,15 +287,6 @@ public class NfdService extends Service {
       }
       return null;
     }
-  }
-
-  /**
-   * create all permanent faces and routes in the background
-   * @param ctx: Application Context
-   */
-  public static void createPermanentFaceUriAndRoute(Context ctx) {
-    new FaceCreateAsyncTask(ctx).execute();
-    new RouteCreateAsyncTask(ctx).execute();
   }
 
   /**
