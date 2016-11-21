@@ -24,6 +24,9 @@ local.properties
 .classpath
 .project
 
+# VM file
+.vagrant/.vagrant/
+
 # OSX files
 .DS_Store
 

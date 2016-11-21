@@ -31,10 +31,15 @@
     <string name="route_list_list_of_routes_title">List of Routes</string>
     <string name="route_list_refresh_route_list">Refresh Route List</string>
     <string name="route_list_add_route">Add Route</string>
+    <string name="dialog_add_route_edit_title">Enter prefix and FaceUri to register with NDN daemon</string>
+    <string name="dialog_add_route_edit_prefix_hint">Prefix</string>
+    <string name="dialog_add_route_edit_face_uri_hint">Face URI</string>
+    <string name="dialog_add_route_or_face_as_permanent">Keep it permanent</string>
     <string name="face_list_actions_title">Face List Actions</string>
     <string name="face_list_refresh_face_list">Refresh Face List</string>
-    <string name="face_list_add_face">Add Face</string>
     <string name="face_list_list_of_faces_title">List of Faces</string>
+    <string name="face_list_add_face">Add Face</string>
+    <string name="dialog_add_face_edit_title">Enter FaceUri for the remote NDN daemon</string>
     <string name="fragment_face_details_title">Face Details</string>
     <string name="menu_item_delete_face_item">Delete</string>
     <string name="expire_never">Never</string>

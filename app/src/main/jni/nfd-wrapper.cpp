@@ -293,6 +293,12 @@ Java_net_named_1data_nfd_service_NfdService_stopNfd(JNIEnv*, jclass)
   }
 }
 
+JNIEXPORT jboolean JNICALL
+Java_net_named_1data_nfd_service_NfdService_isNfdRunning(JNIEnv*, jclass)
+{
+    return nfd::g_runner.get() != nullptr;
+}
+
 JNIEXPORT jobject JNICALL
 Java_net_named_1data_nfd_service_NfdService_getNfdLogModules(JNIEnv* env, jclass)
 {

@@ -24,9 +24,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,11 +43,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.types.FaceStatus;
 
+import net.named_data.jndn.Name;
 import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
+import net.named_data.nfd.utils.PermanentFaceUriAndRouteManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -231,9 +236,9 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
 
   @Override
   public void
-  createFace(String faceUri)
+  createFace(String faceUri, boolean isPermanent)
   {
-    m_faceCreateAsyncTask = new FaceCreateAsyncTask(faceUri);
+    m_faceCreateAsyncTask = new FaceCreateAsyncTask(faceUri, isPermanent);
     m_faceCreateAsyncTask.execute();
   }
 
@@ -372,7 +377,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
       NfdcHelper nfdcHelper = new NfdcHelper();
       List<FaceStatus> faceStatusList = null;
       try {
-        faceStatusList = nfdcHelper.faceList();
+        faceStatusList = nfdcHelper.faceList(getActivity().getApplicationContext());
       } catch (Exception e) {
         returnException = e;
       }
@@ -423,16 +428,27 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
 
       NfdcHelper nfdcHelper = new NfdcHelper();
       try {
+        Context context = getActivity().getApplicationContext();
+        SparseArray<FaceStatus> faceSparseArray = nfdcHelper.faceListAsSparseArray(context);
         for (Set<Integer> faces : params) {
           for (int faceId : faces) {
-            nfdcHelper.faceDestroy(faceId);
+            FaceStatus one = faceSparseArray.get(faceId, null);
+            if (null != one){
+              removeRoutesOfFace(nfdcHelper, faceId);
+              // TODO: what if face was saved but is not in the face list? Is it possible?
+              PermanentFaceUriAndRouteManager.deletePermanentFaceUri(
+                  context,
+                  one.getRemoteUri()
+              );
+              PermanentFaceUriAndRouteManager.deletePermanentFaceId(context, faceId);
+              nfdcHelper.faceDestroy(faceId);
+            }
           }
         }
       } catch (Exception e) {
         retval = e;
       }
       nfdcHelper.shutdown();
-
       return retval;
     }
 
@@ -455,15 +471,30 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
       }
       else {
         // Reload face list
-        retrieveFaceList();
+        m_timeoutHandler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            retrieveFaceList();
+          }
+        }, 500);
       }
     }
   }
 
+  private void
+  removeRoutesOfFace(NfdcHelper nfdcHelper, int faceId) throws ManagementException {
+    SparseArray<Set<Name>> faceIdPrefixSparseArray = nfdcHelper.ribAsFaceIdPrefixNameArray();
+    Set<Name> prefixes = faceIdPrefixSparseArray.get(faceId, null);
+    if (null != prefixes){
+      RouteListFragment.removeRouteSyncs(getActivity().getApplicationContext(), faceId, prefixes);
+    }
+  }
+
   private class FaceCreateAsyncTask extends AsyncTask<Void, Void, String> {
-    public FaceCreateAsyncTask(String faceUri)
+    public FaceCreateAsyncTask(String faceUri, boolean isPermanent)
     {
       m_faceUri = faceUri;
+      m_isPermanent = isPermanent;
     }
 
     @Override
@@ -472,7 +503,15 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     {
       try {
         NfdcHelper nfdcHelper = new NfdcHelper();
+        Context context = getActivity().getApplicationContext();
         int faceId = nfdcHelper.faceCreate(m_faceUri);
+        if (m_isPermanent) {
+          PermanentFaceUriAndRouteManager.addPermanentFaceUri(
+                                             context,
+                                             NfdcHelper.formatFaceUri(m_faceUri)
+                                         );
+          PermanentFaceUriAndRouteManager.addPermanentFaceId(context, faceId);
+        }
         nfdcHelper.shutdown();
         return "OK. Face id: " + String.valueOf(faceId);
       }
@@ -514,6 +553,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     ///////////////////////////////////////////////////////////////////////////
 
     private String m_faceUri;
+    private boolean m_isPermanent;
   }
   /////////////////////////////////////////////////////////////////////////
 
@@ -548,4 +588,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
   private ProgressBar m_reloadingListProgressBar;
 
   private FaceListAdapter m_faceListAdapter;
+
+  private Handler m_timeoutHandler = new Handler();
+
 }

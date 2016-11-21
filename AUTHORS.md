@@ -19,3 +19,5 @@ in NFD Android:
 * Sanjeev Mehrotra      <smehrotra@ucla.edu>
 * Zhou Tang             <https://www.linkedin.com/in/zhoutang>
 * Eric Newberry         <https://www.cs.arizona.edu/~enewberry/>
+* Haitao Zhang          <https://irl.cs.ucla.edu/~haitao/>
+* Lei Pi                <lpi@memphis.edu>

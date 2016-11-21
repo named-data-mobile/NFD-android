@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import net.named_data.jndn.Name;
@@ -35,7 +36,7 @@ public class RouteCreateDialogFragment extends DialogFragment
 {
   public static interface OnRouteCreateRequested {
     public void
-    createRoute(Name prefix, String faceUri);
+    createRoute(Name prefix, String faceUri, boolean isPermanent);
   }
 
   public static RouteCreateDialogFragment
@@ -59,7 +60,8 @@ public class RouteCreateDialogFragment extends DialogFragment
           final String prefix = prefixBox.getText().toString();
           final String uri = uriBox.getText().toString();
 
-          ((OnRouteCreateRequested)getTargetFragment()).createRoute(new Name(prefix), uri);
+          CheckBox permanent = (CheckBox) getDialog().findViewById(R.id.permanent);
+          ((OnRouteCreateRequested)getTargetFragment()).createRoute(new Name(prefix), uri, permanent.isChecked());
         }
       })
       .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

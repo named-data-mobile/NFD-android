@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         style="@style/default_dialog_margin"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Enter FaceUri for the remote NDN daemon"
+        android:text="@string/dialog_add_face_edit_title"
         android:layout_gravity="center_horizontal"/>
 
     <EditText
@@ -17,12 +17,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/default_dialog_margin"
-        android:hint="Face URI"
+        android:hint="@string/dialog_add_route_edit_face_uri_hint"
         android:inputType="text"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:selectAllOnFocus="true">
         <requestFocus />
      </EditText>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_add_route_or_face_as_permanent"
+        android:id="@+id/permanent"
+        android:layout_gravity="center_horizontal"
+        android:checked="false" />
 
 </LinearLayout>

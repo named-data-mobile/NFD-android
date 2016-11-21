@@ -28,12 +28,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 public class FaceCreateDialogFragment extends DialogFragment {
   public static interface OnFaceCreateRequested {
     public void
-    createFace(String faceUri);
+    createFace(String faceUri, boolean isPermanent);
   }
 
   public static FaceCreateDialogFragment
@@ -54,7 +55,8 @@ public class FaceCreateDialogFragment extends DialogFragment {
           {
             EditText uriBox = (EditText) getDialog().findViewById(R.id.faceUri);
             String uri = uriBox.getText().toString();
-            ((OnFaceCreateRequested)getTargetFragment()).createFace(uri);
+            CheckBox permanent = (CheckBox) getDialog().findViewById(R.id.permanent);
+            ((OnFaceCreateRequested) getTargetFragment()).createFace(uri, permanent.isChecked());
           }
         })
       .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

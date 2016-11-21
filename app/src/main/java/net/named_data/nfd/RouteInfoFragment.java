@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.enums.RouteFlags;
 import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
@@ -351,7 +352,7 @@ public class RouteInfoFragment extends ListFragment {
       NfdcHelper nfdcHelper = new NfdcHelper();
       List<FaceStatus> faceStatusList = null;
       try {
-        faceStatusList = nfdcHelper.faceList();
+        faceStatusList = nfdcHelper.faceList(getActivity().getApplicationContext());
       } catch (Exception e) {
         returnException = e;
       }
@@ -467,20 +468,11 @@ public class RouteInfoFragment extends ListFragment {
         for (int routeFaceId : m_routeFaceList) {
           nfdcHelper.ribUnregisterPrefix(m_prefix, routeFaceId);
         }
-
         nfdcHelper.shutdown();
         return "OK";
-      }
-      catch (FaceUri.CanonizeError e) {
-        return "Error Destroying dace (" + e.getMessage() + ")";
-      }
-      catch (FaceUri.Error e) {
-        return "Error destroying face (" + e.getMessage() + ")";
-      }
-      catch (Exception e) {
-        return "Error communicating with NFD (" + e.getMessage() + ")";
-      }
-      finally {
+      } catch (ManagementException e) {
+        return "Error removing face: " + e.toString();
+      } finally {
         nfdcHelper.shutdown();
       }
     }

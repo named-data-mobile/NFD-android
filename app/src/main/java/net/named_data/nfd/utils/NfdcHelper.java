@@ -1,33 +1,39 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015 Regents of the University of California
- *
+ * Copyright (c) 2015-2016 Regents of the University of California
+ * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- *
+ * <p>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * <p>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.named_data.nfd.utils;
 
+import android.content.Context;
+import android.util.SparseArray;
+
 import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.Nfdc;
+import com.intel.jndn.management.enums.FacePersistency;
 import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.ForwarderStatus;
 import com.intel.jndn.management.types.RibEntry;
+import com.intel.jndn.management.types.Route;
 
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.ForwardingFlags;
+import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.*;
 import net.named_data.jndn.security.SecurityException;
@@ -37,7 +43,12 @@ import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn_xx.util.FaceUri;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class NfdcHelper
 {
@@ -72,7 +83,11 @@ public class NfdcHelper
    * Registers name to the given faceId or faceUri
    */
   public void
-  ribRegisterPrefix(Name prefix, int faceId, int cost, boolean isChildInherit, boolean isCapture) throws Exception
+  ribRegisterPrefix(Name prefix,
+                    int faceId,
+                    int cost,
+                    boolean isChildInherit,
+                    boolean isCapture) throws Exception
   {
     ForwardingFlags flags = new ForwardingFlags();
     flags.setChildInherit(isChildInherit);
@@ -89,8 +104,7 @@ public class NfdcHelper
    * Unregisters name from the given faceId/faceUri
    */
   public void
-  ribUnregisterPrefix(Name prefix, int faceId) throws Exception
-  {
+  ribUnregisterPrefix(Name prefix, int faceId) throws ManagementException {
     Nfdc.unregister(m_face,
                     new ControlParameters()
                       .setName(prefix)
@@ -101,9 +115,26 @@ public class NfdcHelper
    * List all of routes (RIB entries)
    */
   public List<RibEntry>
-  ribList() throws Exception
-  {
+  ribList() throws ManagementException {
     return Nfdc.getRouteList(m_face);
+  }
+
+  public SparseArray<Set<Name>>
+  ribAsFaceIdPrefixNameArray() throws ManagementException {
+    List<RibEntry> ribEntryList = ribList();
+    SparseArray<Set<Name>> faceIdPrefixArray = new SparseArray<>();
+
+    for (RibEntry rib: ribEntryList){
+      for (Route route : rib.getRoutes()){
+        Set<Name> prefixes = faceIdPrefixArray.get(route.getFaceId(), null);
+        if (null == prefixes){
+          prefixes = new HashSet<>();
+          faceIdPrefixArray.append(route.getFaceId(), prefixes);
+        }
+        prefixes.add(rib.getName());
+      }
+    }
+    return faceIdPrefixArray;
   }
 
   /**
@@ -114,7 +145,7 @@ public class NfdcHelper
   public int
   faceCreate(String faceUri) throws ManagementException, FaceUri.Error, FaceUri.CanonizeError
   {
-    return Nfdc.createFace(m_face, new FaceUri(faceUri).canonize().toString());
+    return Nfdc.createFace(m_face, formatFaceUri(faceUri));
   }
 
   /**
@@ -130,9 +161,42 @@ public class NfdcHelper
    * List all faces
    */
   public List<FaceStatus>
-  faceList() throws Exception
+  faceList(Context context) throws ManagementException
   {
-    return Nfdc.getFaceList(m_face);
+    List<FaceStatus> result = Nfdc.getFaceList(m_face);
+    for(FaceStatus one : result) {
+      if(PermanentFaceUriAndRouteManager.isPermanentFace(context, one.getFaceId())) {
+        one.setFacePersistency(FacePersistency.PERMANENT);
+      }
+    }
+    return result;
+  }
+
+  public SparseArray<FaceStatus>
+  faceListAsSparseArray(Context context) throws ManagementException {
+    List<FaceStatus> faceList = faceList(context);
+    SparseArray<FaceStatus> array = new SparseArray<>();
+    for (FaceStatus face : faceList){
+      array.append(face.getFaceId(), face);
+    }
+    return array;
+  }
+
+  public Map<String, FaceStatus>
+  faceListAsFaceUriMap(Context context) throws ManagementException{
+    List<FaceStatus> faceList = faceList(context);
+    Map<String, FaceStatus> map = new HashMap<>();
+    for (FaceStatus face: faceList){
+      map.put(face.getRemoteUri(), face);
+    }
+    return map;
+  }
+
+  /**
+   * format a faceUri
+   */
+  public static String formatFaceUri(String faceUri) throws FaceUri.CanonizeError {
+    return new FaceUri(faceUri).canonize().toString();
   }
 
 //  /**

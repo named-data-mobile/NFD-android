@@ -20,17 +20,21 @@
 package net.named_data.nfd.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import net.named_data.jndn.Name;
 import net.named_data.nfd.utils.G;
+import net.named_data.nfd.utils.NfdcHelper;
+import net.named_data.nfd.utils.PermanentFaceUriAndRouteManager;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,6 +90,13 @@ public class NfdService extends Service {
   public native static void
   stopNfd();
 
+  /**
+   * Native API for getting NFD status
+   * @return if NFD is running return true; otherwise false.
+   */
+  public native static boolean
+  isNfdRunning();
+
   public native static List<String>
   getNfdLogModules();
 
@@ -101,17 +112,20 @@ public class NfdService extends Service {
   /** Message to indicate that NFD Service is not running */
   public static final int NFD_SERVICE_STOPPED = 4;
 
+  /** debug tag */
+  public static final String TAG = NfdService.class.getName();
+
 
   @Override
   public void onCreate() {
-    G.Log("NFDService::onCreate()");
+    G.Log(TAG, "NFDService::onCreate()");
     m_nfdServiceMessenger = new Messenger(new NfdServiceMessageHandler());
   }
 
   @Override
   public int
   onStartCommand(Intent intent, int flags, int startId) {
-    G.Log("NFDService::onStartCommand()");
+    G.Log(TAG, "NFDService::onStartCommand()");
 
     serviceStartNfd();
 
@@ -171,9 +185,33 @@ public class NfdService extends Service {
       // from a Handler's message through binding with the service.
       startService(new Intent(this, NfdService.class));
 
-      G.Log("serviceStartNfd()");
+      // Restore PermanentFaceUriAndRoute once NFD is running
+      onNfdStart(new Runnable() {
+        @Override
+        public void run() {
+          createPermanentFaceUriAndRoute(getApplicationContext());
+        }
+      });
+
+      G.Log(TAG, "serviceStartNfd()");
     } else {
-      G.Log("serviceStartNfd(): NFD Service already running!");
+      G.Log(TAG, "serviceStartNfd(): NFD Service already running!");
+    }
+  }
+
+  private void onNfdStart(final Runnable task) {
+    final long checkInterval = 1000;
+    if (isNfdRunning()) {
+      G.Log(TAG, "onNfdStart: NFD is running, start executing task.");
+      task.run();
+    } else {
+      G.Log(TAG, "onNfdStart: NFD is not started yet, delay " + String.valueOf(checkInterval) + " ms.");
+      m_handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          onNfdStart(task);
+        }
+      }, checkInterval);
     }
   }
 
@@ -188,10 +226,83 @@ public class NfdService extends Service {
 
       // TODO: Save NFD and NRD in memory data structures.
       stopNfd();
-
+      PermanentFaceUriAndRouteManager.clearFaceIds(getApplicationContext());
       stopSelf();
-      G.Log("serviceStopNfd()");
+      G.Log(TAG, "serviceStopNfd()");
     }
+  }
+
+
+  /**
+   * Create all permanent faces in the background
+   */
+  private static class FaceCreateAsyncTask extends AsyncTask<Void, Void, String> {
+    Context context;
+
+    FaceCreateAsyncTask(Context ctx) {
+      this.context = ctx;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        G.Log(TAG, "Try to create permanent face");
+        Set<String> permanentFace = PermanentFaceUriAndRouteManager.getPermanentFaceUris(this.context);
+        G.Log(TAG, "Permanent face list has " + permanentFace.size() + " item(s)");
+        for (String one : permanentFace) {
+          int faceId = nfdcHelper.faceCreate(one);
+          PermanentFaceUriAndRouteManager.addPermanentFaceId(this.context, faceId);
+          G.Log(TAG, "Create permanent face " + one);
+        }
+      } catch (Exception e) {
+        G.Log(TAG, "Error in FaceCreateAsyncTask: " + e.getMessage());
+      } finally {
+        nfdcHelper.shutdown();
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Create all permanent routes in the background
+   */
+  private static class RouteCreateAsyncTask extends AsyncTask<Void, Void, String> {
+    Context context;
+    RouteCreateAsyncTask(Context ctx) {
+      this.context = ctx;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        G.Log(TAG, "Try to create permanent route");
+        Set<String[]> prefixAndFacePairs = PermanentFaceUriAndRouteManager.getPermanentRoutes(this.context);
+        G.Log(TAG, "Permanent face list has " + prefixAndFacePairs.size() + " item(s)");
+        for (String[] prefixAndFaceUri : prefixAndFacePairs) {
+          int faceId = nfdcHelper.faceCreate(prefixAndFaceUri[1]);
+          nfdcHelper.ribRegisterPrefix(new Name(prefixAndFaceUri[0]), faceId, 10, true, false);
+          G.Log(TAG, "Create permanent route" + prefixAndFaceUri[0] + " - " + prefixAndFaceUri[1]);
+        }
+      } catch (Exception e) {
+        G.Log(TAG, "Error in RouteCreateAsyncTask: " + e.getMessage());
+      } finally {
+        nfdcHelper.shutdown();
+      }
+      return null;
+    }
+  }
+
+  /**
+   * create all permanent faces and routes in the background
+   * @param ctx: Application Context
+   */
+  public static void createPermanentFaceUriAndRoute(Context ctx) {
+    new FaceCreateAsyncTask(ctx).execute();
+    new RouteCreateAsyncTask(ctx).execute();
   }
 
   /**
@@ -233,4 +344,7 @@ public class NfdService extends Service {
 
   /** Flag that denotes if the NFD has been started */
   private boolean m_isNfdStarted = false;
+
+  /** Handler to deal with timeout behaviors */
+  private Handler m_handler = new Handler();
 }
