@@ -17,6 +17,7 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
 
     CRYSTAX_NDK_VERSION=10.3.1
     SDK_VERSION=24.4.1
+    OPENSSL_VERSION=1.0.2h
 
     BUILD_TOOLS_VERSION=23.0.2
     COMPILE_SDK_VERSION=23
@@ -43,6 +44,7 @@ To create prebuilt OpenSSL libraries:
     git clone https://github.com/crystax/android-vendor-openssl.git
     cd crystax-ndk-$CRYSTAX_NDK_VERSION
     ./build/tools/build-target-openssl.sh ../android-vendor-openssl/
+    cp sources/openssl/1.0.1p/Android.mk -o sources/openssl/$OPENSSL_VERSION/Android.mk
 
 Alternatively, you can use precompiled versions (currently, available for CrystaX NDK 10.3.1 only):
 
