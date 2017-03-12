@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -26,6 +26,7 @@ import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.Nfdc;
 import com.intel.jndn.management.enums.FacePersistency;
 import com.intel.jndn.management.types.FaceStatus;
+import com.intel.jndn.management.types.FibEntry;
 import com.intel.jndn.management.types.ForwarderStatus;
 import com.intel.jndn.management.types.RibEntry;
 import com.intel.jndn.management.types.Route;
@@ -33,9 +34,8 @@ import com.intel.jndn.management.types.Route;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.ForwardingFlags;
-import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.security.*;
+import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -45,7 +45,6 @@ import net.named_data.jndn_xx.util.FaceUri;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,11 +111,23 @@ public class NfdcHelper
   }
 
   /**
+   * Unregisters prefix
+   */
+  public void
+  ribUnregisterPrefix(Name prefix) throws ManagementException {
+    Nfdc.unregister(m_face, prefix);
+  }
+
+  /**
    * List all of routes (RIB entries)
    */
   public List<RibEntry>
   ribList() throws ManagementException {
     return Nfdc.getRouteList(m_face);
+  }
+
+  public List<FibEntry> fibList() throws ManagementException {
+    return Nfdc.getFibList(m_face);
   }
 
   public SparseArray<Set<Name>>
@@ -170,6 +181,17 @@ public class NfdcHelper
       }
     }
     return result;
+  }
+
+  /**
+   * List all faces
+   * @return
+   * @throws ManagementException
+   */
+  public List<FaceStatus>
+  faceList() throws ManagementException
+  {
+    return Nfdc.getFaceList(m_face);
   }
 
   public SparseArray<FaceStatus>

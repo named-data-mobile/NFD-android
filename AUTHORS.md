@@ -14,10 +14,11 @@ in NFD Android:
 
 * Lixia Zhang           <http://www.cs.ucla.edu/~lixia/>
 * Beichuan Zhang        <https://www.cs.arizona.edu/~bzhang/>
+* Allen Gong            <https://www.linkedin.com/in/allen-gong-a3407572/>
+* Haitao Zhang          <https://irl.cs.ucla.edu/~haitao/>
 * Junxiao Shi           <https://www.cs.arizona.edu/people/shijunxiao/>
 * Yi Huang              <ethanhuang1991@gmail.com>
 * Sanjeev Mehrotra      <smehrotra@ucla.edu>
 * Zhou Tang             <https://www.linkedin.com/in/zhoutang>
 * Eric Newberry         <https://www.cs.arizona.edu/~enewberry/>
-* Haitao Zhang          <https://irl.cs.ucla.edu/~haitao/>
 * Lei Pi                <lpi@memphis.edu>

@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -32,6 +32,7 @@ import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 
 import net.named_data.nfd.utils.G;
+import net.named_data.nfd.wifidirect.utils.NDNController;
 
 import java.util.ArrayList;
 
@@ -44,6 +45,7 @@ public class MainActivity extends ActionBarActivity
                FaceListFragment.Callbacks,
                RouteListFragment.Callbacks
 {
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -70,6 +72,11 @@ public class MainActivity extends ActionBarActivity
       //                                            DRAWER_ITEM_STRATEGIES));
       items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_logcat, 0,
                                               DRAWER_ITEM_LOGCAT));
+      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_wifidirect, 0, DRAWER_ITEM_WIFIDIRECT));
+
+      // TODO here we are preloading the NDNController singleton to avoid UI slowdown
+      // it is due to building a test keychain: See NDNController.getInstance()
+      NDNController.getInstance();
 
       m_drawerFragment = DrawerFragment.newInstance(items);
 
@@ -157,6 +164,9 @@ public class MainActivity extends ActionBarActivity
         case DRAWER_ITEM_LOGCAT:
           fragment = LogcatFragment.newInstance();
           break;
+        case DRAWER_ITEM_WIFIDIRECT:
+          fragment = WiFiDirectFragment.newInstance();
+          break;
         default:
           // Invalid; Nothing else needs to be done
           return;
@@ -202,4 +212,5 @@ public class MainActivity extends ActionBarActivity
   public static final int DRAWER_ITEM_PING = 4;
   //public static final int DRAWER_ITEM_STRATEGIES = 4;
   public static final int DRAWER_ITEM_LOGCAT = 5;
+  public static final int DRAWER_ITEM_WIFIDIRECT = 6;
 }
