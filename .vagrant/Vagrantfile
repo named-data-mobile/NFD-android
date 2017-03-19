@@ -4,6 +4,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 $script = <<SCRIPT
+sudo apt-get update
 
 CRYSTAX_NDK_VERSION=10.3.1
 
@@ -25,14 +26,14 @@ rm android-sdk_r$SDK_VERSION-linux.tgz
 export ANDROID_HOME=`pwd`/android-sdk-linux
 export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 
-echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-support,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
+echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
 echo "y" | android update sdk --filter "android-19" --no-ui --all --force
 
 echo sdk.dir=`pwd`/android-sdk-linux > local.properties
 echo ndk.dir=`pwd`/crystax-ndk-$CRYSTAX_NDK_VERSION >> local.properties
 
 cd crystax-ndk-$CRYSTAX_NDK_VERSION/sources
-curl -L -o openssl.tar.gz https://github.com/named-data-mobile/crystax-prebuilt-openssl/archive/crystax-$CRYSTAX_NDK_VERSION.tar.gz
+curl -s -L -o openssl.tar.gz https://github.com/named-data-mobile/crystax-prebuilt-openssl/archive/crystax-$CRYSTAX_NDK_VERSION.tar.gz
 tar zx --strip-components 1 -C openssl -f openssl.tar.gz
 rm openssl.tar.gz
 SCRIPT

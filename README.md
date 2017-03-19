@@ -36,7 +36,7 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
     export ANDROID_HOME=`pwd`/android-sdk-linux
     export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 
-    echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-support,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
+    echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
     echo "y" | android update sdk --filter "android-19" --no-ui --all --force
 
 To create prebuilt OpenSSL libraries:
