@@ -1,3 +1,16 @@
+NFD-Android version 0.2.3
+-------------------------
+
+- WiFi Direct connectivity helper
+- NDN ping client
+- Permanent face and route management mechanisms
+
+NFD-Android version 0.2.2
+-------------------------
+
+- NFD updated to version 0.5.0
+- Add route deletion GUI
+
 NFD-Android version 0.2.1
 -------------------------
 
