@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -57,7 +57,9 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
   onChange(Context context, NetworkInfo networkInfo) {
     if (networkInfo.isConnected()) {
       G.Log(TAG, "Network is connected");
-      // (re-)start service, triggering (re-)creation of permanent faces and routes
+      // (re-)start service,
+      // (1)triggering (re-)creation of permanent faces and routes
+      // (2)triggering (re-)connection to nearest hub
       context.startService(new Intent(context, NfdService.class));
     }
   }

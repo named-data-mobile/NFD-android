@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -50,7 +50,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
-import net.named_data.nfd.utils.PermanentFaceUriAndRouteManager;
+import net.named_data.nfd.utils.SharedPreferencesManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -436,11 +436,11 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
             if (null != one){
               removeRoutesOfFace(nfdcHelper, faceId);
               // TODO: what if face was saved but is not in the face list? Is it possible?
-              PermanentFaceUriAndRouteManager.deletePermanentFaceUri(
+              SharedPreferencesManager.deletePermanentFaceUri(
                   context,
                   one.getRemoteUri()
               );
-              PermanentFaceUriAndRouteManager.deletePermanentFaceId(context, faceId);
+              SharedPreferencesManager.deletePermanentFaceId(context, faceId);
               nfdcHelper.faceDestroy(faceId);
             }
           }
@@ -506,11 +506,11 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
         Context context = getActivity().getApplicationContext();
         int faceId = nfdcHelper.faceCreate(m_faceUri);
         if (m_isPermanent) {
-          PermanentFaceUriAndRouteManager.addPermanentFaceUri(
+          SharedPreferencesManager.addPermanentFaceUri(
                                              context,
                                              NfdcHelper.formatFaceUri(m_faceUri)
                                          );
-          PermanentFaceUriAndRouteManager.addPermanentFaceId(context, faceId);
+          SharedPreferencesManager.addPermanentFaceId(context, faceId);
         }
         nfdcHelper.shutdown();
         return "OK. Face id: " + String.valueOf(faceId);

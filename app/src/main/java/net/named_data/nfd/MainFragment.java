@@ -41,18 +41,34 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.types.ForwarderStatus;
+import com.intel.jndn.management.types.RibEntry;
 
+import net.named_data.jndn.Name;
 import net.named_data.nfd.service.NfdService;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
+import net.named_data.nfd.utils.SharedPreferencesManager;
 import net.named_data.nfd.wifidirect.utils.NDNController;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
+import java.util.List;
+
 public class MainFragment extends Fragment {
+  public static final String URI_UDP_PREFIX = "udp://";
+  public static final String PREFIX_NDN = "/";
+  public static final String PREFIX_LOCALHOP_NFD = "/localhop/nfd";
 
   public static MainFragment newInstance() {
     // Create fragment arguments here (if necessary)
@@ -88,6 +104,24 @@ public class MainFragment extends Fragment {
       }
     });
 
+    m_connectNearestHubSwitch = (Switch) v.findViewById(R.id.connect_nearest_hub_switch);
+    if (SharedPreferencesManager.getConnectNearestHubAutomatically(getActivity().getApplicationContext())) {
+      m_connectNearestHubSwitch.setChecked(true);
+    }
+    m_connectNearestHubSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton compoundButton, boolean isOn) {
+        SharedPreferencesManager.
+          setConnectNearestHubAutomatically(getActivity().getApplicationContext(), isOn);
+        if (isOn) {
+          // when nfd service is running, connect NDN hub, otherwise, do nothing
+          if(m_sharedPreferences.getBoolean(PREF_NFD_SERVICE_STATUS, true)) {
+            connectNearestHub();
+          }
+        }
+      }
+    });
+
     m_nfdStatusView = (ViewGroup) v.findViewById(R.id.status_view);
     m_nfdStatusView.setVisibility(View.GONE);
     m_versionView = (TextView) v.findViewById(R.id.version);
@@ -105,6 +139,14 @@ public class MainFragment extends Fragment {
     m_outNacksView = (TextView) v.findViewById(R.id.out_nacks);
 
     return v;
+  }
+
+  /**
+   * when the user clicks "connect to the nearest hub automatically", create face and register prefix
+   */
+  private void connectNearestHub() {
+    m_connectNearestHubAsyncTask = new ConnectNearestHubAsyncTask();
+    m_connectNearestHubAsyncTask.execute();
   }
 
   @Override
@@ -360,6 +402,91 @@ public class MainFragment extends Fragment {
     }
   }
 
+
+  private class ConnectNearestHubAsyncTask extends AsyncTask<Void, Void, String> {
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      //check whether two prefixes exist or not
+      boolean prefix_ndn_exist = false;
+      boolean prefix_localhop_nfd_exist = false;
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        List<RibEntry> ribEntries = nfdcHelper.ribList();
+        for (RibEntry one : ribEntries) {
+          if (one.getName().toUri().equals(PREFIX_NDN)) {
+            prefix_ndn_exist = true;
+          }
+
+          if (one.getName().toUri().equals(PREFIX_LOCALHOP_NFD)) {
+            prefix_localhop_nfd_exist = true;
+          }
+        }
+      } catch (ManagementException e) {
+        G.Log("Error fetching RIB list from NFD (" + e.getMessage() + ")");
+      } finally {
+        nfdcHelper.shutdown();
+      }
+      if (prefix_ndn_exist && prefix_localhop_nfd_exist)
+        return "";
+      final boolean prefix_ndn_exist_inner = prefix_ndn_exist;
+      final boolean prefix_localhop_nfd_exist_inner = prefix_localhop_nfd_exist;
+      //register prefixes if they don't exist
+      RequestQueue queue = Volley.newRequestQueue(getContext());
+      StringRequest stringRequest = new StringRequest(Request.Method.GET,
+        getResources().getString(R.string.ndn_fch_website),
+        new Response.Listener<String>() {
+          @Override
+          public void onResponse(String response) {
+            if (!prefix_ndn_exist_inner)
+              new RouteCreateToConnectNearestHubAsyncTask(
+                new Name(PREFIX_NDN), URI_UDP_PREFIX + response).execute();
+            if (!prefix_localhop_nfd_exist_inner)
+              new RouteCreateToConnectNearestHubAsyncTask(
+                new Name(PREFIX_LOCALHOP_NFD), URI_UDP_PREFIX + response).execute();
+          }
+        },
+        new Response.ErrorListener() {
+          @Override
+          public void onErrorResponse(VolleyError error) {
+            String toastString = getResources().getString(R.string.fragment_route_list_toast_cannot_connect_hub);
+            Toast.makeText(getActivity(), toastString, Toast.LENGTH_LONG).show();
+          }
+        });
+      // Add the request to the RequestQueue.
+      queue.add(stringRequest);
+      return "";
+    }
+  }
+
+  private class RouteCreateToConnectNearestHubAsyncTask extends AsyncTask<Void, Void, String> {
+    RouteCreateToConnectNearestHubAsyncTask(Name prefix, String faceUri) {
+      m_prefix = prefix;
+      m_faceUri = faceUri;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        G.Log("Try to create route to connect the nearest hub");
+        int faceId = nfdcHelper.faceCreate(m_faceUri);
+        nfdcHelper.ribRegisterPrefix(m_prefix, faceId, 10, true, false);
+        G.Log("Create permanent route" + m_prefix + " - " + m_faceUri);
+      } catch (Exception e) {
+        G.Log("Error in RouteCreateToConnectNearestHubAsyncTask: " + e.getMessage());
+      } finally {
+        nfdcHelper.shutdown();
+      }
+      return null;
+    }
+
+    private Name m_prefix;
+    private String m_faceUri;
+  }
+
   //////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -368,9 +495,16 @@ public class MainFragment extends Fragment {
   private Switch m_nfdStartStopSwitch;
 
   /**
+   * Button that starts and stops the auto configuration
+   */
+  private Switch m_connectNearestHubSwitch;
+
+  /**
    * Flag that marks that application is connected to the NfdService
    */
   private boolean m_isNfdServiceConnected = false;
+
+  private ConnectNearestHubAsyncTask m_connectNearestHubAsyncTask;
 
   /**
    * Client Message Handler
@@ -412,4 +546,6 @@ public class MainFragment extends Fragment {
   private SharedPreferences m_sharedPreferences;
 
   private static final String PREF_NFD_SERVICE_STATUS = "NFD_SERVICE_STATUS";
+
+  private static final String CONNECT_NEAREST_HUB_STATUS = "CONNECT_NEAREST_HUB_STATUS";
 }

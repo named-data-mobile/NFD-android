@@ -1,18 +1,18 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2015-2017 Regents of the University of California
- *
+ * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- *
+ * <p>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * <p>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,10 +29,21 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.intel.jndn.management.ManagementException;
+import com.intel.jndn.management.types.RibEntry;
+
 import net.named_data.jndn.Name;
+import net.named_data.nfd.MainFragment;
+import net.named_data.nfd.R;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
-import net.named_data.nfd.utils.PermanentFaceUriAndRouteManager;
+import net.named_data.nfd.utils.SharedPreferencesManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,11 +52,10 @@ import java.util.Set;
 
 /**
  * NfdService that runs the native NFD.
- *
+ * <p>
  * NfdService runs as an independent process within the Android OS that provides
  * service level features to start and stop the NFD native code through the
  * NFD JNI wrapper.
- *
  */
 public class NfdService extends Service {
   /**
@@ -91,6 +101,7 @@ public class NfdService extends Service {
 
   /**
    * Native API for getting NFD status
+   *
    * @return if NFD is running return true; otherwise false.
    */
   public native static boolean
@@ -99,19 +110,29 @@ public class NfdService extends Service {
   public native static List<String>
   getNfdLogModules();
 
-  /** Message to start NFD Service */
+  /**
+   * Message to start NFD Service
+   */
   public static final int START_NFD_SERVICE = 1;
 
-  /** Message to stop NFD Service */
+  /**
+   * Message to stop NFD Service
+   */
   public static final int STOP_NFD_SERVICE = 2;
 
-  /** Message to indicate that NFD Service is running */
+  /**
+   * Message to indicate that NFD Service is running
+   */
   public static final int NFD_SERVICE_RUNNING = 3;
 
-  /** Message to indicate that NFD Service is not running */
+  /**
+   * Message to indicate that NFD Service is not running
+   */
   public static final int NFD_SERVICE_STOPPED = 4;
 
-  /** debug tag */
+  /**
+   * debug tag
+   */
   public static final String TAG = NfdService.class.getName();
 
 
@@ -128,6 +149,7 @@ public class NfdService extends Service {
 
     serviceStartNfd();
     createPermanentFaceUriAndRoute();
+    connectToNeareastHub();
 
     // Service is restarted when killed.
     // Pending intents delivered; null intent redelivered otherwise.
@@ -169,7 +191,7 @@ public class NfdService extends Service {
       m_isNfdStarted = true;
       HashMap<String, String> params = new HashMap<>();
       params.put("homePath", getFilesDir().getAbsolutePath());
-      Set<Map.Entry<String,String>> e = params.entrySet();
+      Set<Map.Entry<String, String>> e = params.entrySet();
 
       startNfd(params);
 
@@ -207,6 +229,22 @@ public class NfdService extends Service {
     }
   }
 
+  private void connectToNeareastHub() {
+    final long checkInterval = 1000;
+    if (isNfdRunning()) {
+      G.Log(TAG, "connectToNeareastHub: NFD is running, start executing task.");
+      new ConnectNearestHubAsyncTask(getApplicationContext()).execute();
+    } else {
+      G.Log(TAG, "connectToNeareastHub: NFD is not started yet, delay " + String.valueOf(checkInterval) + " ms.");
+      m_handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          connectToNeareastHub();
+        }
+      }, checkInterval);
+    }
+  }
+
   /**
    * Thread safe way of stopping the NFD and updating the
    * started flag.
@@ -218,7 +256,7 @@ public class NfdService extends Service {
 
       // TODO: Save NFD and NRD in memory data structures.
       stopNfd();
-      PermanentFaceUriAndRouteManager.clearFaceIds(getApplicationContext());
+      SharedPreferencesManager.clearFaceIds(getApplicationContext());
       stopSelf();
       G.Log(TAG, "serviceStopNfd()");
     }
@@ -241,11 +279,11 @@ public class NfdService extends Service {
       NfdcHelper nfdcHelper = new NfdcHelper();
       try {
         G.Log(TAG, "Try to create permanent face");
-        Set<String> permanentFace = PermanentFaceUriAndRouteManager.getPermanentFaceUris(this.context);
+        Set<String> permanentFace = SharedPreferencesManager.getPermanentFaceUris(this.context);
         G.Log(TAG, "Permanent face list has " + permanentFace.size() + " item(s)");
         for (String one : permanentFace) {
           int faceId = nfdcHelper.faceCreate(one);
-          PermanentFaceUriAndRouteManager.addPermanentFaceId(this.context, faceId);
+          SharedPreferencesManager.addPermanentFaceId(this.context, faceId);
           G.Log(TAG, "Create permanent face " + one);
         }
       } catch (Exception e) {
@@ -262,6 +300,7 @@ public class NfdService extends Service {
    */
   private static class RouteCreateAsyncTask extends AsyncTask<Void, Void, String> {
     Context context;
+
     RouteCreateAsyncTask(Context ctx) {
       this.context = ctx;
     }
@@ -272,7 +311,7 @@ public class NfdService extends Service {
       NfdcHelper nfdcHelper = new NfdcHelper();
       try {
         G.Log(TAG, "Try to create permanent route");
-        Set<String[]> prefixAndFacePairs = PermanentFaceUriAndRouteManager.getPermanentRoutes(this.context);
+        Set<String[]> prefixAndFacePairs = SharedPreferencesManager.getPermanentRoutes(this.context);
         G.Log(TAG, "Permanent face list has " + prefixAndFacePairs.size() + " item(s)");
         for (String[] prefixAndFaceUri : prefixAndFacePairs) {
           int faceId = nfdcHelper.faceCreate(prefixAndFaceUri[1]);
@@ -288,6 +327,100 @@ public class NfdService extends Service {
     }
   }
 
+  private static class RouteCreateToConnectNearestHubAsyncTask extends AsyncTask<Void, Void, String> {
+    RouteCreateToConnectNearestHubAsyncTask(Name prefix, String faceUri) {
+      m_prefix = prefix;
+      m_faceUri = faceUri;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        G.Log(TAG, "Try to create route to connect the nearest hub");
+        int faceId = nfdcHelper.faceCreate(m_faceUri);
+        nfdcHelper.ribRegisterPrefix(m_prefix, faceId, 10, true, false);
+        G.Log(TAG, "Create permanent route" + m_prefix + " - " + m_faceUri);
+      } catch (Exception e) {
+        G.Log(TAG, "Error in RouteCreateToConnectNearestHubAsyncTask: " + e.getMessage());
+      } finally {
+        nfdcHelper.shutdown();
+      }
+      return null;
+    }
+
+    private Name m_prefix;
+    private String m_faceUri;
+  }
+
+  private static class ConnectNearestHubAsyncTask extends AsyncTask<Void, Void, String> {
+    Context context;
+
+    ConnectNearestHubAsyncTask(Context ctx) {
+      this.context = ctx;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      G.Log(TAG, "Try to connect to the nearest hub");
+      if (SharedPreferencesManager.getConnectNearestHubAutomatically(context)) {
+        NfdcHelper nfdcHelper = new NfdcHelper();
+        try {
+          //check whether two prefixes exist or not
+          boolean prefix_ndn_exist = false;
+          boolean prefix_localhop_nfd_exist = false;
+          List<RibEntry> ribEntries = nfdcHelper.ribList();
+          for (RibEntry one : ribEntries) {
+            if (one.getName().toUri().equals(MainFragment.PREFIX_NDN)) {
+              prefix_ndn_exist = true;
+            }
+
+            if (one.getName().toUri().equals(MainFragment.PREFIX_LOCALHOP_NFD)) {
+              prefix_localhop_nfd_exist = true;
+            }
+          }
+
+          //register prefixes if they don't exist
+          if (!prefix_ndn_exist || !prefix_localhop_nfd_exist) {
+            final boolean prefix_ndn_exist_inner = prefix_ndn_exist;
+            final boolean prefix_localhop_nfd_exist_inner = prefix_localhop_nfd_exist;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET,
+              context.getResources().getString(R.string.ndn_fch_website),
+              new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                  if (!prefix_ndn_exist_inner) {
+                    new RouteCreateToConnectNearestHubAsyncTask(
+                      new Name(MainFragment.PREFIX_NDN), MainFragment.URI_UDP_PREFIX + response).execute();
+                  }
+                  if (!prefix_localhop_nfd_exist_inner) {
+                    new RouteCreateToConnectNearestHubAsyncTask(
+                      new Name(MainFragment.PREFIX_LOCALHOP_NFD), MainFragment.URI_UDP_PREFIX + response).execute();
+                  }
+                }
+              },
+              new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                  G.Log("cannot connect to the nearest hub");
+                }
+              });
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+          }
+        } catch (ManagementException e) {
+          G.Log(TAG, "Error in ConnectNearestHubAsyncTask: " + e.getMessage());
+        } finally {
+          nfdcHelper.shutdown();
+        }
+      }
+      return null;
+    }
+  }
+
   /**
    * Message handler for the the NFD Service.
    */
@@ -296,19 +429,19 @@ public class NfdService extends Service {
     @Override
     public void handleMessage(Message message) {
       switch (message.what) {
-      case NfdService.START_NFD_SERVICE:
-        serviceStartNfd();
-        replyToClient(message, NfdService.NFD_SERVICE_RUNNING);
-        break;
+        case NfdService.START_NFD_SERVICE:
+          serviceStartNfd();
+          replyToClient(message, NfdService.NFD_SERVICE_RUNNING);
+          break;
 
-      case NfdService.STOP_NFD_SERVICE:
-        serviceStopNfd();
-        replyToClient(message, NfdService.NFD_SERVICE_STOPPED);
-        break;
+        case NfdService.STOP_NFD_SERVICE:
+          serviceStopNfd();
+          replyToClient(message, NfdService.NFD_SERVICE_STOPPED);
+          break;
 
-      default:
-        super.handleMessage(message);
-        break;
+        default:
+          super.handleMessage(message);
+          break;
       }
     }
 
@@ -322,12 +455,18 @@ public class NfdService extends Service {
     }
   }
 
-  /** Messenger to handle messages that are passed to the NfdService */
+  /**
+   * Messenger to handle messages that are passed to the NfdService
+   */
   private Messenger m_nfdServiceMessenger = null;
 
-  /** Flag that denotes if the NFD has been started */
+  /**
+   * Flag that denotes if the NFD has been started
+   */
   private boolean m_isNfdStarted = false;
 
-  /** Handler to deal with timeout behaviors */
+  /**
+   * Handler to deal with timeout behaviors
+   */
   private Handler m_handler = new Handler();
 }

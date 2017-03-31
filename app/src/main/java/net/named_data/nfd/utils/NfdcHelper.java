@@ -176,7 +176,7 @@ public class NfdcHelper
   {
     List<FaceStatus> result = Nfdc.getFaceList(m_face);
     for(FaceStatus one : result) {
-      if(PermanentFaceUriAndRouteManager.isPermanentFace(context, one.getFaceId())) {
+      if(SharedPreferencesManager.isPermanentFace(context, one.getFaceId())) {
         one.setFacePersistency(FacePersistency.PERMANENT);
       }
     }

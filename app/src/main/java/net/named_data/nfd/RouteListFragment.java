@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -19,7 +19,9 @@
 
 package net.named_data.nfd;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,15 +35,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 
 import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.types.FaceStatus;
@@ -52,7 +52,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
-import net.named_data.nfd.utils.PermanentFaceUriAndRouteManager;
+import net.named_data.nfd.utils.SharedPreferencesManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,11 +75,10 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
   @Override
-  public void onAttach(Context context)
-  {
+  public void onAttach(Context context) {
     super.onAttach(context);
     try {
-      m_callbacks = (Callbacks)context;
+      m_callbacks = (Callbacks) context;
     } catch (Exception e) {
       G.Log("Hosting activity must implement this fragment's callbacks: " + e);
     }
@@ -111,22 +110,21 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
         final RibEntry entry = (RibEntry) parent.getItemAtPosition(position);
         ;
         new AlertDialog.Builder(v.getContext())
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .setTitle("Deleting route")
-            .setMessage("Are you sure you want to delete " + entry.getName().toUri() + "?")
-            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                List<Integer> faceList = new ArrayList<>();
-                for (Route r : entry.getRoutes()) {
-                  faceList.add(r.getFaceId());
-                }
-                removeRoute(entry.getName(), faceList);
-                Toast.makeText(getActivity(), "Route Deleted", Toast.LENGTH_LONG).show();
+          .setIcon(android.R.drawable.ic_dialog_alert)
+          .setTitle("Deleting route")
+          .setMessage("Are you sure you want to delete " + entry.getName().toUri() + "?")
+          .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              List<Integer> faceList = new ArrayList<>();
+              for (Route r : entry.getRoutes()) {
+                faceList.add(r.getFaceId());
               }
-            })
-            .setNegativeButton("No", null)
-            .show();
+              removeRoute(entry.getName(), faceList);
+            }
+          })
+          .setNegativeButton("No", null)
+          .show();
 
 
         return true;
@@ -221,10 +219,10 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
                      FaceStatus face,
                      Name prefix) throws ManagementException {
     nfdcHelper.ribUnregisterPrefix(prefix, face.getFaceId());
-    PermanentFaceUriAndRouteManager.deletePermanentRoute(
-        applicationContext,
-        prefix.toString(),
-        face.getRemoteUri()
+    SharedPreferencesManager.deletePermanentRoute(
+      applicationContext,
+      prefix.toString(),
+      face.getRemoteUri()
     );
   }
 
@@ -237,10 +235,10 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     try {
       for (int faceId : faceIds) {
         removeOneRouteSync(
-            applicationContext,
-            nfdcHelper,
-            faceSparseArray.get(faceId),
-            prefix);
+          applicationContext,
+          nfdcHelper,
+          faceSparseArray.get(faceId),
+          prefix);
       }
     } finally {
       nfdcHelper.shutdown();
@@ -256,10 +254,10 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     try {
       for (Name prefix : prefixes) {
         removeOneRouteSync(
-            applicationContext,
-            nfdcHelper,
-            faceSparseArray.get(faceId),
-            prefix);
+          applicationContext,
+          nfdcHelper,
+          faceSparseArray.get(faceId),
+          prefix);
       }
     } finally {
       nfdcHelper.shutdown();
@@ -270,7 +268,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
   /**
    * Updates the underlying adapter with the given list of RibEntry.
-   *
+   * <p>
    * Note: This method should only be called from the UI thread.
    *
    * @param list Update ListView with the given List&lt;RibEntry&gt;
@@ -428,8 +426,8 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
       if (result.second != null) {
         Toast.makeText(getActivity(),
-            "Error communicating with NFD (" + result.second.getMessage() + ")",
-            Toast.LENGTH_LONG).show();
+          "Error communicating with NFD (" + result.second.getMessage() + ")",
+          Toast.LENGTH_LONG).show();
       }
 
       updateRouteList(result.first);
@@ -452,12 +450,12 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
         nfdcHelper.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
         if (m_isPermanent) {
           Context context = getActivity().getApplicationContext();
-          PermanentFaceUriAndRouteManager
-              .addPermanentRoute(
-                  context,
-                  m_prefix.toUri(),
-                  NfdcHelper.formatFaceUri(m_faceUri)
-              );
+          SharedPreferencesManager
+            .addPermanentRoute(
+              context,
+              m_prefix.toUri(),
+              NfdcHelper.formatFaceUri(m_faceUri)
+            );
         }
         nfdcHelper.shutdown();
         return "OK";
@@ -557,19 +555,29 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
   /////////////////////////////////////////////////////////////////////////////
 
-  /** Callback handler of the hosting activity */
+  /**
+   * Callback handler of the hosting activity
+   */
   private Callbacks m_callbacks;
 
-  /** Reference to the most recent AsyncTask that was created for listing routes */
+  /**
+   * Reference to the most recent AsyncTask that was created for listing routes
+   */
   private RouteListAsyncTask m_routeListAsyncTask;
 
-  /** Reference to the view to be displayed when no information is available */
+  /**
+   * Reference to the view to be displayed when no information is available
+   */
   private View m_routeListInfoUnavailableView;
 
-  /** Progress bar spinner to display to user when destroying faces */
+  /**
+   * Progress bar spinner to display to user when destroying faces
+   */
   private ProgressBar m_reloadingListProgressBar;
 
-  /** Reference to the most recent AsyncTask that was created for creating a route */
+  /**
+   * Reference to the most recent AsyncTask that was created for creating a route
+   */
   private RouteCreateAsyncTask m_routeCreateAsyncTask;
   private RouteRemoveAsyncTask m_routeRemoveAsyncTask;
 

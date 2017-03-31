@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -28,12 +28,13 @@ import java.util.Set;
 /**
  * The manager to record and delete permanent faceUris and routes
  */
-public class PermanentFaceUriAndRouteManager {
-  private static final String TAG = "Permanent Manager";
+public class SharedPreferencesManager {
+  private static final String TAG = "SharedPreferencesManager";
   private static final String PREFS_NAME = "permanent";
   private static final String PERMANENT_FACEURI = "permanentFaceUri";
   private static final String PERMANENT_ROUTE = "permanentRoute";
   private static final String PERMANENT_FACEID = "permanentFaceId";
+  private static final String CONNECT_NEAREAST_HUB = "connectNeareastHub";
   private static final String PREFIX_FACEURI_DELIMITER = "\t";
   // We need to cache permanent face IDs in order to display whether a face is permanent face or not.
 
@@ -163,5 +164,17 @@ public class PermanentFaceUriAndRouteManager {
     } else {
       G.Log(TAG, prefix + " " + faceUri + " is not a permanent route");
     }
+  }
+
+  @SuppressWarnings("deprecation")
+  public static void setConnectNearestHubAutomatically(Context context, boolean isOn) {
+    SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
+    setting.edit().putBoolean(CONNECT_NEAREAST_HUB, isOn).commit();
+  }
+
+  @SuppressWarnings("deprecation")
+  public static boolean getConnectNearestHubAutomatically(Context context) {
+    SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
+    return setting.getBoolean(CONNECT_NEAREAST_HUB, false);
   }
 }
