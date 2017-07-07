@@ -13,7 +13,7 @@ To compile code, the following is necessary
 - [CrystalX Android NDK](https://www.crystax.net/en/download) version 10.3.1
 - Prebuilt version of OpenSSL library
 
-Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
+Example script for Ubuntu 16.04 to get all dependencies, download SDK and NDK:
 
     CRYSTAX_NDK_VERSION=10.3.1
     SDK_VERSION=24.4.1
@@ -22,7 +22,9 @@ Example script for Ubuntu 14.04 to get all dependencies, download SDK and NDK:
     BUILD_TOOLS_VERSION=23.0.2
     COMPILE_SDK_VERSION=23
 
-    sudo apt-get install -y build-essential git openjdk-7-jdk unzip
+    sudo apt -q update
+    sudo apt -qy upgrade
+    sudo apt-get install -y build-essential git openjdk-8-jdk unzip
     sudo apt-get install -y lib32stdc++6 lib32z1 lib32z1-dev
 
     wget https://www.crystax.net/download/crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz

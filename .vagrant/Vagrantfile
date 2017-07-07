@@ -4,7 +4,6 @@
 VAGRANTFILE_API_VERSION = "2"
 
 $script = <<SCRIPT
-sudo apt-get update
 
 CRYSTAX_NDK_VERSION=10.3.1
 
@@ -12,8 +11,10 @@ SDK_VERSION=24.4.1
 BUILD_TOOLS_VERSION=23.0.2
 COMPILE_SDK_VERSION=23
 
-sudo apt-get install -y build-essential git openjdk-7-jdk unzip
-sudo apt-get install -y lib32stdc++6 lib32z1 lib32z1-dev
+sudo apt -q update
+sudo apt -qy upgrade
+sudo apt install -y build-essential git openjdk-8-jdk unzip
+sudo apt install -y lib32stdc++6 lib32z1 lib32z1-dev
 
 wget -nv https://www.crystax.net/download/crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
 tar xf crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
@@ -39,7 +40,7 @@ rm openssl.tar.gz
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "boxcutter/ubuntu1604"
 
   config.vm.provision "shell", privileged: false, inline: $script
 
