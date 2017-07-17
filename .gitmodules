@@ -4,7 +4,8 @@
     branch = android
 [submodule "app/src/main/jni/ndn-cxx"]
     path = app/src/main/jni/ndn-cxx
-    url = https://github.com/named-data/ndn-cxx
+    url = https://github.com/cawka/ndn-cxx
+    branch = 0.5.0-android-hotfix
 [submodule "app/src/main/jni/NFD"]
     path = app/src/main/jni/NFD
     url = https://github.com/named-data/NFD
