@@ -1,7 +1,7 @@
 sudo: false
 language: generic
 jdk:
-  - openjdk7
+  - openjdk8
 notifications:
   email:
     on_success: always
@@ -10,12 +10,10 @@ env:
   global:
     - TERM=dumb
     - GRADLE_OPTS="-Xmx768m -Xms256m -Xss1m"
-    - NDK_BUILD_PARALLEL=1
+    - NDK_BUILD_PARALLEL=2
   matrix:
     - NDK_BUILD_ABI=arm64-v8a
-    - NDK_BUILD_ABI=armeabi
     - NDK_BUILD_ABI=armeabi-v7a
-    - NDK_BUILD_ABI=mips
     - NDK_BUILD_ABI=x86
     - NDK_BUILD_ABI=x86_64
 addons:
@@ -28,16 +26,9 @@ addons:
      - wget
      - unzip
 before_install:
-  - wget https://www.ivarch.com/programs/sources/pv-1.6.0.tar.bz2
-  - tar xjf pv-1.6.0.tar.bz2
-  - cd pv-1.6.0
-  - ./configure --prefix=$HOME --disable-nls
-  - make install
-  - cd ..
-  - rm pv-1.6.0.tar.bz2
-  - export PATH=$HOME/bin:$PATH
   - travis_retry .jenkins.d/10-get-sdk.sh
-  - travis_retry .jenkins.d/10-get-ndk.sh
+  - gem install rugged
+  - travis_retry .jenkins.d/20-get-ndk.sh
 script:
   - git submodule update --init --recursive
   - ./gradlew assembleDebug

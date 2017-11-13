@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -33,8 +33,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -334,7 +334,7 @@ public class DrawerFragment extends Fragment {
    * @return Host activity's ActionBar.
    */
   private ActionBar getActionBar() {
-    return ((ActionBarActivity)getActivity()).getSupportActionBar();
+    return ((AppCompatActivity)getActivity()).getSupportActionBar();
   }
 
   //////////////////////////////////////////////////////////////////////////////

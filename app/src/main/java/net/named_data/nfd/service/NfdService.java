@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015 Regents of the University of California
+ * Copyright (c) 2015-2017 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -54,30 +54,29 @@ public class NfdService extends Service {
   static {
     // At least on Galaxy S3 (4.1.1), all shared library dependencies that are located
     // in app's lib folder (not in /system/lib) need to be explicitly loaded.
-    // The script https://gist.github.com/cawka/11fe9c23b7a13960330b can be used to
-    // calculate proper dependency load list.
+    // Use `ndk-depends` to automatically generate this list.
     // For example:
     //     cd app/src/main/libs/armeabi-v7a/
     //     bash android-shared-lib-dependencies.sh nfd-wrapper
-    System.loadLibrary("crystax");
-    System.loadLibrary("gnustl_shared");
-    System.loadLibrary("cryptopp_shared");
-    System.loadLibrary("boost_system");
-    System.loadLibrary("boost_filesystem");
-    System.loadLibrary("boost_date_time");
-    System.loadLibrary("boost_iostreams");
-    System.loadLibrary("boost_program_options");
-    System.loadLibrary("boost_chrono");
-    System.loadLibrary("boost_random");
-    System.loadLibrary("ndn-cxx");
-    System.loadLibrary("boost_thread");
-    System.loadLibrary("nfd-daemon");
+    // System.loadLibrary("crystax");
+    // System.loadLibrary("gnustl_shared");
+    // System.loadLibrary("cryptopp_shared");
+    // System.loadLibrary("boost_system");
+    // System.loadLibrary("boost_filesystem");
+    // System.loadLibrary("boost_date_time");
+    // System.loadLibrary("boost_iostreams");
+    // System.loadLibrary("boost_program_options");
+    // System.loadLibrary("boost_chrono");
+    // System.loadLibrary("boost_random");
+    // System.loadLibrary("ndn-cxx");
+    // System.loadLibrary("boost_thread");
+    // System.loadLibrary("nfd-daemon");
     System.loadLibrary("nfd-wrapper");
   }
 
   /**
    * Native API for starting the NFD.
-   *
+   * <p/>
    * @param params NFD parameters.  Must include 'homePath' with absolute path of the home directory
    *               for the service (ContextWrapper.getFilesDir().getAbsolutePath())
    */

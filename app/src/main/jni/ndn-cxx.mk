@@ -4,7 +4,7 @@ LOCAL_PATH_SAVED := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 LOCAL_MODULE := ndn-cxx
 NDN_CXX_BOOST_LIBS = system filesystem date_time iostreams program_options chrono random
-LOCAL_SHARED_LIBRARIES := cryptopp_shared opencrypto_shared openssl_shared $(addsuffix _shared,$(addprefix boost_,$(NDN_CXX_BOOST_LIBS)))
+LOCAL_SHARED_LIBRARIES := cryptopp_shared libcrypto_shared libssl_shared $(addsuffix _shared,$(addprefix boost_,$(NDN_CXX_BOOST_LIBS)))
 LOCAL_STATIC_LIBRARIES := sqlite3_static boost_regex_static
 NDN_CXX_SRC_FILES := \
     data.cpp \
@@ -145,6 +145,6 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(LOCAL_PATH_SAVED)/cryptopp/extras/jni/Android.mk
 
-$(call import-module,boost/1.59.0)
-$(call import-module,sqlite/3)
-$(call import-module,openssl/1.0.2h)
+$(call import-module,../packages/boost/1.65.1)
+$(call import-module,../packages/sqlite/3.18.0)
+$(call import-module,../packages/openssl/1.0.2m)

@@ -2,13 +2,14 @@
 
 buildscript {
     repositories {
+        google()
         jcenter()
         maven {
             url "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'net.named-data.playground:play-publisher:1.2.0-2-SNAPSHOT'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -18,6 +19,11 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

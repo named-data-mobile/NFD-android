@@ -4,14 +4,15 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "26.0.3"
 
     defaultConfig {
         applicationId "net.named_data.nfd"
-        minSdkVersion 15
-        targetSdkVersion 19
-        versionCode 4004
-        versionName "0.2.4 (NFD 0.5.0, ndn-cxx 0.5.0-11-g1cf4146e)"
+        minSdkVersion 23
+        targetSdkVersion 23
+        versionCode 4005
+        versionName "0.2.5 (NFD 0.5.0, ndn-cxx 0.5.0-11-g1cf4146e)"
+        multiDexEnabled true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -19,7 +20,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -41,6 +42,9 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+    lintOptions {
+      abortOnError false
+    }
 
     splits {
         abi {
@@ -51,11 +55,11 @@ android {
 
     // map for the version code
     // versionCode digit for each supported ABI, with 64bit>32bit and x86>armeabi-*
-    project.ext.versionCodes = ['armeabi': 1,
+    project.ext.versionCodes = [//'armeabi': 1, // Deprecated in r16. Will be removed in r17. No hard float.
                                 'armeabi-v7a': 2,
                                 'arm64-v8a': 3,
-                                'mips': 5,
-                                'mips64': 6,
+                                // 'mips': 5,   // Deprecated in r16. Will be removed in r17. Uses hard-float, and assumes a CPU:FPU clock ratio of 2:1 for maximum compatibility. Provides neither micromips nor MIPS16.
+                                // 'mips64': 6, // Deprecated in r16. WIll be removed in r17
                                 'x86': 8,
                                 'x86_64': 9]
 
@@ -93,7 +97,7 @@ android {
         }
 
         if (System.env.NDK_DEBUG != null) {
-           args.add("NDK_DEBUG=1")
+           args.add("V=1")
         }
         commandLine args
     }
@@ -142,18 +146,19 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:support-v4:23.1.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:support-v4:26.1.0'
 
-    compile('com.intel.jndn.management:jndn-management:1.1.0') {
+    implementation('com.intel.jndn.management:jndn-management:1.1.3') {
       exclude group: 'net.named-data', module: 'jndn'
     }
-    compile('net.named-data:jndn-android:0.14') {
+    implementation('net.named-data:jndn-android:0.15') {
       exclude group: 'org.xerial'
+      exclude group: 'com.google.android'
     }
-    compile 'net.named-data.jndn-xx:jndn-xx-util:0.0.1'
-    compile 'joda-time:joda-time:2.7'
+    implementation 'net.named-data.jndn-xx:jndn-xx-util:0.0.1'
+    implementation 'joda-time:joda-time:2.9.9'
 }
 
 Properties properties = new Properties()

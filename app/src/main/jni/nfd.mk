@@ -6,7 +6,7 @@ NFD_BOOST_LIBS = system filesystem chrono program_options random thread
 # nfd itself
 include $(CLEAR_VARS)
 LOCAL_MODULE := nfd-daemon
-LOCAL_SHARED_LIBRARIES := cryptopp_shared openssl_shared ndn-cxx $(addsuffix _shared,$(addprefix boost_,$(NFD_BOOST_LIBS)))
+LOCAL_SHARED_LIBRARIES := cryptopp_shared libcrypto_shared libssl_shared ndn-cxx $(addsuffix _shared,$(addprefix boost_,$(NFD_BOOST_LIBS)))
 NFD_DAEMON_SRC_FILES := \
     core/city-hash.cpp \
     core/config-file.cpp \

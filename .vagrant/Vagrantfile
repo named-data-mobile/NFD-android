@@ -4,43 +4,40 @@
 VAGRANTFILE_API_VERSION = "2"
 
 $script = <<SCRIPT
+    export DEBIAN_FRONTEND=noninteractive
 
-CRYSTAX_NDK_VERSION=10.3.1
+    sudo apt-mark hold grub-pc
+    sudo apt -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update
+    sudo apt -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+    sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" build-essential git openjdk-8-jdk unzip ruby ruby-rugged
+    sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" lib32stdc++6 lib32z1 lib32z1-dev
 
-SDK_VERSION=24.4.1
-BUILD_TOOLS_VERSION=23.0.2
-COMPILE_SDK_VERSION=23
+    mkdir android-sdk-linux
+    cd android-sdk-linux
+    wget -q https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
+    unzip sdk-tools-linux-3859397.zip
+    rm sdk-tools-linux-3859397.zip
 
-sudo apt -q update
-sudo apt -qy upgrade
-sudo apt install -y build-essential git openjdk-8-jdk unzip
-sudo apt install -y lib32stdc++6 lib32z1 lib32z1-dev
+    export ANDROID_HOME=`pwd`
+    export PATH=${PATH}:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
 
-wget -nv https://www.crystax.net/download/crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
-tar xf crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
-rm crystax-ndk-$CRYSTAX_NDK_VERSION-linux-x86_64.tar.xz
+    echo "y" | sdkmanager "platform-tools"
+    sdkmanager "platforms;android-26" "build-tools;26.0.3" "ndk-bundle"
 
-wget -nv http://dl.google.com/android/android-sdk_r$SDK_VERSION-linux.tgz
-tar zxf android-sdk_r$SDK_VERSION-linux.tgz
-rm android-sdk_r$SDK_VERSION-linux.tgz
+    cd ndk-bundle
+    git clone https://github.com/cawka/android-crew-staging.git crew.dir
 
-export ANDROID_HOME=`pwd`/android-sdk-linux
-export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+    CREW_OWNER=cawka crew.dir/crew install target/sqlite:3.18.0 target/openssl:1.0.2m target/boost:1.65.1
 
-echo "y" | android update sdk --filter platform-tools,build-tools-$BUILD_TOOLS_VERSION,android-$COMPILE_SDK_VERSION,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
-echo "y" | android update sdk --filter "android-19" --no-ui --all --force
+    cd ../..
 
-echo sdk.dir=`pwd`/android-sdk-linux > local.properties
-echo ndk.dir=`pwd`/crystax-ndk-$CRYSTAX_NDK_VERSION >> local.properties
+    echo sdk.dir=`pwd`/android-sdk-linux > local.properties
+    echo ndk.dir=`pwd`/android-sdk-linux/ndk-bundle >> local.properties
 
-cd crystax-ndk-$CRYSTAX_NDK_VERSION/sources
-curl -s -L -o openssl.tar.gz https://github.com/named-data-mobile/crystax-prebuilt-openssl/archive/crystax-$CRYSTAX_NDK_VERSION.tar.gz
-tar zx --strip-components 1 -C openssl -f openssl.tar.gz
-rm openssl.tar.gz
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "boxcutter/ubuntu1604"
+  config.vm.box = "puphpet/ubuntu1604-x64"
 
   config.vm.provision "shell", privileged: false, inline: $script
 
