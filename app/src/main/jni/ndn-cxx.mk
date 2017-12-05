@@ -4,27 +4,33 @@ LOCAL_PATH_SAVED := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 LOCAL_MODULE := ndn-cxx
 NDN_CXX_BOOST_LIBS = system filesystem date_time iostreams program_options chrono random
-LOCAL_SHARED_LIBRARIES := cryptopp_shared libcrypto_shared libssl_shared $(addsuffix _shared,$(addprefix boost_,$(NDN_CXX_BOOST_LIBS)))
+LOCAL_SHARED_LIBRARIES := libcrypto_shared libssl_shared $(addsuffix _shared,$(addprefix boost_,$(NDN_CXX_BOOST_LIBS)))
 LOCAL_STATIC_LIBRARIES := sqlite3_static boost_regex_static
 NDN_CXX_SRC_FILES := \
     data.cpp \
+    delegation-list.cpp \
+    delegation.cpp \
     encoding/block-helpers.cpp \
     encoding/block.cpp \
     encoding/buffer-stream.cpp \
     encoding/buffer.cpp \
-    encoding/cryptopp/asn_ext.cpp \
     encoding/encoder.cpp \
     encoding/estimator.cpp \
     encoding/nfd-constants.cpp \
-    encoding/oid.cpp \
+    encoding/tlv.cpp \
     exclude.cpp \
     face.cpp \
+    ims/in-memory-storage-entry.cpp \
+    ims/in-memory-storage-fifo.cpp \
+    ims/in-memory-storage-lfu.cpp \
+    ims/in-memory-storage-lru.cpp \
+    ims/in-memory-storage-persistent.cpp \
+    ims/in-memory-storage.cpp \
     interest-filter.cpp \
     interest.cpp \
     key-locator.cpp \
     link.cpp \
     lp/cache-policy.cpp \
-    lp/detail/field-info.cpp \
     lp/nack-header.cpp \
     lp/nack.cpp \
     lp/packet.cpp \
@@ -37,6 +43,7 @@ NDN_CXX_SRC_FILES := \
     mgmt/nfd/control-parameters.cpp \
     mgmt/nfd/controller.cpp \
     mgmt/nfd/face-event-notification.cpp \
+    mgmt/nfd/face-monitor.cpp \
     mgmt/nfd/face-query-filter.cpp \
     mgmt/nfd/face-status.cpp \
     mgmt/nfd/fib-entry.cpp \
@@ -47,33 +54,44 @@ NDN_CXX_SRC_FILES := \
     mgmt/status-dataset-context.cpp \
     name-component.cpp \
     name.cpp \
-    security/certificate-cache-ttl.cpp \
-    security/certificate-container.cpp \
-    security/command-interest-validator.cpp \
+    net/address-converter.cpp \
+    net/detail/link-type-helper.cpp \
+    net/detail/linux-if-constants.cpp \
+    net/detail/network-monitor-impl-rtnl.cpp \
+    net/dns.cpp \
+    net/ethernet.cpp \
+    net/face-uri.cpp \
+    net/network-address.cpp \
+    net/network-interface.cpp \
+    net/network-monitor-stub.cpp \
+    net/network-monitor.cpp \
+    packet-base.cpp \
+    security/command-interest-signer.cpp \
     security/detail/openssl-helper.cpp \
     security/digest-sha256.cpp \
-    security/identity-container.cpp \
-    security/identity.cpp \
-    security/key-chain.cpp \
-    security/key-container.cpp \
     security/key-params.cpp \
-    security/key.cpp \
-    security/pib-memory.cpp \
-    security/pib-sqlite3.cpp \
-    security/pib.cpp \
+    security/pib/certificate-container.cpp \
+    security/pib/detail/identity-impl.cpp \
+    security/pib/detail/key-impl.cpp \
+    security/pib/identity-container.cpp \
+    security/pib/identity.cpp \
+    security/pib/key-container.cpp \
+    security/pib/key.cpp \
+    security/pib/pib-memory.cpp \
+    security/pib/pib-sqlite3.cpp \
+    security/pib/pib.cpp \
     security/safe-bag.cpp \
-    security/sec-public-info-sqlite3.cpp \
-    security/sec-public-info.cpp \
-    security/sec-rule-relative.cpp \
-    security/sec-rule-specific.cpp \
-    security/sec-tpm-file.cpp \
-    security/sec-tpm.cpp \
-    security/secured-bag.cpp \
     security/security-common.cpp \
     security/signature-sha256-with-ecdsa.cpp \
     security/signature-sha256-with-rsa.cpp \
     security/signing-helpers.cpp \
     security/signing-info.cpp \
+    security/tpm/back-end-file.cpp \
+    security/tpm/back-end-mem.cpp \
+    security/tpm/back-end.cpp \
+    security/tpm/key-handle-mem.cpp \
+    security/tpm/key-handle.cpp \
+    security/tpm/tpm.cpp \
     security/transform/base64-decode.cpp \
     security/transform/base64-encode.cpp \
     security/transform/block-cipher.cpp \
@@ -92,16 +110,33 @@ NDN_CXX_SRC_FILES := \
     security/transform/strip-space.cpp \
     security/transform/transform-base.cpp \
     security/transform/verifier-filter.cpp \
-    security/v1/certificate-extension.cpp \
-    security/v1/certificate-subject-description.cpp \
-    security/v1/certificate.cpp \
-    security/v1/identity-certificate.cpp \
-    security/v1/public-key.cpp \
     security/v2/additional-description.cpp \
+    security/v2/certificate-bundle-fetcher.cpp \
+    security/v2/certificate-cache.cpp \
+    security/v2/certificate-fetcher-direct-fetch.cpp \
+    security/v2/certificate-fetcher-from-network.cpp \
+    security/v2/certificate-fetcher-offline.cpp \
+    security/v2/certificate-fetcher.cpp \
+    security/v2/certificate-storage.cpp \
+    security/v2/certificate.cpp \
+    security/v2/key-chain.cpp \
+    security/v2/trust-anchor-container.cpp \
+    security/v2/trust-anchor-group.cpp \
+    security/v2/validation-error.cpp \
+    security/v2/validation-policy-command-interest.cpp \
+    security/v2/validation-policy-config.cpp \
+    security/v2/validation-policy-simple-hierarchy.cpp \
+    security/v2/validation-policy.cpp \
+    security/v2/validation-state.cpp \
+    security/v2/validator-config/checker.cpp \
+    security/v2/validator-config/filter.cpp \
+    security/v2/validator-config/name-relation.cpp \
+    security/v2/validator-config/rule.cpp \
+    security/v2/validator.cpp \
     security/validator-config.cpp \
-    security/validator-regex.cpp \
-    security/validator.cpp \
+    security/validator-null.cpp \
     security/validity-period.cpp \
+    security/verification-helpers.cpp \
     selectors.cpp \
     signature-info.cpp \
     signature.cpp \
@@ -109,28 +144,18 @@ NDN_CXX_SRC_FILES := \
     transport/transport.cpp \
     transport/unix-transport.cpp \
     util/config-file.cpp \
-    util/crypto.cpp \
-    util/digest.cpp \
-    util/dns.cpp \
     util/dummy-client-face.cpp \
-    util/ethernet.cpp \
-    util/face-uri.cpp \
-    util/in-memory-storage-entry.cpp \
-    util/in-memory-storage-fifo.cpp \
-    util/in-memory-storage-lfu.cpp \
-    util/in-memory-storage-lru.cpp \
-    util/in-memory-storage-persistent.cpp \
-    util/in-memory-storage.cpp \
     util/indented-stream.cpp \
     util/io.cpp \
-    util/network-monitor.cpp \
+    util/notification-subscriber.cpp \
     util/random.cpp \
     util/regex/regex-top-matcher.cpp \
     util/scheduler-scoped-event-id.cpp \
     util/scheduler.cpp \
     util/segment-fetcher.cpp \
-    util/signal-connection.cpp \
-    util/signal-scoped-connection.cpp \
+    util/sha256.cpp \
+    util/signal/connection.cpp \
+    util/signal/scoped-connection.cpp \
     util/sqlite3-statement.cpp \
     util/string-helper.cpp \
     util/time-unit-test-clock.cpp \
@@ -140,10 +165,8 @@ NDN_CXX_SRC_FILES := \
 LOCAL_SRC_FILES := $(addprefix ndn-cxx/src/,$(NDN_CXX_SRC_FILES))
 LOCAL_CPPFLAGS := -I$(LOCAL_PATH)/ndn-cxx/src -I$(LOCAL_PATH)/ndn-cxx-android -I$(LOCAL_PATH)/../../../build/generated/source/ndn-cxx
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/ndn-cxx-android $(LOCAL_PATH)/../../../build/generated/source/include
-LOCAL_LDLIBS := -llog
+LOCAL_LDLIBS := -llog -latomic
 include $(BUILD_SHARED_LIBRARY)
-
-include $(LOCAL_PATH_SAVED)/cryptopp/extras/jni/Android.mk
 
 $(call import-module,../packages/boost/1.65.1)
 $(call import-module,../packages/sqlite/3.18.0)

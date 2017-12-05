@@ -1,12 +1,8 @@
-[submodule "app/src/main/jni/cryptopp"]
-    path = app/src/main/jni/cryptopp
-    url = https://github.com/named-data-mobile/cryptopp
-    branch = android
 [submodule "app/src/main/jni/ndn-cxx"]
     path = app/src/main/jni/ndn-cxx
     url = https://github.com/named-data-mobile/ndn-cxx
-    branch = 0.5.0-android-hotfix
+    branch = 0.6.0-android-hotfix
 [submodule "app/src/main/jni/NFD"]
     path = app/src/main/jni/NFD
     url = https://github.com/named-data-mobile/NFD
-    branch = master
+    branch = 0.6.0-android-hotfix

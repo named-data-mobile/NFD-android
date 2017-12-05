@@ -5,7 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := nfd-wrapper
 LOCAL_SRC_FILES := nfd-wrapper.cpp
 LOCAL_SHARED_LIBRARIES := nfd-daemon ndn-cxx boost_system_shared boost_thread_shared
-LOCAL_LDLIBS := -llog
+LOCAL_LDLIBS := -llog -latomic
 include $(BUILD_SHARED_LIBRARY)
 
 include $(LOCAL_PATH_SAVED)/ndn-cxx.mk

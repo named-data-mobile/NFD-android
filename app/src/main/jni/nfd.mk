@@ -6,22 +6,24 @@ NFD_BOOST_LIBS = system filesystem chrono program_options random thread
 # nfd itself
 include $(CLEAR_VARS)
 LOCAL_MODULE := nfd-daemon
-LOCAL_SHARED_LIBRARIES := cryptopp_shared libcrypto_shared libssl_shared ndn-cxx $(addsuffix _shared,$(addprefix boost_,$(NFD_BOOST_LIBS)))
+LOCAL_SHARED_LIBRARIES := libssl_shared libcrypto_shared ndn-cxx $(addsuffix _shared,$(addprefix boost_,$(NFD_BOOST_LIBS)))
 NFD_DAEMON_SRC_FILES := \
     core/city-hash.cpp \
     core/config-file.cpp \
     core/global-io.cpp \
     core/manager-base.cpp \
-    core/network-interface.cpp \
+    core/network-interface-predicate.cpp \
     core/network.cpp \
     core/privilege-helper.cpp \
     core/random.cpp \
+    core/rtt-estimator.cpp \
     core/scheduler.cpp \
     ../nfd-android/custom-logger.cpp \
     ../nfd-android/custom-logger-factory.cpp \
     \
     daemon/face/channel.cpp \
     daemon/face/face-counters.cpp \
+    daemon/face/face-system.cpp \
     daemon/face/face.cpp \
     daemon/face/generic-link-service.cpp \
     daemon/face/internal-face.cpp \
@@ -29,8 +31,10 @@ NFD_DAEMON_SRC_FILES := \
     daemon/face/link-service.cpp \
     daemon/face/lp-fragmenter.cpp \
     daemon/face/lp-reassembler.cpp \
+    daemon/face/lp-reliability.cpp \
     daemon/face/multicast-udp-transport.cpp \
     daemon/face/null-face.cpp \
+    daemon/face/protocol-factory.cpp \
     daemon/face/tcp-channel.cpp \
     daemon/face/tcp-factory.cpp \
     daemon/face/tcp-transport.cpp \
@@ -43,6 +47,7 @@ NFD_DAEMON_SRC_FILES := \
     daemon/face/websocket-factory.cpp \
     daemon/face/websocket-transport.cpp \
     daemon/fw/access-strategy.cpp \
+    daemon/fw/algorithm.cpp \
     daemon/fw/asf-measurements.cpp \
     daemon/fw/asf-probing-module.cpp \
     daemon/fw/asf-strategy.cpp \
@@ -53,12 +58,9 @@ NFD_DAEMON_SRC_FILES := \
     daemon/fw/forwarder.cpp \
     daemon/fw/multicast-strategy.cpp \
     daemon/fw/ncc-strategy.cpp \
-    daemon/fw/pit-algorithm.cpp \
+    daemon/fw/process-nack-traits.cpp \
     daemon/fw/retx-suppression-exponential.cpp \
     daemon/fw/retx-suppression-fixed.cpp \
-    daemon/fw/retx-suppression.cpp \
-    daemon/fw/rtt-estimator.cpp \
-    daemon/fw/strategy-registry.cpp \
     daemon/fw/strategy.cpp \
     daemon/fw/unsolicited-data-policy.cpp \
     daemon/main.cpp \
@@ -104,6 +106,11 @@ NFD_DAEMON_SRC_FILES := \
     rib/fib-update.cpp \
     rib/fib-updater.cpp \
     rib/propagated-entry.cpp \
+    rib/readvertise/client-to-nlsr-readvertise-policy.cpp \
+    rib/readvertise/nfd-rib-readvertise-destination.cpp \
+    rib/readvertise/readvertise-destination.cpp \
+    rib/readvertise/readvertise.cpp \
+    rib/readvertise/readvertised-route.cpp \
     rib/rib-entry.cpp \
     rib/rib-manager.cpp \
     rib/rib-update-batch.cpp \

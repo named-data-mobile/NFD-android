@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2016,  Regents of the University of California,
+ * Copyright (c) 2014-2017,  Regents of the University of California,
  *                           Arizona Board of Regents,
  *                           Colorado State University,
  *                           University Pierre & Marie Curie, Sorbonne University,
@@ -38,13 +38,13 @@ namespace nfd {
  *
  *  MAJOR*1000000 + MINOR*1000 + PATCH
  */
-#define NFD_VERSION 5000
+#define NFD_VERSION 6000
 
 /** \brief NFD version represented as a string
  *
  *  MAJOR.MINOR.PATCH
  */
-#define NFD_VERSION_STRING "0.5.0"
+#define NFD_VERSION_STRING "0.6.0"
 
 /** \brief NFD version string, including git commit information, if NFD is build from
  *         specific git commit
@@ -60,12 +60,12 @@ namespace nfd {
  *
  * Example, 0.1.0-rc1-1-g5c86570
  */
-#define NFD_VERSION_BUILD_STRING "0.5.0"
+#define NFD_VERSION_BUILD_STRING "0.6.0"
 
 /// MAJOR version
 #define NFD_VERSION_MAJOR 0
 /// MINOR version
-#define NFD_VERSION_MINOR 5
+#define NFD_VERSION_MINOR 6
 /// PATCH version
 #define NFD_VERSION_PATCH 0
 
