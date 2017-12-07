@@ -1,3 +1,22 @@
+/* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/*
+ * Copyright (c) 2015-2017 Regents of the University of California
+ * <p/>
+ * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
+ * See AUTHORS.md for complete list of NFD Android authors and contributors.
+ * <p/>
+ * NFD Android is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * <p/>
+ * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ * <p/>
+ * You should have received a copy of the GNU General Public License along with
+ * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.named_data.nfd;
 
 import android.app.Activity;
@@ -7,6 +26,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -32,7 +52,6 @@ import com.intel.jndn.management.types.Route;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn_xx.util.FaceUri;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.utils.NfdcHelper;
 
@@ -54,6 +73,7 @@ public class RouteInfoFragment extends ListFragment {
     return fragment;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void onAttach(Activity activity)
   {
@@ -72,7 +92,13 @@ public class RouteInfoFragment extends ListFragment {
 
     m_ribEntry = new RibEntry();
     try {
-      m_ribEntry.wireDecode(new Blob(getArguments().getByteArray(ROUTE_INFORMATION)).buf());
+      byte[] data = getArguments().getByteArray(ROUTE_INFORMATION);
+      if (data != null) {
+        m_ribEntry.wireDecode(new Blob(data).buf());
+      }
+      else {
+        throw new EncodingException("No route information data");
+      }
     }
     catch (EncodingException e) {
       G.Log("ROUTE_INFORMATION: EncodingException: " + e);
@@ -83,15 +109,15 @@ public class RouteInfoFragment extends ListFragment {
   public void onViewCreated(View view, Bundle savedInstanceState)
   {
     super.onViewCreated(view, savedInstanceState);
-    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_route_detail_list_header, null);
+    View v = getLayoutInflater().inflate(R.layout.fragment_route_detail_list_header, getListView(), false);
     getListView().addHeaderView(v, null, false);
-    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+    getListView().setDivider(ContextCompat.getDrawable(getContext(), R.drawable.list_item_divider));
 
-    TextView prefix = (TextView)v.findViewById(R.id.route_detail_prefix);
+    TextView prefix = v.findViewById(R.id.route_detail_prefix);
     prefix.setText(m_ribEntry.getName().toUri());
 
     // Get progress bar spinner view
-    m_reloadingListProgressBar = (ProgressBar)v.findViewById(R.id.route_detail_list_reloading_list_progress_bar);
+    m_reloadingListProgressBar = v.findViewById(R.id.route_detail_list_reloading_list_progress_bar);
 
     ListView listView = getListView();
     listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);

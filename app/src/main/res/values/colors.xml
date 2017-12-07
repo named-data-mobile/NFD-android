@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="ndn_color_fire_bush" type="color">#DB9710</item>
-    <item name="ndn_color_grenadier" type="color">#C04818</item>
     <item name="android_color_gray" type="color">#C6C6C6</item>
 </resources>

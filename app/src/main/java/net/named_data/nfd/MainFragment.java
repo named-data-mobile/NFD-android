@@ -202,7 +202,8 @@ public class MainFragment extends Fragment {
 
   private void
   startNfdService() {
-    assert m_isNfdServiceConnected;
+    if (BuildConfig.DEBUG && !m_isNfdServiceConnected)
+      throw new RuntimeException("Service must be connected at this point");
 
     m_nfdStartStopSwitch.setText(R.string.starting_nfd);
     sendNfdServiceMessage(NfdService.START_NFD_SERVICE);
@@ -210,7 +211,8 @@ public class MainFragment extends Fragment {
 
   private void
   stopNfdService() {
-    assert m_isNfdServiceConnected;
+    if (BuildConfig.DEBUG && !m_isNfdServiceConnected)
+      throw new RuntimeException("Service must be connected at this point");
 
     m_nfdStartStopSwitch.setText(R.string.stopping_nfd);
     sendNfdServiceMessage(NfdService.STOP_NFD_SERVICE);

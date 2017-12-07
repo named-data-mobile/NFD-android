@@ -1,18 +1,18 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2015-2017 Regents of the University of California
- *
+ * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- *
+ * <p/>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * <p/>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.ActionMode;
@@ -75,17 +76,15 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
   {
     super.onViewCreated(view, savedInstanceState);
 
-    @SuppressLint("InflateParams")
-    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_face_list_list_header, null);
+    View v = getLayoutInflater().inflate(R.layout.fragment_face_list_list_header, getListView(), false);
     getListView().addHeaderView(v, null, false);
-    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+    getListView().setDivider(ContextCompat.getDrawable(getContext(), R.drawable.list_item_divider));
 
     // Get info unavailable view
     m_faceListInfoUnavailableView = v.findViewById(R.id.face_list_info_unavailable);
 
     // Get progress bar spinner view
-    m_reloadingListProgressBar
-      = (ProgressBar)v.findViewById(R.id.face_list_reloading_list_progress_bar);
+    m_reloadingListProgressBar = v.findViewById(R.id.face_list_reloading_list_progress_bar);
 
     // Setup list view for deletion
     ListView listView = getListView();
@@ -209,6 +208,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);

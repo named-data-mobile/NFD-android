@@ -1,30 +1,31 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2015 Regents of the University of California
- *
+/*
+ * Copyright (c) 2015-2017 Regents of the University of California
+ * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- *
+ * <p/>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * <p/>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.named_data.nfd;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,9 +81,9 @@ public class FaceStatusFragment extends ListFragment {
   {
     super.onViewCreated(view, savedInstanceState);
 
-    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_face_detail_list_header, null);
+    View v = getLayoutInflater().inflate(R.layout.fragment_face_detail_list_header, getListView(), false);
     getListView().addHeaderView(v, null, false);
-    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+    getListView().setDivider(ContextCompat.getDrawable(getContext(), R.drawable.list_item_divider));
   }
 
   @Override
@@ -91,7 +92,9 @@ public class FaceStatusFragment extends ListFragment {
     super.onActivityCreated(savedInstanceState);
 
     if (m_faceStatusAdapter == null) {
-      m_listItems = new ArrayList<>();
+      // List items to be displayed; Used when creating
+      // {@link net.named_data.nfd.FaceStatusFragment.FaceStatusAdapter}
+      ArrayList<ListItem> listItems = new ArrayList<>();
 
       Resources res = getResources();
       m_scopes = res.getStringArray(R.array.face_scopes);
@@ -102,31 +105,34 @@ public class FaceStatusFragment extends ListFragment {
       FaceStatus faceStatus = new FaceStatus();
       try {
         byte[] args = getArguments().getByteArray(EXTRA_FACE_INFORMATION);
+        if (args == null) {
+          throw new EncodingException("Not extra face in formation available");
+        }
         faceStatus.wireDecode(new Blob(args).buf());
       } catch (EncodingException e) {
         G.Log("EXTRA_FACE_INFORMATION: EncodingException: " + e);
       }
 
       // Creating list of items to be displayed
-      m_listItems.add(new ListItem(R.string.face_id, String.valueOf(faceStatus.getFaceId())));
-      m_listItems.add(new ListItem(R.string.local_face_uri, faceStatus.getLocalUri()));
-      m_listItems.add(new ListItem(R.string.remote_face_uri, faceStatus.getRemoteUri()));
-      m_listItems.add(new ListItem(R.string.expires_in, faceStatus.getExpirationPeriod() < 0 ?
+      listItems.add(new ListItem(R.string.face_id, String.valueOf(faceStatus.getFaceId())));
+      listItems.add(new ListItem(R.string.local_face_uri, faceStatus.getLocalUri()));
+      listItems.add(new ListItem(R.string.remote_face_uri, faceStatus.getRemoteUri()));
+      listItems.add(new ListItem(R.string.expires_in, faceStatus.getExpirationPeriod() < 0 ?
         getString(R.string.expire_never) :
         PeriodFormat.getDefault().print(new Period(faceStatus.getExpirationPeriod()))));
-      m_listItems.add(new ListItem(R.string.face_scope, getScope(faceStatus.getFaceScope())));
-      m_listItems.add(new ListItem(R.string.face_persistency, getPersistency(faceStatus.getFacePersistency())));
-      m_listItems.add(new ListItem(R.string.link_type, getLinkType(faceStatus.getLinkType())));
-      m_listItems.add(new ListItem(R.string.in_interests, String.valueOf(
+      listItems.add(new ListItem(R.string.face_scope, getScope(faceStatus.getFaceScope())));
+      listItems.add(new ListItem(R.string.face_persistency, getPersistency(faceStatus.getFacePersistency())));
+      listItems.add(new ListItem(R.string.link_type, getLinkType(faceStatus.getLinkType())));
+      listItems.add(new ListItem(R.string.in_interests, String.valueOf(
         faceStatus.getNInInterests())));
-      m_listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getNInDatas())));
-      m_listItems.add(new ListItem(R.string.out_interests, String.valueOf(
+      listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getNInDatas())));
+      listItems.add(new ListItem(R.string.out_interests, String.valueOf(
         faceStatus.getNOutInterests())));
-      m_listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getNOutDatas())));
-      m_listItems.add(new ListItem(R.string.in_bytes, String.valueOf(faceStatus.getNInBytes())));
-      m_listItems.add(new ListItem(R.string.out_bytes, String.valueOf(faceStatus.getNOutBytes())));
+      listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getNOutDatas())));
+      listItems.add(new ListItem(R.string.in_bytes, String.valueOf(faceStatus.getNInBytes())));
+      listItems.add(new ListItem(R.string.out_bytes, String.valueOf(faceStatus.getNOutBytes())));
 
-      m_faceStatusAdapter = new FaceStatusAdapter(getActivity(), m_listItems);
+      m_faceStatusAdapter = new FaceStatusAdapter(getActivity(), listItems);
     }
     // setListAdapter must be called after addHeaderView.  Otherwise, there is an exception on some platforms.
     // http://stackoverflow.com/a/8141537/2150331
@@ -164,7 +170,7 @@ public class FaceStatusFragment extends ListFragment {
    * {@link net.named_data.nfd.FaceStatusFragment.FaceStatusAdapter}.
    */
   private static class ListItem {
-    public ListItem(int title, String value) {
+    ListItem(int title, String value) {
       m_title = title;
       m_value = value;
     }
@@ -198,25 +204,26 @@ public class FaceStatusFragment extends ListFragment {
       m_layoutInflater = LayoutInflater.from(context);
     }
 
-    @SuppressLint("InflateParams")
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @Override @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
       ListItemHolder holder;
       if (convertView == null) {
         holder = new ListItemHolder();
 
-        convertView = m_layoutInflater.inflate(R.layout.list_item_face_generic_item, null);
+        convertView = m_layoutInflater.inflate(R.layout.list_item_face_generic_item, parent, false);
         convertView.setTag(holder);
 
-        holder.m_title = (TextView)convertView.findViewById(R.id.list_item_generic_title);
-        holder.m_value = (TextView)convertView.findViewById(R.id.list_item_generic_value);
+        holder.m_title = convertView.findViewById(R.id.list_item_generic_title);
+        holder.m_value = convertView.findViewById(R.id.list_item_generic_value);
       } else {
         holder = (ListItemHolder)convertView.getTag();
       }
 
       ListItem info = getItem(position);
-      holder.m_title.setText(info.getTitle());
-      holder.m_value.setText(info.getValue());
+      if (info != null) {
+        holder.m_title.setText(info.getTitle());
+        holder.m_value.setText(info.getValue());
+      }
 
       return convertView;
     }
@@ -234,12 +241,6 @@ public class FaceStatusFragment extends ListFragment {
   /** Bundle argument key for face information byte array */
   private static final String EXTRA_FACE_INFORMATION
       = "net.named_data.nfd.face_detail_fragment_face_id";
-
-  /**
-   * List items to be displayed; Used when creating
-   * {@link net.named_data.nfd.FaceStatusFragment.FaceStatusAdapter}
-   */
-  private ArrayList<ListItem> m_listItems;
 
   /** Reference to custom {@link net.named_data.nfd.FaceStatusFragment.FaceStatusAdapter} */
   private FaceStatusAdapter m_faceStatusAdapter;

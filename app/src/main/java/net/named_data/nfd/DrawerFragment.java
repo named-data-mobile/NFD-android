@@ -1,18 +1,18 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2015-2017 Regents of the University of California
- *
+ * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- *
+ * <p/>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * <p/>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,13 +23,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.app.ActionBar;
@@ -64,6 +65,7 @@ public class DrawerFragment extends Fragment {
     return fragment;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
@@ -167,7 +169,7 @@ public class DrawerFragment extends Fragment {
         // Allow update calls to onCreateOptionsMenu() and
         // onPrepareOptionsMenu() to update Menu UI.
         m_shouldHideOptionsMenu = false;
-        getActivity().supportInvalidateOptionsMenu();
+        getActivity().invalidateOptionsMenu();
       }
 
       @Override
@@ -188,7 +190,7 @@ public class DrawerFragment extends Fragment {
         // Allow update calls to onCreateOptionsMenu() and
         // onPrepareOptionsMenu() to update Menu UI
         m_shouldHideOptionsMenu = true;
-        getActivity().supportInvalidateOptionsMenu();
+        getActivity().invalidateOptionsMenu();
       }
 
       @Override
@@ -197,12 +199,12 @@ public class DrawerFragment extends Fragment {
         if (newState != ViewDragHelper.STATE_IDLE) {
           // opened/closed is handled by onDrawerOpened and onDrawerClosed callbacks
           m_shouldHideOptionsMenu = true;
-          getActivity().supportInvalidateOptionsMenu();
-        } else if (newState == ViewDragHelper.STATE_IDLE && !isDrawerOpen()) {
+          getActivity().invalidateOptionsMenu();
+        } else if (!isDrawerOpen()) {
           // This condition takes care of the case of displaying the option menu
           // items when the drawer is retracted prematurely.
           m_shouldHideOptionsMenu = false;
-          getActivity().supportInvalidateOptionsMenu();
+          getActivity().invalidateOptionsMenu();
         }
       }
     };
@@ -221,7 +223,7 @@ public class DrawerFragment extends Fragment {
       }
     });
 
-    m_drawerLayout.setDrawerListener(m_drawerToggle);
+    m_drawerLayout.addDrawerListener(m_drawerToggle);
   }
 
   @Override
@@ -370,24 +372,23 @@ public class DrawerFragment extends Fragment {
       }
     };
 
-    public
     DrawerItem(int itemNameId, int resIconId, int itemCode) {
       m_itemNameId = itemNameId;
       m_iconResId = resIconId;
       m_itemCode = itemCode;
     }
 
-    public int
+    int
     getItemName() {
       return m_itemNameId;
     }
 
-    public int
+    int
     getIconResId() {
       return m_iconResId;
     }
 
-    public int
+    int
     getItemCode() {
       return m_itemCode;
     }
@@ -411,35 +412,37 @@ public class DrawerFragment extends Fragment {
    */
   private static class DrawerListAdapter extends ArrayAdapter<DrawerItem> {
 
-    public DrawerListAdapter(Context context, ArrayList<DrawerItem> drawerItems) {
+    DrawerListAdapter(Context context, ArrayList<DrawerItem> drawerItems) {
       super(context, 0, drawerItems);
       m_layoutInflater =
           (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      m_resources = context.getResources();
+      m_context = context;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @Override @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup  parent) {
       DrawerItemHolder holder;
 
       if (convertView == null) {
         holder = new DrawerItemHolder();
 
-        convertView = m_layoutInflater.inflate(R.layout.list_item_drawer_item, null);
+        convertView = m_layoutInflater.inflate(R.layout.list_item_drawer_item, parent, false);
         convertView.setTag(holder);
 
-        holder.m_icon = (ImageView) convertView.findViewById(R.id.drawer_item_icon);
-        holder.m_text = (TextView) convertView.findViewById(R.id.drawer_item_text);
+        holder.m_icon = convertView.findViewById(R.id.drawer_item_icon);
+        holder.m_text = convertView.findViewById(R.id.drawer_item_text);
       } else {
         holder = (DrawerItemHolder)convertView.getTag();
       }
 
       // Update items in holder
       DrawerItem item = getItem(position);
-      if (item.getIconResId() != 0) {
-        holder.m_icon.setImageDrawable(m_resources.getDrawable(item.getIconResId()));
+      if (item != null) {
+        if (item.getIconResId() != 0) {
+          holder.m_icon.setImageDrawable(ContextCompat.getDrawable(m_context, item.getIconResId()));
+        }
+        holder.m_text.setText(item.getItemName());
       }
-      holder.m_text.setText(item.getItemName());
 
       return convertView;
     }
@@ -453,13 +456,13 @@ public class DrawerFragment extends Fragment {
     private final LayoutInflater m_layoutInflater;
 
     /** Reference to get context's resources */
-    private final Resources m_resources;
+    private final Context m_context;
   }
 
   //////////////////////////////////////////////////////////////////////////////
 
   /** Callback that host activity must implement */
-  public static interface DrawerCallbacks {
+  public interface DrawerCallbacks {
     /** Callback to host activity when a drawer item is selected */
     void onDrawerItemSelected(int itemCode, int itemNameId);
   }

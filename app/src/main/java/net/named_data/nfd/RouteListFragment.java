@@ -1,18 +1,18 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2015-2017 Regents of the University of California
- * <p>
+ * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- * <p>
+ * <p/>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * <p>
+ * <p/>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- * <p>
+ * <p/>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,6 +26,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -95,20 +96,19 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   @Override
   public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_route_list_list_header, null);
+    View v = getLayoutInflater().inflate(R.layout.fragment_route_list_list_header, getListView(), false);
     getListView().addHeaderView(v, null, false);
-    getListView().setDivider(getResources().getDrawable(R.drawable.list_item_divider));
+    getListView().setDivider(ContextCompat.getDrawable(getContext(), R.drawable.list_item_divider));
 
     m_routeListInfoUnavailableView = v.findViewById(R.id.route_list_info_unavailable);
 
     // Get progress bar spinner view
-    m_reloadingListProgressBar = (ProgressBar) v.findViewById(R.id.route_list_reloading_list_progress_bar);
+    m_reloadingListProgressBar = v.findViewById(R.id.route_list_reloading_list_progress_bar);
 
     getListView().setLongClickable(true);
     getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
       public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
         final RibEntry entry = (RibEntry) parent.getItemAtPosition(position);
-        ;
         new AlertDialog.Builder(v.getContext())
           .setIcon(android.R.drawable.ic_dialog_alert)
           .setTitle("Deleting route")
@@ -125,7 +125,6 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
           })
           .setNegativeButton("No", null)
           .show();
-
 
         return true;
       }
@@ -357,11 +356,11 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
       if (convertView == null) {
         holder = new RouteItemHolder();
 
-        convertView = m_layoutInflater.inflate(R.layout.list_item_route_item, null);
+        convertView = m_layoutInflater.inflate(R.layout.list_item_route_item, parent, false);
         convertView.setTag(holder);
 
-        holder.m_uri = (TextView) convertView.findViewById(R.id.list_item_route_uri);
-        holder.m_faceList = (TextView) convertView.findViewById(R.id.list_item_face_list);
+        holder.m_uri = convertView.findViewById(R.id.list_item_route_uri);
+        holder.m_faceList = convertView.findViewById(R.id.list_item_face_list);
       } else {
         holder = (RouteItemHolder) convertView.getTag();
       }
@@ -459,9 +458,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
         }
         nfdcHelper.shutdown();
         return "OK";
-      } catch (FaceUri.CanonizeError e) {
-        return "Error creating face (" + e.getMessage() + ")";
-      } catch (FaceUri.Error e) {
+      } catch (FaceUri.CanonizeError|FaceUri.Error e) {
         return "Error creating face (" + e.getMessage() + ")";
       } catch (Exception e) {
         return "Error communicating with NFD (" + e.getMessage() + ")";
@@ -503,7 +500,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
 
   private class RouteRemoveAsyncTask extends AsyncTask<Void, Void, String> {
-    public RouteRemoveAsyncTask(Name prefix, List<Integer> faceIds) {
+    RouteRemoveAsyncTask(Name prefix, List<Integer> faceIds) {
       m_prefix = prefix;
       m_faceList = faceIds;
     }
@@ -514,9 +511,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
       try {
         removeRouteSyncs(getActivity().getApplicationContext(), m_prefix, m_faceList);
         return "OK";
-      } catch (FaceUri.CanonizeError e) {
-        return "Error destroying face (" + e.getMessage() + ")";
-      } catch (FaceUri.Error e) {
+      } catch (FaceUri.CanonizeError|FaceUri.Error e) {
         return "Error destroying face (" + e.getMessage() + ")";
       } catch (Exception e) {
         return "Error communicating with NFD (" + e.getMessage() + ")";
