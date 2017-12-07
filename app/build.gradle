@@ -10,7 +10,7 @@ android {
         applicationId "net.named_data.nfd"
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 4006
+        versionCode 4007
         versionName "0.3.0 (NFD 0.6.0, ndn-cxx 0.6.0)"
         multiDexEnabled true
     }
@@ -49,6 +49,8 @@ android {
     splits {
         abi {
             enable true // enable ABI split feature to create one APK per ABI
+            reset()
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
             universalApk false // don't generate an additional APK that targets all the ABIs
         }
     }
@@ -188,7 +190,8 @@ else {
 }
 
 if (properties['google-play'] != null) {
-    apply plugin: 'net.named-data.playground.play'
+    // apply plugin: 'net.named-data.playground.play'
+    apply plugin: 'com.github.triplet.play'
 
     play {
         track = 'alpha'
