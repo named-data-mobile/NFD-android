@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2017 Regents of the University of California
+ * Copyright (c) 2015-2018 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -41,7 +41,6 @@ import java.util.ArrayList;
  */
 public class MainActivity extends AppCompatActivity
     implements DrawerFragment.DrawerCallbacks,
-               LogcatFragment.Callbacks,
                FaceListFragment.Callbacks,
                RouteListFragment.Callbacks
 {
@@ -70,8 +69,6 @@ public class MainActivity extends AppCompatActivity
                                               DRAWER_ITEM_PING));
       //    items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_strategies, 0,
       //                                            DRAWER_ITEM_STRATEGIES));
-      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_logcat, 0,
-                                              DRAWER_ITEM_LOGCAT));
       items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_wifidirect, 0, DRAWER_ITEM_WIFIDIRECT));
 
       // TODO here we are preloading the NDNController singleton to avoid UI slowdown
@@ -161,9 +158,6 @@ public class MainActivity extends AppCompatActivity
         // TODO: Placeholders; Fill these in when their fragments have been created
         //    case DRAWER_ITEM_STRATEGIES:
         //      break;
-        case DRAWER_ITEM_LOGCAT:
-          fragment = LogcatFragment.newInstance();
-          break;
         case DRAWER_ITEM_WIFIDIRECT:
           fragment = WiFiDirectFragment.newInstance();
           break;
@@ -179,11 +173,6 @@ public class MainActivity extends AppCompatActivity
     fragmentManager.beginTransaction()
       .replace(R.id.main_fragment_container, fragment, fragmentTag)
       .commit();
-  }
-
-  @Override
-  public void onDisplayLogcatSettings() {
-    replaceContentFragmentWithBackstack(LogcatSettingsFragment.newInstance());
   }
 
   @Override
@@ -210,7 +199,6 @@ public class MainActivity extends AppCompatActivity
   public static final int DRAWER_ITEM_FACES = 2;
   public static final int DRAWER_ITEM_ROUTES = 3;
   public static final int DRAWER_ITEM_PING = 4;
-  //public static final int DRAWER_ITEM_STRATEGIES = 4;
-  public static final int DRAWER_ITEM_LOGCAT = 5;
-  public static final int DRAWER_ITEM_WIFIDIRECT = 6;
+  //public static final int DRAWER_ITEM_STRATEGIES = X;
+  public static final int DRAWER_ITEM_WIFIDIRECT = 5;
 }

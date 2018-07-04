@@ -3,7 +3,7 @@ set -e
 set -x
 
 android-sdk-linux/tools/bin/sdkmanager "ndk-bundle"
-git clone https://github.com/cawka/android-crew-staging.git android-sdk-linux/ndk-bundle/crew.dir
+git clone https://github.com/named-data-mobile/android-crew-staging.git android-sdk-linux/ndk-bundle/crew.dir
 
 if [[ ! -z $GEM_PATH ]]; then
     # Hack for unset GEM_PATH in crew tool
@@ -18,9 +18,9 @@ if [[ ! -z $GEM_PATH ]]; then
     export PATH=`pwd`:$PATH
 fi
 
-export CREW_OWNER=cawka
-# export CREW_DOWNLOAD_BASE=http://irl.cs.ucla.edu/~cawka/android-crew-staging/staging/
+export CREW_OWNER=named-data-mobile
 
-android-sdk-linux/ndk-bundle/crew.dir/crew install target/sqlite:3.18.0 target/openssl:1.0.2m target/boost:1.65.1
+android-sdk-linux/ndk-bundle/crew.dir/crew install target/sqlite target/openssl target/boost
+android-sdk-linux/ndk-bundle/crew.dir/crew install target/ndn_cxx target/nfd
 
 echo ndk.dir=`pwd`/android-sdk-linux/ndk-bundle >> local.properties

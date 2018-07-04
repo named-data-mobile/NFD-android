@@ -22,12 +22,13 @@ $script = <<SCRIPT
     export PATH=${PATH}:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
 
     echo "y" | sdkmanager "platform-tools"
-    sdkmanager "platforms;android-26" "build-tools;26.0.3" "ndk-bundle"
+    sdkmanager "platforms;android-28" "ndk-bundle"
 
     cd ndk-bundle
-    git clone https://github.com/cawka/android-crew-staging.git crew.dir
+    git clone https://github.com/named-data-mobile/android-crew-staging.git crew.dir
 
-    CREW_OWNER=cawka crew.dir/crew install target/sqlite:3.18.0 target/openssl:1.0.2m target/boost:1.65.1
+    CREW_OWNER=named-data-mobile crew.dir/crew install target/sqlite target/openssl target/boost
+    CREW_OWNER=named-data-mobile crew.dir/crew install target/ndn_cxx target/nfd
 
     cd ../..
 

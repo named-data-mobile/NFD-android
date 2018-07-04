@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2017 Regents of the University of California
+ * Copyright (c) 2015-2018 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -390,8 +390,8 @@ public class MainFragment extends Fragment {
         m_inInterestsView.setText(String.valueOf(fs.getNInInterests()));
         m_outInterestsView.setText(String.valueOf(fs.getNOutInterests()));
 
-        m_inDataView.setText(String.valueOf(fs.getNInDatas()));
-        m_outDataView.setText(String.valueOf(fs.getNOutDatas()));
+        m_inDataView.setText(String.valueOf(fs.getNInData()));
+        m_outDataView.setText(String.valueOf(fs.getNOutData()));
 
         m_inNacksView.setText(String.valueOf(fs.getNInNacks()));
         m_outNacksView.setText(String.valueOf(fs.getNOutNacks()));

@@ -4,9 +4,9 @@ LOCAL_PATH_SAVED := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 LOCAL_MODULE := nfd-wrapper
 LOCAL_SRC_FILES := nfd-wrapper.cpp
-LOCAL_SHARED_LIBRARIES := nfd-daemon ndn-cxx boost_system_shared boost_thread_shared
+LOCAL_SHARED_LIBRARIES := nfd_shared ndn_cxx_shared boost_system_shared boost_thread_shared boost_log_shared
 LOCAL_LDLIBS := -llog -latomic
+LOCAL_CFLAGS := -DBOOST_LOG_DYN_LINK=1
 include $(BUILD_SHARED_LIBRARY)
 
-include $(LOCAL_PATH_SAVED)/ndn-cxx.mk
-include $(LOCAL_PATH_SAVED)/nfd.mk
+$(call import-module,../packages/nfd/0.6.2-11-gd657d53)

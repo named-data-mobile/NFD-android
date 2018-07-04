@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2018 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -22,17 +22,18 @@
 #include "daemon/nfd.hpp"
 #include "rib/service.hpp"
 
-#include "core/global-io.hpp"
 #include "core/config-file.hpp"
+#include "core/global-io.hpp"
 #include "core/logger.hpp"
 #include "core/privilege-helper.hpp"
 
-#include <stdlib.h>
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/thread.hpp>
 #include <mutex>
+#include <ndn-cxx/util/logging.hpp>
+#include <stdlib.h>
 
-NFD_LOG_INIT("NfdWrapper");
+NFD_LOG_INIT(NfdWrapper);
 
 namespace nfd {
 
@@ -48,104 +49,67 @@ resetGlobalScheduler();
 void
 resetGlobalIoService();
 
-
 class Runner
 {
 public:
   Runner()
     : m_io(nullptr)
   {
-    std::string initialConfig =
-      "general\n"
-      "{\n"
-      "}\n"
-      "\n"
-      "log\n"
-      "{\n"
-      "  default_level ALL\n"
-      "  NameTree INFO\n"
-      "  BestRouteStrategy2 INFO\n"
-      "  InternalFace INFO\n"
-      "  Forwarder INFO\n"
-      "  ContentStore INFO\n"
-      "  DeadNonceList INFO\n"
-      "}\n"
-      "tables\n"
-      "{\n"
-      "  cs_max_packets 100\n"
-      "\n"
-      "  strategy_choice\n"
-      "  {\n"
-      "    /               /localhost/nfd/strategy/best-route\n"
-      "    /localhost      /localhost/nfd/strategy/multicast\n"
-      "    /localhost/nfd  /localhost/nfd/strategy/best-route\n"
-      "    /ndn/broadcast  /localhost/nfd/strategy/multicast\n"
-      "    /ndn/multicast  /localhost/nfd/strategy/multicast\n"
-      "  }\n"
-      "}\n"
-      "\n"
-      "face_system\n"
-      "{\n"
-      "  tcp\n"
-      "  {\n"
-      "    listen yes\n"
-      "    port 6363\n"
-      "    enable_v4 yes\n"
-      "    enable_v6 yes\n"
-      "  }\n"
-      "\n"
-      "  udp\n"
-      "  {\n"
-      "    port 6363\n"
-      "    enable_v4 yes\n"
-      "    enable_v6 yes\n"
-      "    idle_timeout 600\n"
-      "    keep_alive_interval 25\n"
-      "    mcast no\n"
-      "  }\n"
-      "  websocket\n"
-      "  {\n"
-      "    listen yes\n"
-      "    port 9696\n"
-      "    enable_v4 yes\n"
-      "    enable_v6 yes\n"
-      "  }\n"
-      "}\n"
-      "\n"
-      "authorizations\n"
-      "{\n"
-      "  authorize\n"
-      "  {\n"
-      "    certfile any\n"
-      "    privileges\n"
-      "    {\n"
-      "      faces\n"
-      "      fib\n"
-      "      strategy-choice\n"
-      "    }\n"
-      "  }\n"
-      "}\n"
-      "\n"
-      "rib\n"
-      "{\n"
-      "  localhost_security\n"
-      "  {\n"
-      "    trust-anchor\n"
-      "    {\n"
-      "      type any\n"
-      "    }\n"
-      "  }\n"
-      "\n"
-      "  auto_prefix_propagate\n"
-      "  {\n"
-      "    cost 15\n"
-      "    timeout 10000\n"
-      "    refresh_interval 300\n"
-      "    base_retry_wait 50\n"
-      "    max_retry_wait 3600\n"
-      "  }\n"
-      "}\n"
-      "\n";
+    std::string initialConfig = R"CONF(
+      log
+      {
+        default_level ALL
+      }
+      tables
+      {
+        cs_max_packets 100
+        strategy_choice
+        {
+          /               /localhost/nfd/strategy/best-route
+          /localhost      /localhost/nfd/strategy/multicast
+          /localhost/nfd  /localhost/nfd/strategy/best-route
+          /ndn/broadcast  /localhost/nfd/strategy/multicast
+          /ndn/multicast  /localhost/nfd/strategy/multicast
+        }
+      }
+      face_system
+      {
+        tcp
+        udp
+        {
+          mcast no
+        }
+        websocket
+      }
+      authorizations
+      {
+        authorize
+        {
+          certfile any
+          privileges
+          {
+            faces
+            fib
+            cs
+            strategy-choice
+          }
+        }
+      }
+      rib
+      {
+        localhost_security
+        {
+          trust-anchor
+          {
+            type any
+          }
+        }
+        auto_prefix_propagate
+        {
+          refresh_interval 300
+        }
+      }
+  )CONF";
 
     std::istringstream input(initialConfig);
     boost::property_tree::read_info(input, m_config);
@@ -308,7 +272,7 @@ Java_net_named_1data_nfd_service_NfdService_getNfdLogModules(JNIEnv* env, jclass
 
   jobject jModules = env->NewObject(jcLinkedList, jcLinkedListConstructor);
 
-  for (const auto& module : nfd::LoggerFactory::getInstance().getModules()) {
+  for (const auto& module : ndn::util::Logging::getLoggerNames()) {
     jstring jModule = env->NewStringUTF(module.c_str());
     env->CallBooleanMethod(jModules, jcLinkedListAdd, jModule);
   }

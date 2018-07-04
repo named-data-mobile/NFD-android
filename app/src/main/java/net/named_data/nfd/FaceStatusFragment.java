@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2015-2017 Regents of the University of California
+ * Copyright (c) 2015-2018 Regents of the University of California
  * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -125,10 +125,10 @@ public class FaceStatusFragment extends ListFragment {
       listItems.add(new ListItem(R.string.link_type, getLinkType(faceStatus.getLinkType())));
       listItems.add(new ListItem(R.string.in_interests, String.valueOf(
         faceStatus.getNInInterests())));
-      listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getNInDatas())));
+      listItems.add(new ListItem(R.string.in_data, String.valueOf(faceStatus.getNInData())));
       listItems.add(new ListItem(R.string.out_interests, String.valueOf(
         faceStatus.getNOutInterests())));
-      listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getNOutDatas())));
+      listItems.add(new ListItem(R.string.out_data, String.valueOf(faceStatus.getNOutData())));
       listItems.add(new ListItem(R.string.in_bytes, String.valueOf(faceStatus.getNInBytes())));
       listItems.add(new ListItem(R.string.out_bytes, String.valueOf(faceStatus.getNOutBytes())));
 

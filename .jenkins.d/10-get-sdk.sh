@@ -14,7 +14,7 @@ export ANDROID_HOME=`pwd`
 export PATH=${PATH}:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
 
 echo "y" | sdkmanager "platform-tools"
-sdkmanager "platforms;android-26" "build-tools;26.0.3"
+sdkmanager "platforms;android-28"
 
 cd ..
 
