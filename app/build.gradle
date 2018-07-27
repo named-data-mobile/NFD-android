@@ -8,8 +8,8 @@ android {
     defaultConfig {
         applicationId "net.named_data.nfd"
         minSdkVersion 23
-        targetSdkVersion 23
-        versionCode 4008
+        targetSdkVersion 26
+        versionCode 4009
         versionName "0.6.2-1 (NFD 0.6.2-11-gd657d53)"
         multiDexEnabled true
     }
