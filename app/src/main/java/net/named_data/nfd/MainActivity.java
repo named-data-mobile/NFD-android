@@ -19,6 +19,7 @@
 
 package net.named_data.nfd;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -115,6 +116,22 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    FragmentManager fragmentManager = getSupportFragmentManager();
+
+    int drawItem = getIntent().getIntExtra(INTENT_KEY_FRAGMENT_TAG, -1);
+    if (drawItem == DRAWER_ITEM_GENERAL) {
+      MainFragment mainFragment =  MainFragment.newInstance();
+      fragmentManager
+          .beginTransaction()
+          .replace(R.id.main_fragment_container, mainFragment)
+          .commit();
+    }
+  }
+
   /**
    * Convenience method that replaces the main fragment container with the
    * new fragment and adding the current transaction to the backstack.
@@ -201,4 +218,7 @@ public class MainActivity extends AppCompatActivity
   public static final int DRAWER_ITEM_PING = 4;
   //public static final int DRAWER_ITEM_STRATEGIES = X;
   public static final int DRAWER_ITEM_WIFIDIRECT = 5;
+
+  /** Indent key for jump to a fragment */
+  public static final String INTENT_KEY_FRAGMENT_TAG = "fragmentTag";
 }

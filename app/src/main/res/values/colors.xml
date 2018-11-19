@@ -2,4 +2,5 @@
 <resources>
     <item name="ndn_color_fire_bush" type="color">#DB9710</item>
     <item name="android_color_gray" type="color">#C6C6C6</item>
+    <item name="notification_color_orange" type="color">#CD5F31</item>
 </resources>

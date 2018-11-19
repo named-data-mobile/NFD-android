@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2017 Regents of the University of California
+ * Copyright (c) 2015-2018 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -19,10 +19,16 @@
 
 package net.named_data.nfd.service;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -39,6 +45,7 @@ import com.intel.jndn.management.ManagementException;
 import com.intel.jndn.management.types.RibEntry;
 
 import net.named_data.jndn.Name;
+import net.named_data.nfd.MainActivity;
 import net.named_data.nfd.MainFragment;
 import net.named_data.nfd.R;
 import net.named_data.nfd.utils.G;
@@ -179,6 +186,20 @@ public class NfdService extends Service {
     m_nfdServiceMessenger = null;
   }
 
+  /**
+   * Ensure the persistent notification will be removed after the app is swiped out.
+   *
+   * @param rootIntent
+   */
+  @Override
+  public void onTaskRemoved(Intent rootIntent) {
+    super.onTaskRemoved(rootIntent);
+
+    stopForeground(true);
+
+    stopSelf();
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -207,6 +228,7 @@ public class NfdService extends Service {
       // from a Handler's message through binding with the service.
       startService(new Intent(this, NfdService.class));
       G.Log(TAG, "serviceStartNfd()");
+      startForeground(NOTIFICATION_ID, createNotification());
     } else {
       G.Log(TAG, "serviceStartNfd(): NFD Service already running!");
     }
@@ -259,6 +281,7 @@ public class NfdService extends Service {
       SharedPreferencesManager.clearFaceIds(getApplicationContext());
       stopSelf();
       G.Log(TAG, "serviceStopNfd()");
+      stopForeground(true);
     }
   }
 
@@ -456,6 +479,46 @@ public class NfdService extends Service {
   }
 
   /**
+   * Create a persistent notification to indicate NFD is running.
+   */
+  private Notification
+  createNotification() {
+    NotificationManager notificationManager =
+        (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    intent.putExtra(MainActivity.INTENT_KEY_FRAGMENT_TAG, MainActivity.DRAWER_ITEM_GENERAL);
+
+    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                                                            NOTIFICATION_ID, intent,
+                                                            PendingIntent.FLAG_UPDATE_CURRENT);
+
+    Notification.Builder builder;
+    // If devices's sdk version is >= 26, we need to create a channel for notification.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      NotificationChannel channel =
+          new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+      channel.setDescription(getApplicationContext().getResources().getString(R.string.channel_description));
+      channel.setVibrationPattern(new long[]{0});
+      channel.enableVibration(true);
+      notificationManager.createNotificationChannel(channel);
+      builder = new Notification.Builder(getApplicationContext(), CHANNEL_ID);
+    } else {
+      builder = new Notification.Builder(getApplicationContext());
+      builder.setVibrate(new long[]{0L});
+    }
+    builder
+        .setContentTitle(getApplicationContext().getResources().getString(R.string.notification_content_title))
+        .setContentText(getApplicationContext().getResources().getString(R.string.notification_content_text))
+        .setContentIntent(pendingIntent)
+        .setSmallIcon(R.drawable.nfd_notification)
+        .setColor(getApplication().getColor(R.color.notification_color_orange))
+        .setOngoing(true);
+
+    return builder.build();
+  }
+
+  /**
    * Messenger to handle messages that are passed to the NfdService
    */
   private Messenger m_nfdServiceMessenger = null;
@@ -469,4 +532,19 @@ public class NfdService extends Service {
    * Handler to deal with timeout behaviors
    */
   private Handler m_handler = new Handler();
+
+  /**
+   * Unique notification ID
+   */
+  private static final int NOTIFICATION_ID = 7;
+
+  /**
+   * Unique notification channel ID
+   */
+  private static final String CHANNEL_ID = "0404";
+
+  /**
+   * User visible notification channel name
+   */
+  private static final String CHANNEL_NAME = "nfd-channel";
 }

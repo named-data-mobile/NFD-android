@@ -114,4 +114,8 @@
     <string name="fragment_route_details_next_hops">List of next hops</string>
     <string name="fragment_route_route_name_title">Route Name</string>
     <string name="ping_client_prefix_hint">Prefix (e.g., /ndn/edu/arizona)</string>
+
+    <string name="notification_content_title">Status</string>
+    <string name="notification_content_text">NFD is running</string>
+    <string name="channel_description">NDN Android notification.</string>
 </resources>
