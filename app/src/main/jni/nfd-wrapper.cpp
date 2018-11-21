@@ -77,9 +77,6 @@ public:
       {
         tcp
         udp
-        {
-          mcast no
-        }
         websocket
       }
       authorizations
