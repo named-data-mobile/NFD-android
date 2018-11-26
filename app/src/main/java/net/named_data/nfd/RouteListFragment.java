@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2015-2017 Regents of the University of California
+ * Copyright (c) 2015-2019 Regents of the University of California
  * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -111,9 +111,9 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
         final RibEntry entry = (RibEntry) parent.getItemAtPosition(position);
         new AlertDialog.Builder(v.getContext())
           .setIcon(android.R.drawable.ic_dialog_alert)
-          .setTitle("Deleting route")
-          .setMessage("Are you sure you want to delete " + entry.getName().toUri() + "?")
-          .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+          .setTitle(R.string.route_list_delete_route_dialog_titile)
+          .setMessage(getString(R.string.route_list_delete_route_dialog_warning) + " " + entry.getName().toUri() + "?")
+          .setPositiveButton(R.string.route_list_delete_route_item, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
               List<Integer> faceList = new ArrayList<>();
@@ -123,7 +123,7 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
               removeRoute(entry.getName(), faceList);
             }
           })
-          .setNegativeButton("No", null)
+          .setNegativeButton(android.R.string.cancel, null)
           .show();
 
         return true;
@@ -198,8 +198,15 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
   @Override
   public void
-  createRoute(Name prefix, String faceUri, boolean isPermanent) {
-    m_routeCreateAsyncTask = new RouteCreateAsyncTask(prefix, faceUri, isPermanent);
+  createRouteByFaceUri(Name prefix, String faceUri, boolean isPermanent) {
+    m_routeCreateAsyncTask = new RouteCreateAsyncTask(prefix, 0, faceUri, isPermanent, true);
+    m_routeCreateAsyncTask.execute();
+  }
+
+  @Override
+  public void
+  createRouteByFaceId(Name prefix, int faceId, boolean isPermanent) {
+    m_routeCreateAsyncTask = new RouteCreateAsyncTask(prefix, faceId, "", isPermanent, false);
     m_routeCreateAsyncTask.execute();
   }
 
@@ -434,10 +441,12 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
   private class RouteCreateAsyncTask extends AsyncTask<Void, Void, String> {
-    RouteCreateAsyncTask(Name prefix, String faceUri, boolean isPermanent) {
+    RouteCreateAsyncTask(Name prefix, int faceId, String faceUri, boolean isPermanent, boolean isFaceUri) {
       m_prefix = prefix;
+      m_faceId = faceId;
       m_faceUri = faceUri;
       m_isPermanent = isPermanent;
+      m_isFaceUri = isFaceUri;
     }
 
     @Override
@@ -445,16 +454,39 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     doInBackground(Void... params) {
       NfdcHelper nfdcHelper = new NfdcHelper();
       try {
-        int faceId = nfdcHelper.faceCreate(m_faceUri);
-        nfdcHelper.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
-        if (m_isPermanent) {
-          Context context = getActivity().getApplicationContext();
-          SharedPreferencesManager
-            .addPermanentRoute(
-              context,
-              m_prefix.toUri(),
-              NfdcHelper.formatFaceUri(m_faceUri)
-            );
+        if (m_isFaceUri) {
+          int faceId = nfdcHelper.faceCreate(m_faceUri);
+          nfdcHelper.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
+          if (m_isPermanent) {
+            Context context = getActivity().getApplicationContext();
+            SharedPreferencesManager
+                .addPermanentRoute(
+                    context,
+                    m_prefix.toUri(),
+                    NfdcHelper.formatFaceUri(m_faceUri)
+                );
+          }
+        } else {
+          nfdcHelper.ribRegisterPrefix(new Name(m_prefix), m_faceId, 10, true, false);
+          if (m_isPermanent) {
+            String uri = null;
+            for (FaceStatus faceStatus : nfdcHelper.faceList()) {
+              if (faceStatus.getFaceId() == m_faceId) {
+                uri = faceStatus.getRemoteUri();
+                break;
+              }
+            }
+            if (uri == null) {
+              throw new ManagementException("Face not found: " + uri);
+            }
+            Context context = getActivity().getApplicationContext();
+            SharedPreferencesManager
+                .addPermanentRoute(
+                    context,
+                    m_prefix.toUri(),
+                    NfdcHelper.formatFaceUri(uri)
+                );
+          }
         }
         nfdcHelper.shutdown();
         return "OK";
@@ -495,7 +527,9 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
 
     private Name m_prefix;
     private String m_faceUri;
+    private int m_faceId;
     private boolean m_isPermanent;
+    private boolean m_isFaceUri;
   }
 
 

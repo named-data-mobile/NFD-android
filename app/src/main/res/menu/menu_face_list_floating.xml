@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_item_details_face_item_floating"
+        android:title="@string/menu_item_face_details"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_item_add_route_face_item_floating"
+        android:icon="@drawable/ic_action_add_route"
+        android:title="@string/menu_item_add_route"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_item_delete_face_item_floating"
+        android:icon="@drawable/ic_action_discard"
+        android:title="@string/menu_item_delete_face_item"
+        app:showAsAction="never"
+        />
+
+</menu>

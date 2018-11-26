@@ -1,18 +1,18 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2015-2019 Regents of the University of California
- * <p>
+ * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- * <p>
+ * <p/>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * <p>
+ * <p/>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- * <p>
+ * <p/>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -42,6 +41,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.intel.jndn.management.ManagementException;
+import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 
 import net.named_data.jndn.Name;
@@ -328,7 +328,17 @@ public class NfdService extends Service {
         Set<String[]> prefixAndFacePairs = SharedPreferencesManager.getPermanentRoutes(this.context);
         G.Log(TAG, "Permanent face list has " + prefixAndFacePairs.size() + " item(s)");
         for (String[] prefixAndFaceUri : prefixAndFacePairs) {
-          int faceId = nfdcHelper.faceCreate(prefixAndFaceUri[1]);
+          List<FaceStatus> faceStatuses = nfdcHelper.faceList();
+          int faceId = -1;
+          for (int i = 0; i < faceStatuses.size(); i++) {
+            if (prefixAndFaceUri[1].equals(faceStatuses.get(i).getRemoteUri())) {
+              faceId = faceStatuses.get(i).getFaceId();
+              break;
+            }
+          }
+          if (faceId == -1) {
+            faceId = nfdcHelper.faceCreate(prefixAndFaceUri[1]);
+          }
           nfdcHelper.ribRegisterPrefix(new Name(prefixAndFaceUri[0]), faceId, 10, true, false);
           G.Log(TAG, "Create permanent route" + prefixAndFaceUri[0] + " - " + prefixAndFaceUri[1]);
         }

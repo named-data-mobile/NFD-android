@@ -9,4 +9,12 @@
         app:showAsAction="always"
         />
 
+    <item
+        android:id="@+id/menu_item_add_route"
+        android:icon="@drawable/ic_action_add_route"
+        android:title="@string/menu_item_delete_face_item"
+        app:showAsAction="always"
+        />
+
+
 </menu>

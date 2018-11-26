@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2015-2017 Regents of the University of California
+ * Copyright (c) 2015-2019 Regents of the University of California
  * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -21,7 +21,9 @@ package net.named_data.nfd;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,14 +32,14 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.util.SparseArray;
-import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -57,7 +59,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FaceListFragment extends ListFragment implements FaceCreateDialogFragment.OnFaceCreateRequested {
+public class FaceListFragment extends ListFragment implements
+    FaceCreateDialogFragment.OnFaceCreateRequested,
+    FaceListRouteCreateDialogFragment.OnFaceListRouteCreateRequestd {
 
   public static FaceListFragment
   newInstance() {
@@ -69,6 +73,66 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     super.onCreate(savedInstanceState);
 
     setHasOptionsMenu(true);
+  }
+
+  @Override
+  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    super.onCreateContextMenu(menu, v, menuInfo);
+    MenuInflater inflater = getActivity().getMenuInflater();
+    inflater.inflate(R.menu.menu_face_list_floating, menu);
+  }
+
+  @Override
+  public boolean onContextItemSelected(MenuItem item) {
+    HashSet<Integer> m_facesToDelete = new HashSet<>();
+    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+    if (info.id < 256) {
+      return super.onContextItemSelected(item);
+    }
+
+    FaceStatus faceStatus = m_faceListAdapter.getItem(info.position - 1);
+    switch (item.getItemId()) {
+
+      case R.id.menu_item_add_route_face_item_floating:
+        G.Log("Requesting to add route using face: " + faceStatus.getRemoteUri());
+
+        FaceListRouteCreateDialogFragment dialog =
+            FaceListRouteCreateDialogFragment.newInstance((int) info.id);
+        dialog.setTargetFragment(FaceListFragment.this, 0);
+        dialog.show(getFragmentManager(), "FaceListRouteCreateFragment");
+        return true;
+
+      case R.id.menu_item_delete_face_item_floating:
+        G.Log("Requesting to delete face: " + faceStatus.getRemoteUri());
+
+        new AlertDialog.Builder(getContext())
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setTitle(R.string.face_list_delete_face_dialog_title)
+            .setMessage(getString(R.string.face_list_delete_face_dialog_warning) + "\n" +
+                        faceStatus.getRemoteUri() + " ?")
+            .setPositiveButton(R.string.menu_item_delete_face_item, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialogInterface, int i) {
+                m_facesToDelete.add((int) info.id);
+                m_faceDestroyAsyncTask = new FaceDestroyAsyncTask();
+                m_faceDestroyAsyncTask.execute(m_facesToDelete);
+              }
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+        return true;
+
+      case R.id.menu_item_details_face_item_floating:
+        G.Log("Requesting to check details of face: " + faceStatus.getRemoteUri());
+
+        if (m_callbacks != null) {
+          m_callbacks.onFaceItemSelected(faceStatus);
+        }
+        return true;
+
+      default:
+        return super.onContextItemSelected(item);
+    }
   }
 
   @Override
@@ -88,59 +152,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
 
     // Setup list view for deletion
     ListView listView = getListView();
-    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-    listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-      @Override
-      public void
-      onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-        if (checked && id < 256) {
-          getListView().setItemChecked(position, false);
-          return;
-        }
-        if (checked)
-          m_facesToDelete.add((int)id);
-        else
-          m_facesToDelete.remove((int)id);
-      }
-
-      @Override
-      public boolean
-      onCreateActionMode(ActionMode mode, Menu menu) {
-        MenuInflater menuInflater = mode.getMenuInflater();
-        menuInflater.inflate(R.menu.menu_face_list_multiple_modal_menu, menu);
-        return true;
-      }
-
-      @Override
-      public boolean
-      onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
-      }
-
-      @Override
-      public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        switch (item.getItemId()) {
-          case R.id.menu_item_delete_face_item:
-            G.Log("Requesting to delete " + String.valueOf(m_facesToDelete));
-
-            // Delete selected faceIds
-            m_faceDestroyAsyncTask = new FaceDestroyAsyncTask();
-            m_faceDestroyAsyncTask.execute(m_facesToDelete);
-
-            m_facesToDelete = new HashSet<>();
-            mode.finish();
-            return true;
-          default:
-            return false;
-        }
-      }
-
-      @Override
-      public void onDestroyActionMode(ActionMode mode) {
-      }
-
-      private HashSet<Integer> m_facesToDelete = new HashSet<>();
-    });
+    registerForContextMenu(listView);
   }
 
   @Override
@@ -240,6 +252,12 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
   {
     m_faceCreateAsyncTask = new FaceCreateAsyncTask(faceUri, isPermanent);
     m_faceCreateAsyncTask.execute();
+  }
+
+  @Override
+  public void createRoute(Name prefix, int faceId, boolean isPermanent) {
+    m_routeCreateAsyncTask = new RouteCreateAsyncTask(prefix, faceId, "", isPermanent, false);
+    m_routeCreateAsyncTask.execute();
   }
 
   /////////////////////////////////////////////////////////////////////////
@@ -555,6 +573,99 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
     private String m_faceUri;
     private boolean m_isPermanent;
   }
+
+  private class RouteCreateAsyncTask extends AsyncTask<Void, Void, String> {
+    RouteCreateAsyncTask(Name prefix, int faceId, String faceUri, boolean isPermanent, boolean isFaceUri) {
+      m_prefix = prefix;
+      m_faceId = faceId;
+      m_faceUri = faceUri;
+      m_isPermanent = isPermanent;
+      m_isFaceUri = isFaceUri;
+    }
+
+    @Override
+    protected String
+    doInBackground(Void... params) {
+      NfdcHelper nfdcHelper = new NfdcHelper();
+      try {
+        if (m_isFaceUri) {
+          int faceId = nfdcHelper.faceCreate(m_faceUri);
+          nfdcHelper.ribRegisterPrefix(new Name(m_prefix), faceId, 10, true, false);
+          if (m_isPermanent) {
+            Context context = getActivity().getApplicationContext();
+            SharedPreferencesManager
+                .addPermanentRoute(
+                    context,
+                    m_prefix.toUri(),
+                    NfdcHelper.formatFaceUri(m_faceUri)
+                );
+          }
+        } else {
+          nfdcHelper.ribRegisterPrefix(new Name(m_prefix), m_faceId, 10, true, false);
+          if (m_isPermanent) {
+            String uri = null;
+            for (FaceStatus faceStatus : nfdcHelper.faceList()) {
+              if (faceStatus.getFaceId() == m_faceId) {
+                uri = faceStatus.getRemoteUri();
+                System.out.println(">>>>>>>>> " + uri);
+                break;
+              }
+            }
+            if (uri == null) {
+              throw new ManagementException("Face not found: " + uri);
+            }
+            Context context = getActivity().getApplicationContext();
+            SharedPreferencesManager
+                .addPermanentRoute(
+                    context,
+                    m_prefix.toUri(),
+                    NfdcHelper.formatFaceUri(uri)
+                );
+          }
+        }
+        nfdcHelper.shutdown();
+        return "OK";
+      } catch (FaceUri.CanonizeError|FaceUri.Error e) {
+        return "Error creating face (" + e.getMessage() + ")";
+      } catch (Exception e) {
+        return "Error communicating with NFD (" + e.getMessage() + ")";
+      } finally {
+        nfdcHelper.shutdown();
+      }
+    }
+
+    @Override
+    protected void
+    onPreExecute() {
+      // Display progress bar
+      m_reloadingListProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void
+    onPostExecute(String status) {
+      // Display progress bar
+      m_reloadingListProgressBar.setVisibility(View.VISIBLE);
+      Toast.makeText(getActivity(), status, Toast.LENGTH_LONG).show();
+
+      retrieveFaceList();
+    }
+
+    @Override
+    protected void
+    onCancelled() {
+      // Remove progress bar
+      m_reloadingListProgressBar.setVisibility(View.GONE);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    private Name m_prefix;
+    private String m_faceUri;
+    private int m_faceId;
+    private boolean m_isPermanent;
+    private boolean m_isFaceUri;
+  }
   /////////////////////////////////////////////////////////////////////////
 
   public interface Callbacks {
@@ -590,5 +701,7 @@ public class FaceListFragment extends ListFragment implements FaceCreateDialogFr
   private FaceListAdapter m_faceListAdapter;
 
   private Handler m_timeoutHandler = new Handler();
+
+  private RouteCreateAsyncTask m_routeCreateAsyncTask;
 
 }
