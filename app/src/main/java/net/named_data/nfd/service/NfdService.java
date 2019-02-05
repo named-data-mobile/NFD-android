@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2018 Regents of the University of California
+ * Copyright (c) 2015-2019 Regents of the University of California
  * <p>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -114,9 +114,6 @@ public class NfdService extends Service {
   public native static boolean
   isNfdRunning();
 
-  public native static List<String>
-  getNfdLogModules();
-
   /**
    * Message to start NFD Service
    */
@@ -215,12 +212,6 @@ public class NfdService extends Service {
       Set<Map.Entry<String, String>> e = params.entrySet();
 
       startNfd(params);
-
-      // Example how to retrieve all available NFD log modules
-      List<String> modules = getNfdLogModules();
-      for (String module : modules) {
-        G.Log(module);
-      }
 
       // TODO: Reload NFD and NRD in memory structures (if any)
 

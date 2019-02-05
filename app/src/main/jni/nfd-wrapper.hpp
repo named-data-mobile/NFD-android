@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2019 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -50,14 +50,6 @@ Java_net_named_1data_nfd_service_NfdService_stopNfd(JNIEnv*, jclass);
  */
 JNIEXPORT jboolean JNICALL
 Java_net_named_1data_nfd_service_NfdService_isNfdRunning(JNIEnv*, jclass);
-
-/*
- * Class:     net_named_data_nfd_service_NfdService
- * Method:    getNfdLogModules
- * Signature: ()Ljava/util/List;
- */
-JNIEXPORT jobject JNICALL
-Java_net_named_1data_nfd_service_NfdService_getNfdLogModules(JNIEnv*, jclass);
 
 #ifdef __cplusplus
 }

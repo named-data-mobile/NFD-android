@@ -9,4 +9,4 @@ LOCAL_LDLIBS := -llog -latomic
 LOCAL_CFLAGS := -DBOOST_LOG_DYN_LINK=1
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-module,../packages/nfd/0.6.2-11-gd657d53)
+$(call import-module,../packages/nfd/0.6.5)

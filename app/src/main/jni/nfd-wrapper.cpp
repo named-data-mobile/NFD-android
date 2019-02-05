@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2018 Regents of the University of California
+ * Copyright (c) 2015-2019 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -70,6 +70,7 @@ public:
           /localhost/nfd  /localhost/nfd/strategy/best-route
           /ndn/broadcast  /localhost/nfd/strategy/multicast
           /ndn/multicast  /localhost/nfd/strategy/multicast
+          /sl             /localhost/nfd/strategy/self-learning
         }
       }
       face_system
@@ -104,40 +105,47 @@ public:
             type any
           }
         }
+        ; localhop_security
+        ; {
+        ;   trust-anchor
+        ;   {
+        ;     type any
+        ;   }
+        ; }
         auto_prefix_propagate
         {
           refresh_interval 300
         }
       }
-  )CONF";
+    )CONF";
 
     std::istringstream input(initialConfig);
     boost::property_tree::read_info(input, m_config);
 
-    std::unique_lock<std::mutex> lock(m_pointerMutex);
     m_nfd.reset(new Nfd(m_config, m_keyChain));
-    m_nrd.reset(new rib::Service(m_config, m_keyChain));
+    m_ribService.reset(new rib::Service(m_config, m_keyChain));
 
     m_nfd->initialize();
-    m_nrd->initialize();
-  }
-
-  ~Runner()
-  {
-    stop();
-    m_io->reset();
   }
 
   void
-  start()
+  run()
   {
     {
       std::unique_lock<std::mutex> lock(m_pointerMutex);
       m_io = &getGlobalIoService();
     }
 
+    setMainIoService(m_io);
+    setRibIoService(m_io);
+
     m_io->run();
     m_io->reset();
+
+    m_ribService.reset();
+    m_nfd.reset();
+
+    m_io = nullptr;
   }
 
   void
@@ -145,19 +153,17 @@ public:
   {
     std::unique_lock<std::mutex> lock(m_pointerMutex);
 
-    m_io->post([this] {
-        m_io->stop();
-        this->m_nrd.reset();
-        this->m_nfd.reset();
-      });
+    if (m_io != nullptr) {
+      m_io->stop();
+    }
   }
 
 private:
   std::mutex m_pointerMutex;
   boost::asio::io_service* m_io;
   ndn::KeyChain m_keyChain;
-  unique_ptr<Nfd> m_nfd; // will use globalIoService
-  unique_ptr<rib::Service> m_nrd; // will use globalIoService
+  unique_ptr<Nfd> m_nfd;
+  unique_ptr<rib::Service> m_ribService;
 
   nfd::ConfigSection m_config;
 };
@@ -227,7 +233,7 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
         NFD_LOG_INFO("Starting NFD...");
         try {
           nfd::g_runner.reset(new nfd::Runner());
-          nfd::g_runner->start();
+          nfd::g_runner->run();
         }
         catch (const std::exception& e) {
           NFD_LOG_FATAL(e.what());
@@ -260,22 +266,5 @@ Java_net_named_1data_nfd_service_NfdService_stopNfd(JNIEnv*, jclass)
 JNIEXPORT jboolean JNICALL
 Java_net_named_1data_nfd_service_NfdService_isNfdRunning(JNIEnv*, jclass)
 {
-    return nfd::g_runner.get() != nullptr;
-}
-
-JNIEXPORT jobject JNICALL
-Java_net_named_1data_nfd_service_NfdService_getNfdLogModules(JNIEnv* env, jclass)
-{
-  jclass jcLinkedList = env->FindClass("java/util/LinkedList");
-  jmethodID jcLinkedListConstructor = env->GetMethodID(jcLinkedList, "<init>", "()V");
-  jmethodID jcLinkedListAdd = env->GetMethodID(jcLinkedList, "add", "(Ljava/lang/Object;)Z");
-
-  jobject jModules = env->NewObject(jcLinkedList, jcLinkedListConstructor);
-
-  for (const auto& module : ndn::util::Logging::getLoggerNames()) {
-    jstring jModule = env->NewStringUTF(module.c_str());
-    env->CallBooleanMethod(jModules, jcLinkedListAdd, jModule);
-  }
-
-  return jModules;
+  return nfd::g_runner.get() != nullptr;
 }

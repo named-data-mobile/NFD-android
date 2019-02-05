@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California
+ * Copyright (c) 2015-2019 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -187,7 +187,12 @@ class PingClient {
   private void processEvents() {
     try {
       if (m_isRunning.get()) {
-        m_face.processEvents();
+        try {
+          m_face.processEvents();
+        }
+        catch (EncodingException e) {
+          G.Log("Encoding error: " + e.getMessage());
+        }
         m_handler.postDelayed(new Runnable() {
           @Override
           public void run()
@@ -202,9 +207,6 @@ class PingClient {
     }
     catch (IOException e) {
       G.Log("Face error: " + e.getMessage());
-    }
-    catch (EncodingException e) {
-      G.Log("Encoding error: " + e.getMessage());
     }
   }
 
