@@ -102,13 +102,13 @@ public:
             type any
           }
         }
-        ; localhop_security
-        ; {
-        ;   trust-anchor
-        ;   {
-        ;     type any
-        ;   }
-        ; }
+        localhop_security
+        {
+          trust-anchor
+          {
+            type any
+          }
+        }
         auto_prefix_propagate
         {
           refresh_interval 300
