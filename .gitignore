@@ -45,7 +45,6 @@ nb-configuration.xml
 
 # Gradle cache
 .gradle
-gradle.properties
 gradle-app.setting
 
 # Sandbox stuff

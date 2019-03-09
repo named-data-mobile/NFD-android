@@ -24,9 +24,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ListFragment;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -57,6 +54,10 @@ import net.named_data.nfd.utils.SharedPreferencesManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.ListFragment;
 
 public class RouteListFragment extends ListFragment implements RouteCreateDialogFragment.OnRouteCreateRequested {
 

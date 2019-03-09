@@ -10,13 +10,13 @@
 
     <TextView
         android:id="@+id/list_item_route_uri"
-        android:text="Route"
+        android:text="@string/route"
         style="@style/two_row_item_title"
         />
 
     <TextView
         android:id="@+id/list_item_face_list"
-        android:text="Faces"
+        android:text="@string/faces"
         style="@style/two_row_item_secondary"
         />
 

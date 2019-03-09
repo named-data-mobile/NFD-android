@@ -27,9 +27,6 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ListFragment;
-import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.ContextMenu;
@@ -58,6 +55,10 @@ import net.named_data.nfd.utils.SharedPreferencesManager;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.ListFragment;
 
 public class FaceListFragment extends ListFragment implements
     FaceCreateDialogFragment.OnFaceCreateRequested,
@@ -703,5 +704,4 @@ public class FaceListFragment extends ListFragment implements
   private Handler m_timeoutHandler = new Handler();
 
   private RouteCreateAsyncTask m_routeCreateAsyncTask;
-
 }

@@ -128,4 +128,6 @@
     <string name="notification_content_title">Status</string>
     <string name="notification_content_text">NFD is running</string>
     <string name="channel_description">NDN Android notification.</string>
+    <string name="faces">Faces</string>
+    <string name="route">Route</string>
 </resources>

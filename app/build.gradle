@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "net.named_data.nfd"
         minSdkVersion 23
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 4011
         versionName "0.6.5-2 (NFD 0.6.5)"
         multiDexEnabled true
@@ -148,8 +148,7 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.android.volley:volley:1.1.1'
 
     implementation('net.named-data.jndn-extra:jndn-management:1.2.0') {
