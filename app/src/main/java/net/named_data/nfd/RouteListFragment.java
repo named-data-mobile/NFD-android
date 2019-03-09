@@ -172,6 +172,15 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
   }
 
   @Override
+  public void onHiddenChanged(boolean hidden)
+  {
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      startRouteListInfoRetrievalTask();
+    }
+  }
+
+  @Override
   public void
   onPause() {
     super.onPause();
@@ -299,8 +308,6 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
     // Update UI
     m_routeListInfoUnavailableView.setVisibility(View.GONE);
 
-    // Stop if running; before starting the new Task
-    stopRouteListInfoRetrievalTask();
     startRouteListInfoRetrievalTask();
   }
 
@@ -309,6 +316,8 @@ public class RouteListFragment extends ListFragment implements RouteCreateDialog
    */
   private void
   startRouteListInfoRetrievalTask() {
+    // Stop if running; before starting the new Task
+    stopRouteListInfoRetrievalTask();
     m_routeListAsyncTask = new RouteListAsyncTask();
     m_routeListAsyncTask.execute();
   }

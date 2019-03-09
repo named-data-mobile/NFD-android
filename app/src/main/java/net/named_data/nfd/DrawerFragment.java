@@ -142,9 +142,12 @@ public class DrawerFragment extends Fragment {
             bottomItem.setChecked(true);
           }
           else {
-            MenuItem selectedBottomItem = m_bottomNav.getMenu().getItem(m_bottomNav.getSelectedItemId());
-            if (selectedBottomItem != null) {
-              selectedBottomItem.setChecked(false);
+            if (m_bottomNav.isSelected()) {
+              MenuItem selectedBottomItem = m_bottomNav.getMenu().getItem(
+                m_bottomNav.getSelectedItemId());
+              if (selectedBottomItem != null) {
+                selectedBottomItem.setChecked(false);
+              }
             }
           }
 

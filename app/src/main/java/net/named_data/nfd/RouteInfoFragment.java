@@ -242,14 +242,24 @@ public class RouteInfoFragment extends ListFragment {
     m_routeListAsyncTask = new RouteListAsyncTask();
     m_routeListAsyncTask.execute();
 
-    stopRouteFaceListRetrievalTask();
     startRouteFaceListRetrievalTask();
+  }
+
+
+  @Override
+  public void onHiddenChanged(boolean hidden)
+  {
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      startRouteFaceListRetrievalTask();
+    }
   }
 
   /**
    * Create a new AsyncTask for face list information retrieval.
    */
   private void startRouteFaceListRetrievalTask() {
+    stopRouteFaceListRetrievalTask();
     m_faceListAsyncTask = new FaceListAsyncTask();
     m_faceListAsyncTask.execute();
   }

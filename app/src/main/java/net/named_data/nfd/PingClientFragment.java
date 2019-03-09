@@ -150,8 +150,8 @@ public class PingClientFragment extends Fragment implements PingClient.PingClien
   }
 
   @Override
-  public void onStop() {
-    super.onStop();
+  public void onDestroy() {
+    super.onDestroy();
     if (m_client != null) {
       m_client.setListener(null);
       m_client.stop();
@@ -167,15 +167,6 @@ public class PingClientFragment extends Fragment implements PingClient.PingClien
     outState.putStringArrayList(TAG_PING_DATA, m_pingResultListAdapter.m_data);
     if (!m_isStartState && m_client != null) {
       outState.putSerializable(TAG_PING_STATE, m_client.getState());
-    }
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    if (m_client != null) {
-      m_client.setListener(this);
-      m_client.start();
     }
   }
 

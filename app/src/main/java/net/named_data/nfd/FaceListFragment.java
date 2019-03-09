@@ -206,6 +206,16 @@ public class FaceListFragment extends ListFragment implements
   }
 
   @Override
+  public void onHiddenChanged(boolean hidden)
+  {
+    G.Log("onHiddenChanged: " + Boolean.toString(hidden));
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      startFaceListRetrievalTask();
+    }
+  }
+
+  @Override
   public void onPause() {
     super.onPause();
     stopFaceListRetrievalTask();
@@ -287,8 +297,6 @@ public class FaceListFragment extends ListFragment implements
     // Update UI
     m_faceListInfoUnavailableView.setVisibility(View.GONE);
 
-    // Stop if running; before starting the new Task
-    stopFaceListRetrievalTask();
     startFaceListRetrievalTask();
   }
 
@@ -296,6 +304,8 @@ public class FaceListFragment extends ListFragment implements
    * Create a new AsyncTask for face list information retrieval.
    */
   private void startFaceListRetrievalTask() {
+    // Stop if running; before starting the new Task
+    stopFaceListRetrievalTask();
     m_faceListAsyncTask = new FaceListAsyncTask();
     m_faceListAsyncTask.execute();
   }
