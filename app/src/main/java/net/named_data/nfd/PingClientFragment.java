@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 import net.named_data.jndn.NetworkNack;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -61,11 +60,6 @@ public class PingClientFragment extends Fragment implements PingClient.PingClien
 
   /** Customized ListAdapter for controlling ping output */
   private PingResultListAdapter m_pingResultListAdapter;
-
-  private final String TAG_PING_STATUS = "PingStatus";
-  private final String TAG_PING_NAME = "PingName";
-  private final String TAG_PING_DATA = "PingData";
-  private final String TAG_PING_STATE = "PingState";
 
   /////////////////
 
@@ -136,17 +130,6 @@ public class PingClientFragment extends Fragment implements PingClient.PingClien
       m_pingResultListAdapter = new PingResultListAdapter(getActivity());
     }
     m_pingResultListView.setAdapter(m_pingResultListAdapter);
-
-    if (savedInstanceState != null) {
-      setButtonState(savedInstanceState.getBoolean(TAG_PING_STATUS));
-      m_pingNameEditText.setText(savedInstanceState.getString(TAG_PING_NAME));
-      m_pingResultListAdapter.setData(savedInstanceState.getStringArrayList(TAG_PING_DATA));
-
-      Serializable state = savedInstanceState.getSerializable(TAG_PING_STATE);
-      if (!m_isStartState && state != null) {
-        m_client = new PingClient(m_pingNameEditText.getText().toString(), state);
-      }
-    }
   }
 
   @Override
@@ -162,12 +145,6 @@ public class PingClientFragment extends Fragment implements PingClient.PingClien
   public void onSaveInstanceState(Bundle outState)
   {
     super.onSaveInstanceState(outState);
-    outState.putBoolean(TAG_PING_STATUS, m_isStartState);
-    outState.putString(TAG_PING_NAME, m_pingNameEditText.getText().toString());
-    outState.putStringArrayList(TAG_PING_DATA, m_pingResultListAdapter.m_data);
-    if (!m_isStartState && m_client != null) {
-      outState.putSerializable(TAG_PING_STATE, m_client.getState());
-    }
   }
 
   @Override
