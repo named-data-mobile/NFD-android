@@ -59,25 +59,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     if (m_drawerFragment == null) {
-      ArrayList<DrawerFragment.DrawerItem> items = new ArrayList<DrawerFragment.DrawerItem>();
-
-      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_general, 0,
-                                              DRAWER_ITEM_GENERAL));
-      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_faces, 0,
-                                              DRAWER_ITEM_FACES));
-      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_routes, 0,
-                                              DRAWER_ITEM_ROUTES));
-      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_ping, 0,
-                                              DRAWER_ITEM_PING));
-      //    items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_strategies, 0,
-      //                                            DRAWER_ITEM_STRATEGIES));
-      items.add(new DrawerFragment.DrawerItem(R.string.drawer_item_wifidirect, 0, DRAWER_ITEM_WIFIDIRECT));
-
       // TODO here we are preloading the NDNController singleton to avoid UI slowdown
       // it is due to building a test keychain: See NDNController.getInstance()
       NDNController.getInstance();
 
-      m_drawerFragment = DrawerFragment.newInstance(items);
+      m_drawerFragment = DrawerFragment.newInstance();
 
       fragmentManager
         .beginTransaction()
@@ -88,9 +74,7 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    G.Log("onCreateOptionsMenu" + String.valueOf(m_drawerFragment.shouldHideOptionsMenu()));
     if (!m_drawerFragment.shouldHideOptionsMenu()) {
-      updateActionBar();
       return super.onCreateOptionsMenu(menu);
     }
     else
@@ -104,27 +88,14 @@ public class MainActivity extends AppCompatActivity
 
   //////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Convenience method that updates and display the current title in the Action Bar
-   */
-  @SuppressWarnings("deprecation")
-  private void updateActionBar() {
-    ActionBar actionBar = getSupportActionBar();
-    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-    actionBar.setDisplayShowTitleEnabled(true);
-    if (m_actionBarTitleId != -1) {
-      actionBar.setTitle(m_actionBarTitleId);
-    }
-  }
-
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     setIntent(intent);
     FragmentManager fragmentManager = getSupportFragmentManager();
 
-    int drawItem = getIntent().getIntExtra(INTENT_KEY_FRAGMENT_TAG, -1);
-    if (drawItem == DRAWER_ITEM_GENERAL) {
+    int drawItem = getIntent().getIntExtra(INTENT_KEY_FRAGMENT_TAG, R.id.nav_general);
+    if (drawItem == R.id.nav_general) {
       MainFragment mainFragment =  MainFragment.newInstance();
       fragmentManager
           .beginTransaction()
@@ -152,8 +123,8 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void
-  onDrawerItemSelected(int itemCode, int itemNameId) {
-
+  onDrawerItemSelected(int itemCode, CharSequence itemTitle) {
+    G.Log("onDrawerItemSelected: " + itemTitle);
     String fragmentTag = "net.named-data.nfd.content-" + String.valueOf(itemCode);
     FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -161,22 +132,22 @@ public class MainActivity extends AppCompatActivity
     Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
     if (fragment == null) {
       switch (itemCode) {
-        case DRAWER_ITEM_GENERAL:
+        case R.id.nav_general:
           fragment = MainFragment.newInstance();
           break;
-        case DRAWER_ITEM_FACES:
+        case R.id.nav_faces:
           fragment = FaceListFragment.newInstance();
           break;
-        case DRAWER_ITEM_ROUTES:
+        case R.id.nav_routes:
           fragment = RouteListFragment.newInstance();
           break;
-        case DRAWER_ITEM_PING:
+        case R.id.nav_ping:
           fragment = PingClientFragment.newInstance();
           break;
         // TODO: Placeholders; Fill these in when their fragments have been created
         //    case DRAWER_ITEM_STRATEGIES:
         //      break;
-        case DRAWER_ITEM_WIFIDIRECT:
+        case R.id.nav_wifidirect:
           fragment = WiFiDirectFragment.newInstance();
           break;
         default:
@@ -185,8 +156,8 @@ public class MainActivity extends AppCompatActivity
       }
     }
 
-    // Update ActionBar title
-    m_actionBarTitleId = itemNameId;
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setTitle(itemTitle);
 
     fragmentManager.beginTransaction()
       .replace(R.id.main_fragment_container, fragment, fragmentTag)
@@ -208,17 +179,6 @@ public class MainActivity extends AppCompatActivity
 
   /** Reference to drawer fragment */
   private DrawerFragment m_drawerFragment;
-
-  /** Title that is to be displayed in the ActionBar */
-  private int m_actionBarTitleId = -1;
-
-  /** Item code for drawer items: For use in onDrawerItemSelected() callback */
-  public static final int DRAWER_ITEM_GENERAL = 1;
-  public static final int DRAWER_ITEM_FACES = 2;
-  public static final int DRAWER_ITEM_ROUTES = 3;
-  public static final int DRAWER_ITEM_PING = 4;
-  //public static final int DRAWER_ITEM_STRATEGIES = X;
-  public static final int DRAWER_ITEM_WIFIDIRECT = 5;
 
   /** Indent key for jump to a fragment */
   public static final String INTENT_KEY_FRAGMENT_TAG = "fragmentTag";

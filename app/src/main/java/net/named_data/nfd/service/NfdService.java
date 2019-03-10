@@ -488,7 +488,7 @@ public class NfdService extends Service {
         (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-    intent.putExtra(MainActivity.INTENT_KEY_FRAGMENT_TAG, MainActivity.DRAWER_ITEM_GENERAL);
+    intent.putExtra(MainActivity.INTENT_KEY_FRAGMENT_TAG, R.id.nav_general);
 
     PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
                                                             NOTIFICATION_ID, intent,

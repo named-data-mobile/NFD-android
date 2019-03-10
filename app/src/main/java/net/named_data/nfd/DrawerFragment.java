@@ -20,33 +20,23 @@
 package net.named_data.nfd;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.google.android.material.navigation.NavigationView;
+
+import net.named_data.nfd.utils.G;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -57,13 +47,8 @@ import androidx.fragment.app.Fragment;
 public class DrawerFragment extends Fragment {
 
   public static DrawerFragment
-  newInstance(ArrayList<DrawerFragment.DrawerItem> items) {
-    Bundle drawerParams = new Bundle();
-    drawerParams.putParcelableArrayList(DrawerFragment.BUNDLE_PARAMETERS, items);
-
-    DrawerFragment fragment = new DrawerFragment();
-    fragment.setArguments(drawerParams);
-    return fragment;
+  newInstance() {
+    return new DrawerFragment();
   }
 
   @SuppressWarnings("deprecation")
@@ -98,29 +83,7 @@ public class DrawerFragment extends Fragment {
       m_restoredFromSavedInstanceState = true;
     }
 
-    m_drawerItems = getArguments().getParcelableArrayList(BUNDLE_PARAMETERS);
-  }
-
-  @Override
-  public View onCreateView(LayoutInflater inflater,
-                           ViewGroup container,
-                           Bundle savedInstanceState)
-  {
-    m_drawerListView = (ListView)inflater.inflate(
-      R.layout.activity_main_drawer_listview, container, false);
-
-    m_drawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // Update UI
-        updateSelection(position);
-      }
-    });
-
-    m_drawerListView.setAdapter(new DrawerListAdapter(getActionBar().getThemedContext(), m_drawerItems));
-    m_drawerListView.setItemChecked(m_drawerSelectedPosition, true);
-
-    return m_drawerListView;
+    G.Log("DrawerFragment: onCreate");
   }
 
   @Override
@@ -129,14 +92,23 @@ public class DrawerFragment extends Fragment {
     // Fragment influences action bar
     setHasOptionsMenu(true);
 
+    G.Log("DrawerFragment: onActivityCreated");
+
     // Initialize and set up the navigation drawer UI
     initializeDrawerFragment(getActivity().findViewById(R.id.navigation_drawer),
-                             (DrawerLayout)getActivity().findViewById(R.id.drawer_layout));
+                             getActivity().findViewById(R.id.drawer_layout));
 
     if (savedInstanceState == null) {
       // when restoring (e.g., after rotation), rely on system to restore previous state of
       // fragments
-      updateSelection(m_drawerSelectedPosition);
+      MenuItem item = m_drawerFragmentViewContainer.getMenu().findItem(m_drawerSelectedPosition);
+      if (item != null) {
+        item.setChecked(true);
+        m_callbacks.onDrawerItemSelected(item.getItemId(), item.getTitle());
+      }
+      else {
+        G.Log("Logic problem: there should always be some menu item found");
+      }
     }
   }
 
@@ -146,11 +118,27 @@ public class DrawerFragment extends Fragment {
    * @param drawerFragmentViewContainer View container that holds the navigation drawer
    * @param drawerLayout DrawerLayout of the drawer in the host Activity
    */
-  private void initializeDrawerFragment(View drawerFragmentViewContainer,
+  private void initializeDrawerFragment(NavigationView drawerFragmentViewContainer,
                                         DrawerLayout drawerLayout)
   {
     m_drawerFragmentViewContainer = drawerFragmentViewContainer;
     m_drawerLayout = drawerLayout;
+
+    m_drawerFragmentViewContainer.setNavigationItemSelectedListener(
+      new NavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item)
+        {
+          item.setChecked(true);
+          m_drawerLayout.closeDrawers();
+
+          m_callbacks.onDrawerItemSelected(item.getItemId(), item.getTitle());
+          m_drawerSelectedPosition = item.getItemId();
+
+          return true;
+        }
+      }
+    );
 
     // Setup drawer and action bar
     ActionBar actionBar = getActionBar();
@@ -200,12 +188,10 @@ public class DrawerFragment extends Fragment {
         if (newState != ViewDragHelper.STATE_IDLE) {
           // opened/closed is handled by onDrawerOpened and onDrawerClosed callbacks
           m_shouldHideOptionsMenu = true;
-          getActivity().invalidateOptionsMenu();
         } else if (!isDrawerOpen()) {
           // This condition takes care of the case of displaying the option menu
           // items when the drawer is retracted prematurely.
           m_shouldHideOptionsMenu = false;
-          getActivity().invalidateOptionsMenu();
         }
       }
     };
@@ -241,18 +227,6 @@ public class DrawerFragment extends Fragment {
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    super.onCreateOptionsMenu(menu, inflater);
-    // Update menu UI when the drawer is open. This gives the user a better
-    // contextual perception of the application.
-    if (isDrawerOpen()) {
-      // Inflate drawer specific menu here (if any)
-      showGlobalContextActionBar();
-    }
-
-  }
-
-  @Override
   public void onPrepareOptionsMenu(Menu menu) {
     super.onPrepareOptionsMenu(menu);
     // Remove option menu items when drawer is sliding out
@@ -285,32 +259,6 @@ public class DrawerFragment extends Fragment {
   }
 
   /**
-   * Convenience method that updates the UI and callbacks the host activity.
-   *
-   * @param position Position of the selected item within the Drawer's ListView.
-   */
-  private void updateSelection(int position) {
-    // Update Position
-    m_drawerSelectedPosition = position;
-
-    // Update UI of selected position
-    if (m_drawerListView != null) {
-      m_drawerListView.setItemChecked(position, true);
-    }
-
-    // Close drawer
-    if (m_drawerLayout != null) {
-      m_drawerLayout.closeDrawer(m_drawerFragmentViewContainer);
-    }
-
-    // Invoke host activity callback
-    if (m_callbacks != null) {
-      DrawerItem item = m_drawerItems.get(position);
-      m_callbacks.onDrawerItemSelected(item.getItemCode(), item.getItemName());
-    }
-  }
-
-  /**
    * Safe convenience method to determine if drawer is open.
    *
    * @return True if drawer is present and in an open state; false otherwise
@@ -318,16 +266,6 @@ public class DrawerFragment extends Fragment {
   private boolean
   isDrawerOpen() {
     return m_drawerLayout != null && m_drawerLayout.isDrawerOpen(m_drawerFragmentViewContainer);
-  }
-
-  /**
-   * Convenience method to update host activity action bar so that the user is informed of
-   * the app's "current context" of the fragment.
-   */
-  private void showGlobalContextActionBar() {
-    ActionBar actionBar = getActionBar();
-    actionBar.setDisplayShowTitleEnabled(true);
-    actionBar.setTitle(R.string.app_name);
   }
 
   /**
@@ -342,130 +280,10 @@ public class DrawerFragment extends Fragment {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * DrawerItem represents a single selection option in the Drawer, complete
-   * with the ability to set a Drawable resource icon for display along
-   * with the drawer item name.
-   */
-  public static class DrawerItem implements Parcelable {
-    @Override
-    public int describeContents()
-    {
-      return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i)
-    {
-      parcel.writeInt(m_itemNameId);
-      parcel.writeInt(m_iconResId);
-      parcel.writeInt(m_itemCode);
-    }
-
-    public static final Parcelable.Creator<DrawerItem> CREATOR = new Parcelable.Creator<DrawerItem>() {
-      public DrawerItem
-      createFromParcel(Parcel in) {
-        return new DrawerItem(in.readInt(), in.readInt(), in.readInt());
-      }
-
-      public DrawerItem[] newArray(int size) {
-        return new DrawerItem[size];
-      }
-    };
-
-    DrawerItem(int itemNameId, int resIconId, int itemCode) {
-      m_itemNameId = itemNameId;
-      m_iconResId = resIconId;
-      m_itemCode = itemCode;
-    }
-
-    int
-    getItemName() {
-      return m_itemNameId;
-    }
-
-    int
-    getIconResId() {
-      return m_iconResId;
-    }
-
-    int
-    getItemCode() {
-      return m_itemCode;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    /** Drawer item name */
-    private final int m_itemNameId;
-
-    /** Resource ID of a drawable to be shown as the item's icon */
-    private final int m_iconResId;
-
-    /** Item code for feedback to the host activity's implemented callback. */
-    private final int m_itemCode;
-
-  }
-
-  /**
-   * Customized DrawerListAdapter to furnishes the Drawer with DrawerItem
-   * information.
-   */
-  private static class DrawerListAdapter extends ArrayAdapter<DrawerItem> {
-
-    DrawerListAdapter(Context context, ArrayList<DrawerItem> drawerItems) {
-      super(context, 0, drawerItems);
-      m_layoutInflater =
-          (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      m_context = context;
-    }
-
-    @Override @NonNull
-    public View getView(int position, View convertView, @NonNull ViewGroup  parent) {
-      DrawerItemHolder holder;
-
-      if (convertView == null) {
-        holder = new DrawerItemHolder();
-
-        convertView = m_layoutInflater.inflate(R.layout.list_item_drawer_item, parent, false);
-        convertView.setTag(holder);
-
-        holder.m_icon = convertView.findViewById(R.id.drawer_item_icon);
-        holder.m_text = convertView.findViewById(R.id.drawer_item_text);
-      } else {
-        holder = (DrawerItemHolder)convertView.getTag();
-      }
-
-      // Update items in holder
-      DrawerItem item = getItem(position);
-      if (item != null) {
-        if (item.getIconResId() != 0) {
-          holder.m_icon.setImageDrawable(ContextCompat.getDrawable(m_context, item.getIconResId()));
-        }
-        holder.m_text.setText(item.getItemName());
-      }
-
-      return convertView;
-    }
-
-    private static class DrawerItemHolder {
-      private ImageView m_icon;
-      private TextView m_text;
-    }
-
-    /** Layout inflater for use */
-    private final LayoutInflater m_layoutInflater;
-
-    /** Reference to get context's resources */
-    private final Context m_context;
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
-
   /** Callback that host activity must implement */
   public interface DrawerCallbacks {
     /** Callback to host activity when a drawer item is selected */
-    void onDrawerItemSelected(int itemCode, int itemNameId);
+    void onDrawerItemSelected(int itemCode, CharSequence itemTitle);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -478,9 +296,6 @@ public class DrawerFragment extends Fragment {
   private static final String DRAWER_SELECTED_POSITION_BUNDLE_KEY
       = "DRAWER_SELECTED_POSITION";
 
-  /** Bundle argument key for bundle parameters */
-  private static final String BUNDLE_PARAMETERS = "net.named_data.nfd.drawer_fragment_parameters";
-
   /** Callback to parent activity */
   private DrawerCallbacks m_callbacks;
 
@@ -490,23 +305,17 @@ public class DrawerFragment extends Fragment {
   /** Reference to DrawerLayout fragment in host activity */
   private DrawerLayout m_drawerLayout;
 
-  /** Reference to drawer's ListView */
-  private ListView m_drawerListView;
-
   /** Drawer's fragment container in the host activity */
-  private View m_drawerFragmentViewContainer;
+  private NavigationView m_drawerFragmentViewContainer;
 
   /** Current position of the Drawer's selection */
-  private int m_drawerSelectedPosition = 0;
+  private int m_drawerSelectedPosition = R.id.nav_general;
 
   /** Flag that denotes if the fragment is restored from an instance state */
   private boolean m_restoredFromSavedInstanceState;
 
   /** Flag that denotes if the user has seen the Drawer when the app loads for the first time */
   private boolean m_hasUserSeenDrawer;
-
-  /** ArrayList of DrawerItems to be displayed in the Drawer */
-  private ArrayList<DrawerItem> m_drawerItems;
 
   /** Flag that marks if drawer is sliding outwards and being displayed */
   private boolean m_shouldHideOptionsMenu = false;

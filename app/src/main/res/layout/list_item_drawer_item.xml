@@ -4,8 +4,8 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@drawable/drawer_item_background_activated"
-              android:paddingLeft="@dimen/default_padding_left"
-              android:paddingRight="@dimen/default_padding_right"
+              android:paddingStart="@dimen/default_padding_left"
+              android:paddingEnd="@dimen/default_padding_right"
     >
 
     <ImageView

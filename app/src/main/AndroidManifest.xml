@@ -30,7 +30,7 @@
         <service
             android:name=".service.NfdService"
             android:process="net.named_data.nfd.service.NfdService"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@drawable/nfd_app"
             android:label="@string/service_name"
             android:exported="true" >
             <intent-filter>
