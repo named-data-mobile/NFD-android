@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 import net.named_data.nfd.utils.G;
@@ -96,7 +97,8 @@ public class DrawerFragment extends Fragment {
 
     // Initialize and set up the navigation drawer UI
     initializeDrawerFragment(getActivity().findViewById(R.id.navigation_drawer),
-                             getActivity().findViewById(R.id.drawer_layout));
+                             getActivity().findViewById(R.id.drawer_layout),
+                             getActivity().findViewById(R.id.bottom_navigation_view));
 
     if (savedInstanceState == null) {
       // when restoring (e.g., after rotation), rely on system to restore previous state of
@@ -109,6 +111,12 @@ public class DrawerFragment extends Fragment {
       else {
         G.Log("Logic problem: there should always be some menu item found");
       }
+
+      item = m_bottomNav.getMenu().findItem(m_drawerSelectedPosition);
+      if (item != null) {
+        item.setChecked(true);
+      }
+      // if not found, nothing to worry about
     }
   }
 
@@ -119,10 +127,12 @@ public class DrawerFragment extends Fragment {
    * @param drawerLayout DrawerLayout of the drawer in the host Activity
    */
   private void initializeDrawerFragment(NavigationView drawerFragmentViewContainer,
-                                        DrawerLayout drawerLayout)
+                                        DrawerLayout drawerLayout,
+                                        BottomNavigationView bottomNavigationView)
   {
     m_drawerFragmentViewContainer = drawerFragmentViewContainer;
     m_drawerLayout = drawerLayout;
+    m_bottomNav = bottomNavigationView;
 
     m_drawerFragmentViewContainer.setNavigationItemSelectedListener(
       new NavigationView.OnNavigationItemSelectedListener() {
@@ -134,6 +144,32 @@ public class DrawerFragment extends Fragment {
 
           m_callbacks.onDrawerItemSelected(item.getItemId(), item.getTitle());
           m_drawerSelectedPosition = item.getItemId();
+
+          MenuItem bottomItem = m_bottomNav.getMenu().findItem(item.getItemId());
+          if (bottomItem != null) {
+            bottomItem.setChecked(true);
+          }
+          else {
+            MenuItem selectedBottomItem = m_bottomNav.getMenu().getItem(m_bottomNav.getSelectedItemId());
+            if (selectedBottomItem != null) {
+              selectedBottomItem.setChecked(false);
+            }
+          }
+
+          return true;
+        }
+      }
+    );
+
+    m_bottomNav.setOnNavigationItemSelectedListener(
+      new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item)
+        {
+          m_callbacks.onDrawerItemSelected(item.getItemId(), item.getTitle());
+          m_drawerSelectedPosition = item.getItemId();
+
+          m_drawerFragmentViewContainer.setCheckedItem(item.getItemId());
 
           return true;
         }
@@ -307,6 +343,8 @@ public class DrawerFragment extends Fragment {
 
   /** Drawer's fragment container in the host activity */
   private NavigationView m_drawerFragmentViewContainer;
+
+  private BottomNavigationView m_bottomNav;
 
   /** Current position of the Drawer's selection */
   private int m_drawerSelectedPosition = R.id.nav_general;

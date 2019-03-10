@@ -17,13 +17,5 @@
             <!--android:id="@+id/nav_strategies"-->
             <!--android:icon="@drawable/ic_strategy"-->
             <!--android:title="@string/drawer_item_strategies" />-->
-        <item
-            android:id="@+id/nav_ping"
-            android:icon="@drawable/ic_ping"
-            android:title="@string/drawer_item_ping" />
-        <item
-            android:id="@+id/nav_wifidirect"
-            android:icon="@drawable/ic_wifidirect"
-            android:title="@string/drawer_item_wifidirect" />
     </group>
 </menu>

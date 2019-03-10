@@ -9,11 +9,22 @@
     tools:context=".MainActivity">
 
     <!-- Main container for fragments to be presented in -->
-    <FrameLayout
-        android:id="@+id/main_fragment_container"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:id="@+id/main_fragment_container"
+        >
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+            android:id="@+id/bottom_navigation_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/bottom_menu"/>
+    </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_drawer"
@@ -23,5 +34,4 @@
         app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer_menu"
         />
-
 </androidx.drawerlayout.widget.DrawerLayout>

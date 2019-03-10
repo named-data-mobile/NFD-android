@@ -18,7 +18,7 @@
     <string name="checking_on_nfd">Checking on NFD Service …</string>
     <string name="accessibility_open_drawer">Open NFD Navigation Drawer</string>
     <string name="accessibility_close_drawer">Close NFD Navigation Drawer</string>
-    <string name="drawer_item_general">General</string>
+    <string name="drawer_item_general">Status</string>
     <string name="drawer_item_faces">Faces</string>
     <string name="drawer_item_routes">Routes</string>
     <string name="drawer_item_ping">Ping</string>
