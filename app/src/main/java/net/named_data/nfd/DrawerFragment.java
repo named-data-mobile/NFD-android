@@ -20,10 +20,8 @@
 package net.named_data.nfd;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,14 +72,8 @@ public class DrawerFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    // Read in the flag indicating whether or not the user has demonstrated awareness of the
-    // drawer. See PREF_DRAWER_SHOWN_TO_USER_FOR_THE_FIRST_TIME for details.
-    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    m_hasUserSeenDrawer = sp.getBoolean(PREF_DRAWER_SHOWN_TO_USER_FOR_THE_FIRST_TIME, false);
-
     if (savedInstanceState != null) {
       m_drawerSelectedPosition = savedInstanceState.getInt(DRAWER_SELECTED_POSITION_BUNDLE_KEY);
-      m_restoredFromSavedInstanceState = true;
     }
 
     G.Log("DrawerFragment: onCreate");
@@ -201,17 +193,6 @@ public class DrawerFragment extends Fragment {
       public void onDrawerOpened(View drawerView) {
         super.onDrawerOpened(drawerView);
 
-        // Flag that user has seen drawer for the first time
-        if (!m_hasUserSeenDrawer) {
-          m_hasUserSeenDrawer = true;
-          SharedPreferences sp = PreferenceManager
-              .getDefaultSharedPreferences(getActivity());
-
-          sp.edit()
-            .putBoolean(PREF_DRAWER_SHOWN_TO_USER_FOR_THE_FIRST_TIME, true)
-            .apply();
-        }
-
         // Allow update calls to onCreateOptionsMenu() and
         // onPrepareOptionsMenu() to update Menu UI
         m_shouldHideOptionsMenu = true;
@@ -231,12 +212,6 @@ public class DrawerFragment extends Fragment {
         }
       }
     };
-
-    // Open drawer for the first time
-    if (!m_hasUserSeenDrawer && !m_restoredFromSavedInstanceState) {
-      m_shouldHideOptionsMenu = true;
-      m_drawerLayout.openDrawer(m_drawerFragmentViewContainer);
-    }
 
     // Post to drawer's handler to update UI State
     m_drawerLayout.post(new Runnable() {
@@ -324,10 +299,6 @@ public class DrawerFragment extends Fragment {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  /** SharedPreference: Display drawer when drawer loads for the very first time */
-  private static final String PREF_DRAWER_SHOWN_TO_USER_FOR_THE_FIRST_TIME
-      = "DRAWER_PRESENTED_TO_USER_ON_FIRST_LOAD";
-
   /** Bundle key used to (re)store position of selected drawer item */
   private static final String DRAWER_SELECTED_POSITION_BUNDLE_KEY
       = "DRAWER_SELECTED_POSITION";
@@ -348,12 +319,6 @@ public class DrawerFragment extends Fragment {
 
   /** Current position of the Drawer's selection */
   private int m_drawerSelectedPosition = R.id.nav_general;
-
-  /** Flag that denotes if the fragment is restored from an instance state */
-  private boolean m_restoredFromSavedInstanceState;
-
-  /** Flag that denotes if the user has seen the Drawer when the app loads for the first time */
-  private boolean m_hasUserSeenDrawer;
 
   /** Flag that marks if drawer is sliding outwards and being displayed */
   private boolean m_shouldHideOptionsMenu = false;

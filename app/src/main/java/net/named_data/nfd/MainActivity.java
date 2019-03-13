@@ -30,8 +30,6 @@ import com.intel.jndn.management.types.RibEntry;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.wifidirect.utils.NDNController;
 
-import java.util.ArrayList;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
