@@ -116,10 +116,23 @@ public class MainFragment extends Fragment {
           setConnectNearestHubAutomatically(getActivity().getApplicationContext(), isOn);
         if (isOn) {
           // when nfd service is running, connect NDN hub, otherwise, do nothing
-          if(m_sharedPreferences.getBoolean(PREF_NFD_SERVICE_STATUS, true)) {
+          if (m_sharedPreferences.getBoolean(PREF_NFD_SERVICE_STATUS, true)) {
             connectNearestHub();
           }
         }
+      }
+    });
+
+    m_enableUnsolicitedDataSwitch = v.findViewById(R.id.enable_unsolicited_caching);
+    if (SharedPreferencesManager.getEnableUnsolicitedCaching(getActivity().getApplicationContext())) {
+      m_enableUnsolicitedDataSwitch.setChecked(true);
+    }
+    m_enableUnsolicitedDataSwitch.setOnCheckedChangeListener((CompoundButton compoundButton, boolean isOn) -> {
+      SharedPreferencesManager.setEnableUnsolicitedCaching(getActivity().getApplicationContext(), isOn);
+      if (m_sharedPreferences.getBoolean(PREF_NFD_SERVICE_STATUS, true)) {
+
+        Toast.makeText(getActivity().getApplicationContext(), "Please restart NFD to update cache preference setting",
+                       Toast.LENGTH_LONG).show();
       }
     });
 
@@ -501,6 +514,11 @@ public class MainFragment extends Fragment {
    * Button that starts and stops the auto configuration
    */
   private Switch m_connectNearestHubSwitch;
+
+  /**
+   * Button that starts and stops the auto configuration
+   */
+  private Switch m_enableUnsolicitedDataSwitch;
 
   /**
    * Flag that marks that application is connected to the NfdService

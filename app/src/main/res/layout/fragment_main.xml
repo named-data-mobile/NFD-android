@@ -38,6 +38,14 @@
         android:text="@string/connect_nearest_hub_automatically"
         />
 
+    <Switch
+        android:id="@+id/enable_unsolicited_caching"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/enable_unsolicited_caching"
+        />
+
     <LinearLayout android:id="@+id/status_view"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"

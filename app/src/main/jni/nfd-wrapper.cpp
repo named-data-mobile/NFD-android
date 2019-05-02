@@ -19,19 +19,20 @@
 
 #include "nfd-wrapper.hpp"
 
-#include <nfd.hpp>
-#include <rib/service.hpp>
+#include <daemon/common/config-file.hpp>
+#include <daemon/common/global.hpp>
+#include <daemon/common/logger.hpp>
+#include <daemon/common/privilege-helper.hpp>
+#include <daemon/nfd.hpp>
+#include <daemon/rib/service.hpp>
 
-#include <common/config-file.hpp>
-#include <common/global.hpp>
-#include <common/logger.hpp>
-#include <common/privilege-helper.hpp>
+#include <ndn-cxx/util/exception.hpp>
+#include <ndn-cxx/util/logging.hpp>
 
 #include <boost/property_tree/info_parser.hpp>
-#include <boost/thread.hpp>
+
+#include <thread>
 #include <mutex>
-#include <ndn-cxx/util/logging.hpp>
-#include <stdlib.h>
 
 NFD_LOG_INIT(NfdWrapper);
 
@@ -108,6 +109,12 @@ public:
     std::istringstream input(initialConfig);
     boost::property_tree::read_info(input, m_config);
 
+    // now, the start procedure can update config if needed
+  }
+
+  void
+  finishInit()
+  {
     m_nfd.reset(new Nfd(m_config, m_keyChain));
     m_ribService.reset(new rib::Service(m_config, m_keyChain));
 
@@ -144,6 +151,12 @@ public:
     }
   }
 
+  nfd::ConfigSection&
+  getConfig()
+  {
+    return m_config;
+  }
+
 private:
   std::mutex m_pointerMutex;
   boost::asio::io_service* m_io;
@@ -155,7 +168,7 @@ private:
 };
 
 static unique_ptr<Runner> g_runner;
-static boost::thread g_thread;
+static std::thread g_thread;
 static std::map<std::string, std::string> g_params;
 
 } // namespace nfd
@@ -212,16 +225,25 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
     ::setenv("HOME", nfd::g_params["homePath"].c_str(), true);
     NFD_LOG_INFO("Use [" << nfd::g_params["homePath"] << "] as a security storage");
 
-    nfd::g_thread = boost::thread([] {
+    nfd::g_thread = std::thread([] {
         nfd::resetGlobalIoService();
 
         NFD_LOG_INFO("Starting NFD...");
         try {
           nfd::g_runner.reset(new nfd::Runner());
+          // update config
+          for (const auto& pair : nfd::g_params) {
+            if (pair.first == "homePath")
+              continue;
+
+            nfd::g_runner->getConfig().put(pair.first, pair.second);
+          }
+          nfd::g_runner->finishInit();
+
           nfd::g_runner->run();
         }
         catch (const std::exception& e) {
-          NFD_LOG_FATAL(e.what());
+          NFD_LOG_FATAL(boost::diagnostic_information(e));
         }
         catch (const nfd::PrivilegeHelper::Error& e) {
           NFD_LOG_FATAL("PrivilegeHelper: " << e.what());

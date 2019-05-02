@@ -209,6 +209,8 @@ public class NfdService extends Service {
       m_isNfdStarted = true;
       HashMap<String, String> params = new HashMap<>();
       params.put("homePath", getFilesDir().getAbsolutePath());
+      params.put("tables.cs_unsolicited_policy",
+                 SharedPreferencesManager.getEnableUnsolicitedCaching(getApplicationContext()) ? "admit-all" : "drop-all");
       Set<Map.Entry<String, String>> e = params.entrySet();
 
       startNfd(params);

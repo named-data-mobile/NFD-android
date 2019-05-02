@@ -118,6 +118,7 @@
     <string name="face_add_dialog_create_face">Create face</string>
     <string name="route_add_dialog_create_route">Create route</string>
     <string name="connect_nearest_hub_automatically">Connect to the nearest hub automatically</string>
+    <string name="enable_unsolicited_caching">Enable unsolicited data caching</string>
     <string name="ndn_fch_website">http://ndn-fch.named-data.net/</string>
     <string name="fragment_route_list_toast_cannot_connect_hub">Cannot connect to the nearest hub</string>
     <string name="fragment_route_details_title">Route Details</string>

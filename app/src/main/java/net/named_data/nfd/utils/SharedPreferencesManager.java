@@ -1,18 +1,18 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2015-2017 Regents of the University of California
- * <p>
+/*
+ * Copyright (c) 2015-2019 Regents of the University of California
+ * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
- * <p>
+ * <p/>
  * NFD Android is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * <p>
+ * <p/>
  * NFD Android is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
- * <p>
+ * <p/>
  * You should have received a copy of the GNU General Public License along with
  * NFD Android, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,6 +35,7 @@ public class SharedPreferencesManager {
   private static final String PERMANENT_ROUTE = "permanentRoute";
   private static final String PERMANENT_FACEID = "permanentFaceId";
   private static final String CONNECT_NEAREAST_HUB = "connectNeareastHub";
+  private static final String ENABLE_UNSOLICITED_CACHING = "enableUnsolicitedCaching";
   private static final String PREFIX_FACEURI_DELIMITER = "\t";
   // We need to cache permanent face IDs in order to display whether a face is permanent face or not.
 
@@ -177,4 +178,17 @@ public class SharedPreferencesManager {
     SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
     return setting.getBoolean(CONNECT_NEAREAST_HUB, false);
   }
+
+  @SuppressWarnings("deprecation")
+  public static void setEnableUnsolicitedCaching(Context context, boolean isOn) {
+    SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
+    setting.edit().putBoolean(ENABLE_UNSOLICITED_CACHING, isOn).commit();
+  }
+
+  @SuppressWarnings("deprecation")
+  public static boolean getEnableUnsolicitedCaching(Context context) {
+    SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
+    return setting.getBoolean(ENABLE_UNSOLICITED_CACHING, false);
+  }
+
 }
