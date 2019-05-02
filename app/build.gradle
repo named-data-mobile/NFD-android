@@ -159,7 +159,7 @@ dependencies {
     implementation('net.named-data.jndn-extra:jndn-management:1.2.0') {
         exclude group: 'net.named-data', module: 'jndn'
     }
-    implementation('net.named-data:jndn-android:0.20') {
+    implementation('net.named-data:jndn-android:0.21') {
         exclude group: 'org.xerial'
         exclude group: 'com.google.android'
     }
