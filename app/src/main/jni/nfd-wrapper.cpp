@@ -19,13 +19,13 @@
 
 #include "nfd-wrapper.hpp"
 
-#include "daemon/nfd.hpp"
-#include "rib/service.hpp"
+#include <nfd.hpp>
+#include <rib/service.hpp>
 
-#include "core/config-file.hpp"
-#include "core/global-io.hpp"
-#include "core/logger.hpp"
-#include "core/privilege-helper.hpp"
+#include <common/config-file.hpp>
+#include <common/global.hpp>
+#include <common/logger.hpp>
+#include <common/privilege-helper.hpp>
 
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/thread.hpp>
@@ -37,17 +37,6 @@ NFD_LOG_INIT(NfdWrapper);
 
 namespace nfd {
 
-
-// A little bit of cheating to make sure NFD can be properly restarted
-
-namespace scheduler {
-// defined in scheduler.cpp
-void
-resetGlobalScheduler();
-} // namespace scheduler
-
-void
-resetGlobalIoService();
 
 class Runner
 {
@@ -224,7 +213,6 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
     NFD_LOG_INFO("Use [" << nfd::g_params["homePath"] << "] as a security storage");
 
     nfd::g_thread = boost::thread([] {
-        nfd::scheduler::resetGlobalScheduler();
         nfd::resetGlobalIoService();
 
         NFD_LOG_INFO("Starting NFD...");
@@ -243,7 +231,6 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
         }
 
         nfd::g_runner.reset();
-        nfd::scheduler::resetGlobalScheduler();
         nfd::resetGlobalIoService();
         NFD_LOG_INFO("NFD stopped");
       });
