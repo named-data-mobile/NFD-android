@@ -1,0 +1,5 @@
+- A new bottom navigation menu
+- A new nicer style for the drawer navigation menu
+- Fix bug with ping unexpectedly starting after reopening app
+- Fix crash if pressing HOME key while ping client is running
+- Codebase transitioned to AndroidX framework

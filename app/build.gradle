@@ -193,11 +193,10 @@ else {
 }
 
 if (properties['google-play'] != null) {
-    // apply plugin: 'net.named-data.playground.play'
     apply plugin: 'com.github.triplet.play'
 
     play {
         track = 'alpha'
-        jsonFile = file(properties['google-play'])
+        serviceAccountCredentials = file(properties['google-play'])
     }
 }
