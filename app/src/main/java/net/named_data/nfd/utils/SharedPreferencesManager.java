@@ -34,7 +34,7 @@ public class SharedPreferencesManager {
   private static final String PERMANENT_FACEURI = "permanentFaceUri";
   private static final String PERMANENT_ROUTE = "permanentRoute";
   private static final String PERMANENT_FACEID = "permanentFaceId";
-  private static final String CONNECT_NEAREAST_HUB = "connectNeareastHub";
+  private static final String CONNECT_NEAREST_HUB = "connectNearestHub";
   private static final String ENABLE_UNSOLICITED_CACHING = "enableUnsolicitedCaching";
   private static final String PREFIX_FACEURI_DELIMITER = "\t";
   // We need to cache permanent face IDs in order to display whether a face is permanent face or not.
@@ -170,13 +170,13 @@ public class SharedPreferencesManager {
   @SuppressWarnings("deprecation")
   public static void setConnectNearestHubAutomatically(Context context, boolean isOn) {
     SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
-    setting.edit().putBoolean(CONNECT_NEAREAST_HUB, isOn).commit();
+    setting.edit().putBoolean(CONNECT_NEAREST_HUB, isOn).commit();
   }
 
   @SuppressWarnings("deprecation")
   public static boolean getConnectNearestHubAutomatically(Context context) {
     SharedPreferences setting = context.getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
-    return setting.getBoolean(CONNECT_NEAREAST_HUB, false);
+    return setting.getBoolean(CONNECT_NEAREST_HUB, false);
   }
 
   @SuppressWarnings("deprecation")

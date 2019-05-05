@@ -153,7 +153,7 @@ public class NfdService extends Service {
 
     serviceStartNfd();
     createPermanentFaceUriAndRoute();
-    connectToNeareastHub();
+    connectToNearestHub();
 
     // Service is restarted when killed.
     // Pending intents delivered; null intent redelivered otherwise.
@@ -244,17 +244,17 @@ public class NfdService extends Service {
     }
   }
 
-  private void connectToNeareastHub() {
+  private void connectToNearestHub() {
     final long checkInterval = 1000;
     if (isNfdRunning()) {
-      G.Log(TAG, "connectToNeareastHub: NFD is running, start executing task.");
+      G.Log(TAG, "connectToNearestHub: NFD is running, start executing task.");
       new ConnectNearestHubAsyncTask(getApplicationContext()).execute();
     } else {
-      G.Log(TAG, "connectToNeareastHub: NFD is not started yet, delay " + String.valueOf(checkInterval) + " ms.");
+      G.Log(TAG, "connectToNearestHub: NFD is not started yet, delay " + String.valueOf(checkInterval) + " ms.");
       m_handler.postDelayed(new Runnable() {
         @Override
         public void run() {
-          connectToNeareastHub();
+          connectToNearestHub();
         }
       }, checkInterval);
     }
