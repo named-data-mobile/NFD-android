@@ -11,7 +11,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 # Explicitly define versions of precompiled modules
 $(call import-module,../packages/nfd/0.6.6)
-$(call import-module,../packages/ndn_cxx/0.6.6)
+$(call import-module,../packages/ndn_cxx/0.6.6-1)
 $(call import-module,../packages/boost/1.70.0)
 $(call import-module,../packages/sqlite/3.18.0)
 $(call import-module,../packages/openssl/1.1.1-pre8)
