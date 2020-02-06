@@ -1,24 +1,24 @@
 NFD Android authors
 ===================
 
-## The primary authors are (and/or have been):
+The following lists maintainers, primary developers, and all much-appreciated contributors to NFD Android in alphabetic order.
+The specific contributions of individual authors can be obtained from the git history of the [official NFD Android repository](https://github.com/named-data-mobile/NFD-android).
+If you would like to become a contributor to the official repository, please follow the recommendations in https://github.com/named-data/.github/blob/master/CONTRIBUTING.md.
 
-* Alexander Afanasyev   <http://lasr.cs.ucla.edu/afanasyev/index.html>
-* Ivan Yeo              <ivanyeo@cs.ucla.edu>
+* ***(Maintainer)*** Alexander Afanasyev <https://users.cs.fiu.edu/~afanasyev>
+* Jeremy Clark <https://github.com/jrandallclark>
+* Allen Gong <https://www.linkedin.com/in/allen-gong-a3407572>
+* Yi Huang <https://www.linkedin.com/in/yihuang1991>
+* Sanjeev Mehrotra
+* Eric Newberry <https://ericnewberry.com>
+* Ju Pan <https://cs-jupan.com>
+* Lei Pi
+* Junxiao Shi <https://cs.arizona.edu/~shijunxiao>
+* Zhou Tang <https://www.linkedin.com/in/zhoutang>
+* Ivan Yeo <https://github.com/ivanyeo>
+* Haitao Zhang <https://irl.cs.ucla.edu/~haitao>
 
-## All project authors and contributors
+## Technical Advisors
 
-The following is an inevitably incomplete list of MUCH-APPRECIATED CONTRIBUTORS,
-people who have reported bugs, submitted patches, and implemented new features
-in NFD Android:
-
-* Lixia Zhang           <http://www.cs.ucla.edu/~lixia/>
-* Beichuan Zhang        <https://www.cs.arizona.edu/~bzhang/>
-* Allen Gong            <https://www.linkedin.com/in/allen-gong-a3407572/>
-* Haitao Zhang          <https://irl.cs.ucla.edu/~haitao/>
-* Junxiao Shi           <https://www.cs.arizona.edu/people/shijunxiao/>
-* Yi Huang              <ethanhuang1991@gmail.com>
-* Sanjeev Mehrotra      <smehrotra@ucla.edu>
-* Zhou Tang             <https://www.linkedin.com/in/zhoutang>
-* Eric Newberry         <https://www.cs.arizona.edu/~enewberry/>
-* Lei Pi                <lpi@memphis.edu>
+* Beichuan Zhang <https://cs.arizona.edu/~bzhang>
+* Lixia Zhang <https://web.cs.ucla.edu/~lixia>
