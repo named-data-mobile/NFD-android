@@ -2,7 +2,7 @@
 set -e
 set -x
 
-android-sdk-linux/tools/bin/sdkmanager "ndk-bundle"
+android-sdk-linux/cmdline-tools/latest/bin/sdkmanager "ndk-bundle"
 git clone https://github.com/named-data-mobile/android-crew-staging.git android-sdk-linux/ndk-bundle/crew.dir
 
 if [[ ! -z $GEM_PATH ]]; then

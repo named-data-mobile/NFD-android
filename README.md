@@ -7,26 +7,28 @@ NFD on Android
 
 To compile code, the following is necessary
 
-- Recent version of [Android SDK](http://developer.android.com/sdk/index.html)
+- Recent version of [Android command line tools](http://developer.android.com/sdk/index.html)
 
-Example script for Ubuntu 16.04 to get all dependencies, download SDK and NDK:
+Example script for Ubuntu 18.04 to get all dependencies, download SDK and NDK:
 
     sudo apt -q update
     sudo apt -qy upgrade
     sudo apt-get install -y build-essential git openjdk-8-jdk unzip ruby ruby-rugged
     sudo apt-get install -y lib32stdc++6 lib32z1 lib32z1-dev
 
-    mkdir android-sdk-linux
-    cd android-sdk-linux
-    wget https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
-    unzip sdk-tools-linux-3859397.zip
-    rm sdk-tools-linux-3859397.zip
+    mkdir android
+    cd android
+    mkdir -p cmdline-tools
+    mv tools cmdline-tools/latest
+    wget https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
+    unzip commandlinetools-linux-6514223_latest.zip
+    rm commandlinetools-linux-6514223_latest.zip
 
     export ANDROID_HOME=`pwd`
-    export PATH=${PATH}:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+    export PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
 
     echo "y" | sdkmanager "platform-tools"
-    sdkmanager "platforms;android-28" "ndk-bundle"
+    sdkmanager "platforms;android-29" "ndk-bundle"
 
     cd ndk-bundle
     git clone https://github.com/named-data-mobile/android-crew-staging crew.dir

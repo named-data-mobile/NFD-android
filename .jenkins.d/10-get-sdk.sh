@@ -6,15 +6,18 @@ SDK=android-sdk-linux
 
 mkdir -p $SDK
 cd $SDK
-wget -q https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
-unzip sdk-tools-linux-3859397.zip
-rm sdk-tools-linux-3859397.zip
+
+wget https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
+unzip commandlinetools-linux-6514223_latest.zip
+rm commandlinetools-linux-6514223_latest.zip
+mkdir -p cmdline-tools
+mv tools cmdline-tools/latest
 
 export ANDROID_HOME=`pwd`
-export PATH=${PATH}:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+export PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
 
 echo "y" | sdkmanager "platform-tools"
-sdkmanager "platforms;android-28"
+sdkmanager "platforms;android-29"
 
 cd ..
 

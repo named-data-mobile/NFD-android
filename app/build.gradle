@@ -9,8 +9,8 @@ android {
         applicationId "net.named_data.nfd"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 4013
-        versionName "0.6.6-1 (NFD 0.6.6)"
+        versionCode 4018
+        versionName "0.7.0-1 (NFD 0.7.0)"
         multiDexEnabled true
     }
     compileOptions {

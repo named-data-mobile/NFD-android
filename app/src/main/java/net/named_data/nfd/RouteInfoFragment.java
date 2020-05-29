@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2015-2019 Regents of the University of California
+ * Copyright (c) 2015-2020 Regents of the University of California
  * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -19,6 +19,7 @@
 
 package net.named_data.nfd;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -325,6 +326,7 @@ public class RouteInfoFragment extends ListFragment {
       return m_ribEntry.getRoutes().get(position).getFaceId();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
       ListItemHolder holder;
@@ -345,7 +347,12 @@ public class RouteInfoFragment extends ListFragment {
 
       if (m_faces != null) {
         FaceStatus status = m_faces.get(r.getFaceId());
-        faceInfo += " (" + status.getRemoteUri() + ")";
+        if (status != null) {
+          faceInfo += " (" + status.getRemoteUri() + ")";
+        }
+        else {
+          faceInfo += " (ERROR: face not found)";
+        }
       }
 
       holder.m_title.setText(faceInfo);

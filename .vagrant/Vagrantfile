@@ -14,15 +14,17 @@ $script = <<SCRIPT
 
     mkdir android-sdk-linux
     cd android-sdk-linux
-    wget -q https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
-    unzip sdk-tools-linux-3859397.zip
-    rm sdk-tools-linux-3859397.zip
+    mkdir -p cmdline-tools
+    mv tools cmdline-tools/latest
+    wget https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
+    unzip commandlinetools-linux-6514223_latest.zip
+    rm commandlinetools-linux-6514223_latest.zip
 
     export ANDROID_HOME=`pwd`
-    export PATH=${PATH}:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+    export PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
 
     echo "y" | sdkmanager "platform-tools"
-    sdkmanager "platforms;android-28" "ndk-bundle"
+    sdkmanager "platforms;android-29" "ndk-bundle"
 
     cd ndk-bundle
     git clone https://github.com/named-data-mobile/android-crew-staging.git crew.dir
@@ -38,7 +40,7 @@ $script = <<SCRIPT
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "puphpet/ubuntu1604-x64"
+  config.vm.box = "bento/ubuntu-18.04"
 
   config.vm.provision "shell", privileged: false, inline: $script
 

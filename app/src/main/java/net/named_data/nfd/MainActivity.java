@@ -1,6 +1,6 @@
 /* -*- Mode:jde; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2015-2019 Regents of the University of California
+ * Copyright (c) 2015-2020 Regents of the University of California
  * <p/>
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -28,6 +28,8 @@ import android.view.MenuItem;
 import com.intel.jndn.management.types.FaceStatus;
 import com.intel.jndn.management.types.RibEntry;
 
+import net.named_data.jndn.encoding.Tlv0_3WireFormat;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.nfd.utils.G;
 import net.named_data.nfd.wifidirect.utils.NDNController;
 
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    WireFormat.setDefaultWireFormat(Tlv0_3WireFormat.get());
+
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 

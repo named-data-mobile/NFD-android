@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2019 Regents of the University of California
+ * Copyright (c) 2015-2020 Regents of the University of California
  *
  * This file is part of NFD (Named Data Networking Forwarding Daemon) Android.
  * See AUTHORS.md for complete list of NFD Android authors and contributors.
@@ -92,7 +92,7 @@ public:
             type any
           }
         }
-        localhop_security
+        prefix_announcement_validation
         {
           trust-anchor
           {
@@ -168,7 +168,6 @@ private:
 };
 
 static unique_ptr<Runner> g_runner;
-static std::thread g_thread;
 static std::map<std::string, std::string> g_params;
 
 } // namespace nfd
@@ -225,7 +224,7 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
     ::setenv("HOME", nfd::g_params["homePath"].c_str(), true);
     NFD_LOG_INFO("Use [" << nfd::g_params["homePath"] << "] as a security storage");
 
-    nfd::g_thread = std::thread([] {
+    auto thread = std::thread([] {
         nfd::resetGlobalIoService();
 
         NFD_LOG_INFO("Starting NFD...");
@@ -256,6 +255,7 @@ Java_net_named_1data_nfd_service_NfdService_startNfd(JNIEnv* env, jclass, jobjec
         nfd::resetGlobalIoService();
         NFD_LOG_INFO("NFD stopped");
       });
+    thread.detach();
   }
 }
 
