@@ -10,8 +10,8 @@ LOCAL_CFLAGS := -DBOOST_LOG_DYN_LINK -DBOOST_STACKTRACE_DYN_LINK
 include $(BUILD_SHARED_LIBRARY)
 
 # Explicitly define versions of precompiled modules
-$(call import-module,../packages/nfd/0.7.0)
-$(call import-module,../packages/ndn_cxx/0.7.0)
+$(call import-module,../packages/nfd/0.7.1)
+$(call import-module,../packages/ndn_cxx/0.7.1)
 $(call import-module,../packages/boost/1.73.0)
 $(call import-module,../packages/sqlite/3.32.1)
 $(call import-module,../packages/openssl/1.1.1g)

@@ -9,8 +9,8 @@ android {
         applicationId "net.named_data.nfd"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 4018
-        versionName "0.7.0-1 (NFD 0.7.0)"
+        versionCode 4019
+        versionName "0.7.1-1 (NFD 0.7.1)"
         multiDexEnabled true
     }
     compileOptions {
@@ -148,23 +148,23 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation('com.google.android.material:material:1.2.0-alpha06') {
+    implementation('com.google.android.material:material:1.4.0-alpha02') {
         exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    implementation('androidx.appcompat:appcompat:1.1.0') {
+    implementation('androidx.appcompat:appcompat:1.2.0') {
         exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.android.volley:volley:1.2.0'
 
     implementation('net.named-data.jndn-extra:jndn-management:1.3.0') {
         exclude group: 'net.named-data', module: 'jndn'
     }
-    implementation('net.named-data:jndn-android:0.24') {
+    implementation('net.named-data:jndn-android:0.25') {
         exclude group: 'org.xerial'
         exclude group: 'com.google.android'
     }
     implementation 'net.named-data.jndn-extra:jndn-xx-util:0.0.3'
-    implementation 'joda-time:joda-time:2.10.6'
+    implementation 'joda-time:joda-time:2.10.10'
 }
 
 Properties properties = new Properties()

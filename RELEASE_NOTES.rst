@@ -1,3 +1,8 @@
+Version 0.7.1-1
+---------------
+
+NFD and ndn-cxx updated to version 0.7.1
+
 Version 0.7.0-1
 ---------------
 
